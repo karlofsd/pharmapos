@@ -1,16 +1,17 @@
 import { Timestamp } from "firebase/firestore"
+import { CreditBalance } from "./credit.type"
 import { PhoneNumber } from "./user.type"
 
-export interface Provider {
+export interface Client {
 	id: string
 	name: string
-	businessName?: string
+	documentId: string
 	email: string
 	phoneNumber: PhoneNumber
 	address: string
 	isActive: boolean
-	debt: number
-	credit: number
 	createdAt: Timestamp
 	updatedAt?: Timestamp
 }
+
+export type ClientWithCredit = Client & CreditBalance

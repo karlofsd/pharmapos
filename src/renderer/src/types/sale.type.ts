@@ -1,10 +1,9 @@
 import { Timestamp } from "firebase/firestore"
 import { SaleItem } from "./saleItem.type"
+import { PaymentMethod } from "./payment.type"
 
 export type SaleStatus = "completed" | "cancelled" | "credit"
-export type PaymentMethod = "cash" | "card" | "credit" | "wallet" | "mixed"
-
-export interface Anullation {
+export interface Cancellation {
 	userId: string
 	reason: string
 	date: Timestamp
@@ -24,12 +23,13 @@ export interface Sale {
 	items: SaleItem[]
 	paymentMethod: PaymentMethod
 	paymentDetails: PaymentDetails
+	paymentId: string[]
 	receivedAmount: number
 	change: number
 	totalPrice: number
 	status: SaleStatus
 	isSynced: boolean
 	clientId?: string
-	anullation?: Anullation
+	cancellation?: Cancellation
 	createdAt: Timestamp
 }

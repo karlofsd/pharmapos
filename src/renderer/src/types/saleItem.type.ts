@@ -11,7 +11,7 @@ export interface SaleItem {
 	lotId: string
 	quantity: number
 	unitPrice: number
-	alterPrice: number
+	alterPrice: number | null
 	finalPrice: number
 	subtotal: number
 	modification?: Modification
@@ -19,7 +19,7 @@ export interface SaleItem {
 
 export const SaleItemUtils = {
 	getFinalPrice({ unitPrice, alterPrice }: SaleItem): number {
-		return alterPrice > 0 ? alterPrice : unitPrice
+		return alterPrice != null ? alterPrice : unitPrice
 	},
 	calculateSubtotal({ quantity, finalPrice }: SaleItem): number {
 		return quantity * finalPrice
