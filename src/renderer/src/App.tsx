@@ -1,8 +1,15 @@
+import { Route, Routes } from "react-router-dom"
+import ProtectedRoute from "./components/shared/ProtectedRoute/ProtectedRoute"
+import LoginPage from "./pages/login/LoginPage"
+
 function App(): React.ReactElement {
 	return (
-		<div className="flex items-center justify-center h-screen bg-zinc-950">
-			<p className="text-white">FarmaciaPOS</p>
-		</div>
+		<Routes>
+			<Route path="/login" element={<LoginPage />} />
+			<Route element={<ProtectedRoute />}>
+				<Route path="/*" element={<div>Protected Content</div>} />
+			</Route>
+		</Routes>
 	)
 }
 
