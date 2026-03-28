@@ -17,7 +17,10 @@ $ yarn
 ### Development
 
 ```bash
+# For development
 $ yarn dev
+
+$ find src/renderer/src/components/ui -name "*.tsx" -exec sed -i '' 's|src/renderer/src/lib/utils|@/lib/utils|g' {} +
 ```
 
 ### Build
@@ -31,4 +34,5 @@ $ yarn build:mac
 
 # For Linux
 $ yarn build:linux
+
 ```

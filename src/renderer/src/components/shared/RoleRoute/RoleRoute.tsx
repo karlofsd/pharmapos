@@ -11,6 +11,8 @@ const RoleRoute = ({ allowedRoles }: RoleRouteProps): React.ReactElement => {
 
 	if (isLoading) return <div>Loading...</div>
 
+	console.log("RoleRoute", { user, allowedRoles })
+
 	if (!user) return <Navigate to="/login" replace />
 
 	if (!allowedRoles.includes(user.role)) return <Navigate to="/unauthorized" replace />
