@@ -1,5 +1,4 @@
 import { Timestamp } from "firebase/firestore"
-import { DCI } from "./dci.type"
 
 export type ProductPresentation =
 	| "tablet"
@@ -12,7 +11,24 @@ export type ProductPresentation =
 	| "powder"
 	| "other"
 
+export type ProductCategory = string
+
 export type DataSource = "manual" | "external"
+export type DCIUnit = "mg" | "ml" | "g"
+
+export interface DCI {
+	id: string
+	name: string
+	categories: ProductCategory[]
+}
+
+export interface ProductDCI {
+	dciId: string
+	name: string
+	measurement: number
+	unit: string
+	category: string
+}
 
 export interface Product {
 	id: string
@@ -20,8 +36,9 @@ export interface Product {
 	brand: string
 	barcode: string
 	altcode: string[]
-	dci: DCI[]
+	dci: ProductDCI[]
 	presentation: ProductPresentation
+	categories: ProductCategory[]
 	minStock: number
 	dataSource: DataSource
 	isActive: boolean

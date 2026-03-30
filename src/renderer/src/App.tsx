@@ -18,12 +18,20 @@ import InventoryPage from "./pages/inventory/InventoryPage"
 import SalesPage from "./pages/sales/SalesPage"
 import CreditsPage from "./pages/credits/CreditsPage"
 import TillsPage from "./pages/tills/TillsPage"
+import AppLayout from "./components/shared/layouts/AppLayout"
 
 function App(): React.ReactElement {
 	return (
 		<Routes>
 			<Route path="/login" element={<LoginPage />} />
-			<Route path="/" element={<ProtectedRoute />}>
+			<Route
+				path="/"
+				element={
+					<ProtectedRoute>
+						<AppLayout />
+					</ProtectedRoute>
+				}
+			>
 				<Route element={<RoleRoute allowedRoles={["admin", "cashier"]} />}>
 					<Route path="pos" element={<POSPage />} />
 					<Route path="inventory" element={<InventoryPage />} />

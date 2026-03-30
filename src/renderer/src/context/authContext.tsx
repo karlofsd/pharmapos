@@ -23,7 +23,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }): React.React
 
 	useEffect(() => {
 		const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
-			const state: { user: User | null; isLoading: boolean } = { user: null, isLoading: true }
+			const state: { user: User | null; isLoading: boolean } = {
+				user: null,
+				isLoading: true
+			}
+
 			try {
 				if (authUser) {
 					const userRef = await getDoc(doc(db, "users", authUser.uid))
@@ -44,11 +48,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }): React.React
 
 	const login = async (email: string, password: string): Promise<void> => {
 		await signInWithEmailAndPassword(auth, email, password)
+		// setState((prev) => ({ ...prev, isLoading: true }))
 	}
 
 	const logout = async (): Promise<void> => {
 		await auth.signOut()
-		setState((prev) => ({ ...prev, user: null }))
 	}
 
 	return (
