@@ -37,6 +37,8 @@ linux:
     category: Utility
 appImage:
     artifactName: ${name}-${version}.${ext}
+    executableArgs: 
+        - "--no-sandbox"
 npmRebuild: false
 publish:
     provider: generic
