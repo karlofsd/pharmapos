@@ -9,12 +9,14 @@ import {
 	TooltipTrigger
 } from "@renderer/components/ui/tooltip"
 import { NavLink } from "react-router-dom"
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
 
 type SidebarProps = {
 	collapsed: boolean
+	onToggle?: () => void
 }
 
-const Sidebar = ({ collapsed }: SidebarProps): React.ReactElement => {
+const Sidebar = ({ collapsed, onToggle }: SidebarProps): React.ReactElement => {
 	const { user, logout } = useAuth()
 
 	const visibleItems = navItems.filter((item) =>
@@ -36,8 +38,14 @@ const Sidebar = ({ collapsed }: SidebarProps): React.ReactElement => {
 			>
 				<span className="text-2xl">💊</span>
 				{!collapsed && (
-					<span className="font-bold text-sm tracking-wide">Farmacia POS</span>
+					<span className="font-bold text-sm tracking-wide flex-1">Farmacia POS</span>
 				)}
+				<button
+					onClick={onToggle}
+					className="text-slate-400 hover:text-white transition-colors shrink-0"
+				>
+					{collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+				</button>
 			</div>
 
 			<Separator className="bg-slate-700" />

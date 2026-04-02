@@ -16,6 +16,7 @@ import {
 	SelectValue
 } from "@renderer/components/ui/select"
 import { useProducts } from "@renderer/hooks/useProducts"
+import { useSuppliers } from "@renderer/hooks/useSuppliers"
 
 const lotSchema = z.object({
 	productId: z.string().min(1, "Selecciona un producto"),
@@ -24,7 +25,8 @@ const lotSchema = z.object({
 	initialStock: z.number().min(1, "Debe ser mayor a 0"),
 	purchasePrice: z.number().min(0, "Requerido"),
 	sellPrice: z.number().min(0, "Requerido"),
-	manufacturer: z.string().min(1, "Requerido")
+	manufacturer: z.string().min(1, "Requerido"),
+	supplierId: z.string().optional()
 })
 
 type LotFormData = z.infer<typeof lotSchema>
@@ -36,6 +38,7 @@ interface LotFormProps {
 
 export function LotForm({ onSubmit, onCancel }: LotFormProps): React.ReactElement {
 	const { products } = useProducts()
+	const { suppliers } = useSuppliers()
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
 
@@ -64,6 +67,7 @@ export function LotForm({ onSubmit, onCancel }: LotFormProps): React.ReactElemen
 				manufacturer: data.manufacturer,
 				brand: selectedProduct?.brand ?? "",
 				expirationDate,
+				supplierId: data.supplierId,
 				initialStock: data.initialStock,
 				stock: data.initialStock,
 				purchasePrice: data.purchasePrice,
@@ -103,6 +107,28 @@ export function LotForm({ onSubmit, onCancel }: LotFormProps): React.ReactElemen
 				{errors.productId && (
 					<p className="text-xs text-red-500">{errors.productId.message}</p>
 				)}
+			</div>
+
+			<div className="flex flex-col gap-1">
+				<Label>Proveedor (opcional)</Label>
+				<Select
+					value={watch("supplierId") ?? "none"}
+					onValueChange={(val) =>
+						setValue("supplierId", val === "none" ? undefined : val)
+					}
+				>
+					<SelectTrigger>
+						<SelectValue placeholder="Sin proveedor" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="none">Sin proveedor</SelectItem>
+						{suppliers.map((s) => (
+							<SelectItem key={s.id} value={s.id}>
+								{s.name}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
 			</div>
 
 			{/* Número de lote */}

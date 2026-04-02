@@ -20,7 +20,11 @@ interface StockAdjustFormProps {
 	onCancel: () => void
 }
 
-export function StockAdjustForm({ lot, onSubmit, onCancel }: StockAdjustFormProps): React.ReactElement {
+export function StockAdjustForm({
+	lot,
+	onSubmit,
+	onCancel
+}: StockAdjustFormProps): React.ReactElement {
 	const [isSubmitting, setIsSubmitting] = useState(false)
 
 	const {
@@ -50,7 +54,9 @@ export function StockAdjustForm({ lot, onSubmit, onCancel }: StockAdjustFormProp
 			<div className="bg-slate-50 rounded-lg p-3 flex flex-col gap-1">
 				<p className="text-sm font-medium text-slate-800">{lot.product.brand}</p>
 				<p className="text-xs text-slate-500">Lote: {lot.numberLot}</p>
-				<p className="text-xs text-slate-500">Stock actual: <span className="font-medium">{lot.stock}</span></p>
+				<p className="text-xs text-slate-500">
+					Stock actual: <span className="font-medium">{lot.stock}</span>
+				</p>
 			</div>
 
 			<div className="flex flex-col gap-1">
@@ -70,16 +76,11 @@ export function StockAdjustForm({ lot, onSubmit, onCancel }: StockAdjustFormProp
 
 			{/* Preview del nuevo stock */}
 			{quantity !== 0 && (
-				<div className={`rounded-lg p-3 text-sm font-medium text-center
-					${newStock < 0
-						? "bg-red-50 text-red-600"
-						: "bg-green-50 text-green-700"
-					}`}
+				<div
+					className={`rounded-lg p-3 text-sm font-medium text-center
+					${newStock < 0 ? "bg-red-50 text-red-600" : "bg-green-50 text-green-700"}`}
 				>
-					{newStock < 0
-						? "Stock insuficiente"
-						: `Nuevo stock: ${newStock} unidades`
-					}
+					{newStock < 0 ? "Stock insuficiente" : `Nuevo stock: ${newStock} unidades`}
 				</div>
 			)}
 
@@ -89,17 +90,11 @@ export function StockAdjustForm({ lot, onSubmit, onCancel }: StockAdjustFormProp
 					{...register("reason")}
 					placeholder="Ej: Producto dañado, conteo físico..."
 				/>
-				{errors.reason && (
-					<p className="text-xs text-red-500">{errors.reason.message}</p>
-				)}
+				{errors.reason && <p className="text-xs text-red-500">{errors.reason.message}</p>}
 			</div>
 
 			<div className="flex gap-2 pt-2">
-				<Button
-					type="submit"
-					disabled={isSubmitting || newStock < 0}
-					className="flex-1"
-				>
+				<Button type="submit" disabled={isSubmitting || newStock < 0} className="flex-1">
 					{isSubmitting ? "Guardando..." : "Aplicar ajuste"}
 				</Button>
 				<Button type="button" variant="outline" onClick={onCancel}>

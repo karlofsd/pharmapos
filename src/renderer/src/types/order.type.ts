@@ -10,10 +10,11 @@ export type OrderStatus =
 
 export interface OrderItem {
 	productId: string
+	productName: string
 	orderedQuantity: number
-	receivedQuantity: number
+	receivedQuantity?: number
 	lotNumber: string | null
-	expirationDate: Timestamp
+	expirationDate: Timestamp | null
 	purchasePrice: number
 	sellPrice: number
 }

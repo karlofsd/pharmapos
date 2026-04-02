@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react"
 import { Lot, Product } from "@renderer/types"
-import { LotService, CreateLotDTO, StockAdjustDTO } from "@renderer/services/lotService"
+import { LotService, CreateLotDTO } from "@renderer/services/lotService"
 import { ProductService } from "@renderer/services/productService"
 import { useAuth } from "@renderer/hooks/useAuth"
 
@@ -74,7 +74,8 @@ export function useLots(): UseLotsReturn {
 					(l) =>
 						l.product.brand.toLowerCase().includes(lower) ||
 						l.product.manufacturer.toLowerCase().includes(lower) ||
-						l.numberLot.toLowerCase().includes(lower)
+						l.numberLot.toLowerCase().includes(lower) ||
+						l.product.barcode.toLowerCase() == lower
 				)
 			}
 
@@ -138,19 +139,26 @@ export function useLots(): UseLotsReturn {
 	}
 
 	async function createLot(data: CreateLotDTO): Promise<void> {
-		if (!user) return
-		const created = await LotService.create(data, user.id)
-		const product = state.lots.find((l) => l.productId === data.productId)?.product
-		if (!product) return
-		const newLot: LotWithProduct = { ...created, product }
-		setState((prev) => {
-			const lots = [...prev.lots, newLot]
-			return {
-				...prev,
-				lots,
-				filtered: applyFilters(lots, prev.searchTerm, prev.statusFilter)
-			}
-		})
+		try {
+			setState((prev) => ({ ...prev, isLoading: true }))
+			if (!user) throw new Error("No se encontro usuario")
+			const created = await LotService.create(data, user.id)
+			const product = state.lots.find((l) => l.productId === data.productId)?.product
+			if (!product) throw new Error("No se encontro producto")
+			const newLot: LotWithProduct = { ...created, product }
+			setState((prev) => {
+				const lots = [...prev.lots, newLot]
+				return {
+					...prev,
+					lots,
+					filtered: applyFilters(lots, prev.searchTerm, prev.statusFilter),
+					isLoading: false
+				}
+			})
+		} catch (error) {
+			console.log("Error al crear lote: ", error)
+			setState((prev) => ({ ...prev, isLoading: false }))
+		}
 	}
 
 	async function updatePrice(lotId: string, sellPrice: number): Promise<void> {

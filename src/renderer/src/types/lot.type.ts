@@ -12,6 +12,7 @@ export interface Lot {
 	purchasePrice: number
 	expirationDate: Timestamp
 	isActive: boolean
+	supplierId?: string
 	createdAt: Timestamp
 	updatedAt?: Timestamp
 }

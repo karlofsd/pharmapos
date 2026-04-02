@@ -17,7 +17,8 @@ export function LabSelector({ labs, value, onChange }: LabSelectorProps): React.
 	const filtered = labs.filter((lab) => lab.toLowerCase().includes(search?.toLowerCase() ?? ""))
 
 	const isNew =
-		(search ?? "").trim() !== "" && !labs.some((lab) => lab.toLowerCase() === search?.toLowerCase())
+		(search ?? "").trim() !== "" &&
+		!labs.some((lab) => lab.toLowerCase() === search?.toLowerCase())
 
 	useEffect(() => {
 		setSearch(value ?? "")

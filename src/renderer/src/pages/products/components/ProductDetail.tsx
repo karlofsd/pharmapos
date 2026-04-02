@@ -3,26 +3,13 @@ import { Badge } from "@renderer/components/ui/badge"
 import { Button } from "@renderer/components/ui/button"
 import { Separator } from "@renderer/components/ui/separator"
 import { X, Pencil, Trash2 } from "lucide-react"
+import { DetailRow } from "@renderer/components/ui/DetailRow"
 
 interface ProductDetailProps {
 	product: Product
 	onEdit?: () => void
 	onDeactivate?: () => void
 	onClose: () => void
-}
-
-interface DetailRowProps {
-	label: string
-	value: React.ReactNode
-}
-
-function DetailRow({ label, value }: DetailRowProps): React.ReactElement {
-	return (
-		<div className="flex flex-col gap-1">
-			<p className="text-xs font-medium text-slate-400 uppercase tracking-wide">{label}</p>
-			<div className="text-sm text-slate-800">{value}</div>
-		</div>
-	)
 }
 
 export default function ProductDetail({

@@ -3,6 +3,7 @@ import { SaleItem } from "./saleItem.type"
 import { PaymentMethod } from "./payment.type"
 
 export type SaleStatus = "completed" | "cancelled" | "credit"
+export type VoucherType = "boleta" | "factura"
 export interface Cancellation {
 	userId: string
 	reason: string
@@ -28,6 +29,7 @@ export interface Sale {
 	change: number
 	totalPrice: number
 	status: SaleStatus
+	voucherType: VoucherType
 	isSynced: boolean
 	clientId?: string
 	cancellation?: Cancellation

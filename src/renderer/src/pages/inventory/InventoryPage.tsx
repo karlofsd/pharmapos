@@ -3,12 +3,7 @@ import { Search, Plus, Pencil, SlidersHorizontal, Trash2, PackageMinus } from "l
 import { Button } from "@renderer/components/ui/button"
 import { Input } from "@renderer/components/ui/input"
 import { Badge } from "@renderer/components/ui/badge"
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle
-} from "@renderer/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@renderer/components/ui/dialog"
 import {
 	Select,
 	SelectContent,
@@ -104,7 +99,10 @@ export default function InventoryPage(): React.ReactElement {
 			<div className="flex items-center justify-between">
 				<div>
 					<h1 className="text-xl font-bold text-slate-800">Inventario</h1>
-					<p className="text-sm text-slate-500">{filtered.length} lotes encontrados</p>
+					<p className="text-sm text-slate-500">
+						{filtered.length}{" "}
+						{filtered.length === 1 ? "lote encontrado" : "lotes encontrados"}
+					</p>
 				</div>
 				{isAdmin && (
 					<Button onClick={() => setDialog("newLot")}>
@@ -117,7 +115,10 @@ export default function InventoryPage(): React.ReactElement {
 			{/* Filtros */}
 			<div className="flex items-center gap-3">
 				<div className="relative flex-1 max-w-sm">
-					<Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+					<Search
+						size={16}
+						className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+					/>
 					<Input
 						placeholder="Buscar producto, lote..."
 						value={searchTerm}
@@ -173,7 +174,10 @@ export default function InventoryPage(): React.ReactElement {
 						<TableBody>
 							{filtered.length === 0 ? (
 								<TableRow>
-									<TableCell colSpan={isAdmin ? 8 : 7} className="text-center text-slate-400 py-12">
+									<TableCell
+										colSpan={isAdmin ? 8 : 7}
+										className="text-center text-slate-400 py-12"
+									>
 										No se encontraron lotes
 									</TableCell>
 								</TableRow>
@@ -189,16 +193,23 @@ export default function InventoryPage(): React.ReactElement {
 												<p className="font-medium text-slate-800 text-sm">
 													{lot.product.brand}
 												</p>
-												<p className="text-xs text-slate-400">{lot.manufacturer}</p>
+												<p className="text-xs text-slate-400">
+													{lot.manufacturer}
+												</p>
 											</TableCell>
 											<TableCell className="text-sm text-slate-600">
 												{lot.numberLot}
 											</TableCell>
 											<TableCell className="text-right">
-												<span className={`text-sm font-medium
-													${lot.stock === 0 ? "text-red-500" :
-														lot.stock <= lot.product.minStock ? "text-yellow-600" :
-															"text-slate-800"}`}
+												<span
+													className={`text-sm font-medium
+													${
+														lot.stock === 0
+															? "text-red-500"
+															: lot.stock <= lot.product.minStock
+																? "text-yellow-600"
+																: "text-slate-800"
+													}`}
 												>
 													{lot.stock}
 												</span>
@@ -286,10 +297,14 @@ export default function InventoryPage(): React.ReactElement {
 						<div className="flex flex-col gap-4">
 							<div className="bg-slate-50 rounded-lg p-3">
 								<p className="text-sm font-medium">{selectedLot.product.brand}</p>
-								<p className="text-xs text-slate-500">Lote: {selectedLot.numberLot}</p>
+								<p className="text-xs text-slate-500">
+									Lote: {selectedLot.numberLot}
+								</p>
 							</div>
 							<div className="flex flex-col gap-1">
-								<label className="text-sm font-medium">Nuevo precio de venta (S/.)</label>
+								<label className="text-sm font-medium">
+									Nuevo precio de venta (S/.)
+								</label>
 								<Input
 									type="number"
 									min={0}

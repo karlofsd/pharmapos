@@ -14,12 +14,14 @@ export interface Movement {
 	id: string
 	lotId: string
 	productId: string
+	productName?: string
 	type: MovementType
 	quantity: number
 	previousStock: number
 	newStock: number
-	originalPrice: number
-	alterPrice: number
+	saleId: string | null
+	originalPrice: number | null
+	alterPrice: number | null
 	referenceId?: string
 	reason?: string
 	userId: string

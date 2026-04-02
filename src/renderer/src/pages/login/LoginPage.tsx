@@ -48,12 +48,13 @@ const LoginPage = (): React.ReactElement => {
 		try {
 			console.log(getValues())
 			await login(email, password)
-			reset()
-			if (state?.from) {
-				navigate(state.from, { replace: true })
-			} else {
-				navigate("/", { replace: true })
-			}
+			setTimeout(() => {
+				if (state?.from) {
+					navigate(state.from, { replace: true })
+				} else {
+					navigate("/", { replace: true })
+				}
+			}, 5000)
 		} catch (error) {
 			console.error("Login error:", error)
 			setAuthError("Invalid email or password")

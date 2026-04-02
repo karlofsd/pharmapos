@@ -8,6 +8,7 @@ export interface Modification {
 
 export interface SaleItem {
 	productId: string
+	productName: string
 	lotId: string
 	quantity: number
 	unitPrice: number

@@ -1,27 +1,34 @@
-import React, { useEffect, useState } from "react"
-import Sidebar from "../sidebar/Sidebar"
+import { useState, useEffect } from "react"
 import { Outlet } from "react-router-dom"
+import Sidebar from "../sidebar/Sidebar"
+import { useUIStore } from "@renderer/store/uiStore"
 
-const AppLayout = (): React.ReactElement => {
-	const [collapsed, setCollapsed] = useState(false)
+export default function AppLayout(): React.ReactElement {
+	const { sidebarCollapsed, setSidebarCollapsed, toggleSidebar } = useUIStore()
+	const [manualOverride, setManualOverride] = useState(false)
 
 	useEffect(() => {
 		function handleResize(): void {
-			setCollapsed(window.innerWidth < 900)
+			if (!manualOverride) {
+				setSidebarCollapsed(window.innerWidth < 900)
+			}
 		}
 		handleResize()
 		window.addEventListener("resize", handleResize)
 		return () => window.removeEventListener("resize", handleResize)
-	}, [])
+	}, [manualOverride])
+
+	function handleToggle(): void {
+		setManualOverride(true)
+		toggleSidebar()
+	}
 
 	return (
 		<div className="flex h-screen overflow-hidden bg-slate-50">
-			<Sidebar collapsed={collapsed} />
+			<Sidebar collapsed={sidebarCollapsed} onToggle={handleToggle} />
 			<main className="flex-1 overflow-auto">
 				<Outlet />
 			</main>
 		</div>
 	)
 }
-
-export default AppLayout

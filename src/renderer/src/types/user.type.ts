@@ -7,17 +7,25 @@ export type PhoneNumber = {
 	number: string
 }
 
-export type UserGenre = "male" | "female" | "other"
+export type DocumentType = "dni" | "ruc" | "passport" | "ce"
 
-export interface User {
+type Document = Record<DocumentType, string>
+export interface BaseUser {
 	id: string
-	documentId: string
-	fullName: string
+	name: string
+	lastname: string
+	document: Document
+	email: string | null
 	phoneNumber: PhoneNumber
-	genre: UserGenre
-	birthDate: Timestamp
-	role: Role
 	isActive: boolean
 	createdAt: Timestamp
 	updatedAt?: Timestamp
+}
+
+export interface User extends BaseUser {
+	role: Role
+}
+
+export const UserUtils = {
+	getFullname: ({ name, lastname }: BaseUser) => `${name} ${lastname}`
 }

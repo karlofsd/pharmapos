@@ -17,7 +17,7 @@ import { Lot } from "@renderer/types"
 const LOTS = "lots"
 const MOVEMENTS = "movements"
 
-export type CreateLotDTO = Omit<Lot, "id" | "createdAt" | "updatedAt">
+export type CreateLotDTO = Omit<Lot, "id" | "createdAt" | "updatedAt"> & { supplierId?: string }
 
 export type StockAdjustDTO = {
 	lotId: string

@@ -16,6 +16,7 @@ import ProductDetail from "./components/ProductDetail"
 import ProductForm from "./components/ProductForm"
 import ProductCard from "./components/ProductCard"
 import { CreateProductDTO } from "@renderer/services/productService"
+import { useUIStore } from "@renderer/store/uiStore"
 
 export default function ProductsPage(): React.ReactElement {
 	const { user } = useAuth()
@@ -34,7 +35,7 @@ export default function ProductsPage(): React.ReactElement {
 		updateProduct,
 		deactivateProduct
 	} = useProducts()
-
+	const { setSidebarCollapsed } = useUIStore()
 	const [showForm, setShowForm] = useState(false)
 
 	const isAdmin = user?.role === "admin"
@@ -42,11 +43,19 @@ export default function ProductsPage(): React.ReactElement {
 	function handleSelectProduct(product: Product): void {
 		selectProduct(product)
 		setShowForm(false)
+		setSidebarCollapsed(true)
 	}
 
 	function handleCloseDetail(): void {
 		selectProduct(null)
 		setShowForm(false)
+		setSidebarCollapsed(false)
+	}
+
+	function handleNewProduct(): void {
+		selectProduct(null)
+		setShowForm(true)
+		setSidebarCollapsed(true)
 	}
 
 	function handleEdit(): void {
@@ -70,12 +79,7 @@ export default function ProductsPage(): React.ReactElement {
 						</p>
 					</div>
 					{isAdmin && (
-						<Button
-							onClick={() => {
-								selectProduct(null)
-								setShowForm(true)
-							}}
-						>
+						<Button onClick={handleNewProduct}>
 							<Plus size={16} />
 							Nuevo producto
 						</Button>

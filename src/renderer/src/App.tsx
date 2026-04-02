@@ -19,6 +19,7 @@ import SalesPage from "./pages/sales/SalesPage"
 import CreditsPage from "./pages/credits/CreditsPage"
 import TillsPage from "./pages/tills/TillsPage"
 import AppLayout from "./components/shared/layouts/AppLayout"
+import MovementsPage from "./pages/movements/MovementsPage"
 
 function App(): React.ReactElement {
 	return (
@@ -37,7 +38,8 @@ function App(): React.ReactElement {
 					<Route path="inventory" element={<InventoryPage />} />
 					<Route path="sales" element={<SalesPage />} />
 					<Route path="credits" element={<CreditsPage />} />
-					<Route path="tills" element={<TillsPage />}>
+					<Route path="movements" element={<MovementsPage />} />
+					<Route path="till" element={<TillsPage />}>
 						<Route path="opening" element={<TillsPage />} />
 					</Route>
 				</Route>
