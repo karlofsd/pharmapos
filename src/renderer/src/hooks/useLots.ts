@@ -140,24 +140,25 @@ export function useLots(): UseLotsReturn {
 
 	async function createLot(data: CreateLotDTO): Promise<void> {
 		try {
-			setState((prev) => ({ ...prev, isLoading: true }))
+			// setState((prev) => ({ ...prev, isLoading: true }))
 			if (!user) throw new Error("No se encontro usuario")
-			const created = await LotService.create(data, user.id)
-			const product = state.lots.find((l) => l.productId === data.productId)?.product
-			if (!product) throw new Error("No se encontro producto")
-			const newLot: LotWithProduct = { ...created, product }
-			setState((prev) => {
-				const lots = [...prev.lots, newLot]
-				return {
-					...prev,
-					lots,
-					filtered: applyFilters(lots, prev.searchTerm, prev.statusFilter),
-					isLoading: false
-				}
-			})
+			await LotService.create(data, user.id)
+			await load()
+			// const product = state.lots.find((l) => l.productId === data.productId)?.product
+			// if (!product) throw new Error("No se encontro producto")
+			// const newLot: LotWithProduct = { ...created, product }
+			// setState((prev) => {
+			// 	const lots = [...prev.lots, newLot]
+			// 	return {
+			// 		...prev,
+			// 		lots,
+			// 		filtered: applyFilters(lots, prev.searchTerm, prev.statusFilter),
+			// 		isLoading: false
+			// 	}
+			// })
 		} catch (error) {
 			console.log("Error al crear lote: ", error)
-			setState((prev) => ({ ...prev, isLoading: false }))
+			// setState((prev) => ({ ...prev, isLoading: false }))
 		}
 	}
 

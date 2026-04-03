@@ -12,7 +12,6 @@ import OrdersPage from "./pages/orders/OrdersPage"
 import UsersPage from "./pages/users/UsersPage"
 import SettingsPage from "./pages/settings/SettingsPage"
 import DashboardPage from "./pages/dashboard/DashboardPage"
-import CashierPage from "./pages/cashier/CashierPage"
 import POSPage from "./pages/pos/POSPage"
 import InventoryPage from "./pages/inventory/InventoryPage"
 import SalesPage from "./pages/sales/SalesPage"
@@ -44,7 +43,7 @@ function App(): React.ReactElement {
 					</Route>
 				</Route>
 				<Route element={<RoleRoute allowedRoles={["cashier"]} />}>
-					<Route path="cashier" element={<CashierPage />} />
+					<Route path="cashier" element={<DashboardPage />} />
 				</Route>
 				<Route element={<RoleRoute allowedRoles={["admin"]} />}>
 					<Route path="dashboard" element={<DashboardPage />} />

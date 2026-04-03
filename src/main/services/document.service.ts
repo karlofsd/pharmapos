@@ -1,4 +1,4 @@
-import { ipcMain, net } from "electron"
+import { ipcMain } from "electron"
 import { IPC_CHANNELS } from "../../../shared/ipcChannels"
 
 export function registerDocumentHandlers(): void {
@@ -26,7 +26,7 @@ export function registerDocumentHandlers(): void {
 
 				const data = await response.json()
 				return { success: true, data }
-			} catch (error) {
+			} catch {
 				return { success: false, error: "Error al consultar el documento" }
 			}
 		}
