@@ -9,7 +9,10 @@ export const IPC_CHANNELS = {
 	// Backup
 	BACKUP_START: "backup:start",
 	BACKUP_STATUS: "backup:status",
-	BACKUP_CONFIGURE: "backup:configure"
+	BACKUP_CONFIGURE: "backup:configure",
+
+	// API call
+	QUERY_DOCUMENT: "document:query"
 } as const
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS]

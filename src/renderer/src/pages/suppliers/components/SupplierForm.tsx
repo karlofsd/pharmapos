@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { X } from "lucide-react"
+import { Loader2, Search, X } from "lucide-react"
 import { Button } from "@renderer/components/ui/button"
 import { Input } from "@renderer/components/ui/input"
 import { Label } from "@renderer/components/ui/label"
@@ -64,27 +64,82 @@ export function SupplierForm({
 		resolver: zodResolver(schema),
 		defaultValues: supplier
 			? {
-					name: supplier.name,
-					lastname: supplier.lastname,
-					businessName: supplier.businessName,
-					documentType: Object.keys(supplier.document)[0] as DocumentType,
-					documentNumber: Object.values(supplier.document)[0],
-					phoneCode: supplier.phoneNumber.code,
-					phoneNumber: supplier.phoneNumber.number,
-					email: supplier.email ?? "",
-					address: supplier.address ?? "",
-					paymentCondition: supplier.paymentCondition,
-					creditDays: supplier.creditDays,
-					creditLimit: supplier.creditLimit
-				}
+				name: supplier.name,
+				lastname: supplier.lastname,
+				businessName: supplier.businessName,
+				documentType: Object.keys(supplier.document)[0] as DocumentType,
+				documentNumber: Object.values(supplier.document)[0],
+				phoneCode: supplier.phoneNumber.code,
+				phoneNumber: supplier.phoneNumber.number,
+				email: supplier.email ?? "",
+				address: supplier.address ?? "",
+				paymentCondition: supplier.paymentCondition,
+				creditDays: supplier.creditDays,
+				creditLimit: supplier.creditLimit
+			}
 			: {
-					documentType: "ruc",
-					phoneCode: "+51",
-					paymentCondition: "cash",
-					creditDays: 0,
-					creditLimit: 0
-				}
+				documentType: "ruc",
+				phoneCode: "+51",
+				paymentCondition: "cash",
+				creditDays: 0,
+				creditLimit: 0
+			}
 	})
+
+	const [isQuerying, setIsQuerying] = useState(false)
+	const [queryError, setQueryError] = useState<string | null>(null)
+
+	async function handleQueryDocument(): Promise<void> {
+		const docType = watch("documentType")
+		const docNumber = watch("documentNumber")
+
+		if (!docNumber || docNumber.length < 8) return
+
+		setIsQuerying(true)
+		setQueryError(null)
+
+		try {
+			if (docType !== "dni" && docType !== "ruc") return
+
+			const result = await window.electron.ipcRenderer.invoke(
+				"document:query",
+				docType,
+				docNumber,
+				import.meta.env.VITE_DECOLECTA_API_KEY
+			)
+
+			if (!result.success) {
+				setQueryError(result.error)
+				return
+			}
+
+			const data = result.data
+
+			if (docType === "dni") {
+				setValue("name", data.first_name ?? "")
+				setValue(
+					"lastname",
+					`${data.first_last_name ?? ""} ${data.second_last_name ?? ""}`.trim()
+				)
+			} else if (docType === "ruc") {
+				if (data.estado === "INACTIVO") {
+					setQueryError("RUC inactivo en SUNAT")
+					return
+				}
+				setValue("businessName", data.razon_social ?? "")
+				setValue(
+					"address",
+					[data.direccion, data.distrito, data.provincia, data.departamento]
+						.filter(Boolean)
+						.join(", ")
+				)
+			}
+		} catch {
+			setQueryError("Error al consultar el documento")
+		} finally {
+			setIsQuerying(false)
+		}
+	}
 
 	const paymentCondition = watch("paymentCondition")
 
@@ -197,12 +252,32 @@ export function SupplierForm({
 						</div>
 						<div className="flex flex-col gap-1 flex-1">
 							<Label>Número</Label>
-							<Input {...register("documentNumber")} placeholder="20000000001" />
+							<div className="flex gap-2">
+								<Input {...register("documentNumber")} placeholder="00000000" />
+								{(watch("documentType") === "dni" ||
+									watch("documentType") === "ruc") && (
+										<Button
+											type="button"
+											variant="outline"
+											size="icon"
+											onClick={handleQueryDocument}
+											disabled={isQuerying || !watch("documentNumber")}
+											title="Consultar documento"
+										>
+											{isQuerying ? (
+												<Loader2 size={14} className="animate-spin" />
+											) : (
+												<Search size={14} />
+											)}
+										</Button>
+									)}
+							</div>
 							{errors.documentNumber && (
 								<p className="text-xs text-red-500">
 									{errors.documentNumber.message}
 								</p>
 							)}
+							{queryError && <p className="text-xs text-red-500">{queryError}</p>}
 						</div>
 					</div>
 				</div>

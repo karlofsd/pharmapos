@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { X } from "lucide-react"
+import { Loader2, Search, X } from "lucide-react"
 import { Button } from "@renderer/components/ui/button"
 import { Input } from "@renderer/components/ui/input"
 import { Label } from "@renderer/components/ui/label"
@@ -67,23 +67,79 @@ export function ClientForm({ client, onSubmit, onCancel }: ClientFormProps): Rea
 		resolver: zodResolver(clientSchema),
 		defaultValues: client
 			? {
-					name: client.name,
-					lastname: client.lastname,
-					documentType: Object.keys(client.document)[0] as DocumentType,
-					documentNumber: Object.values(client.document)[0],
-					phoneCode: client.phoneNumber.code,
-					phoneNumber: client.phoneNumber.number,
-					email: client.email ?? "",
-					genre: client.genre,
-					birthday: client.birthday.toDate().toISOString().split("T")[0],
-					address: client.address
-				}
+				name: client.name,
+				lastname: client.lastname,
+				documentType: Object.keys(client.document)[0] as DocumentType,
+				documentNumber: Object.values(client.document)[0],
+				phoneCode: client.phoneNumber.code,
+				phoneNumber: client.phoneNumber.number,
+				email: client.email ?? "",
+				genre: client.genre,
+				birthday: client.birthday.toDate().toISOString().split("T")[0],
+				address: client.address
+			}
 			: {
-					documentType: "dni",
-					phoneCode: "+51",
-					genre: "other"
-				}
+				documentType: "dni",
+				phoneCode: "+51",
+				genre: "other"
+			}
 	})
+
+	const [isQuerying, setIsQuerying] = useState(false)
+	const [queryError, setQueryError] = useState<string | null>(null)
+
+	async function handleQueryDocument(): Promise<void> {
+		const docType = watch("documentType")
+		const docNumber = watch("documentNumber")
+
+		if (!docNumber || docNumber.length < 8) return
+
+		setIsQuerying(true)
+		setQueryError(null)
+
+		try {
+			if (docType !== "dni" && docType !== "ruc") return
+
+			const result = await window.electron.ipcRenderer.invoke(
+				"document:query",
+				docType,
+				docNumber,
+				import.meta.env.VITE_DECOLECTA_API_KEY
+			)
+
+			if (!result.success) {
+				setQueryError(result.error)
+				return
+			}
+
+			const data = result.data
+
+			if (docType === "dni") {
+				setValue("name", data.first_name ?? "")
+				setValue(
+					"lastname",
+					`${data.first_last_name ?? ""} ${data.second_last_name ?? ""}`.trim()
+				)
+			} else if (docType === "ruc") {
+				if (data.estado === "INACTIVO") {
+					setQueryError("RUC inactivo en SUNAT")
+					return
+				}
+				setValue("name", data.razon_social ?? "")
+				setValue("lastname", "")
+				setValue(
+					"address",
+					[data.direccion, data.distrito, data.provincia, data.departamento]
+						.filter(Boolean)
+						.join(", ")
+				)
+			}
+		} catch {
+			setQueryError("Error al consultar el documento")
+		} finally {
+			setIsQuerying(false)
+		}
+	}
 
 	async function handleFormSubmit(data: ClientFormData): Promise<void> {
 		if (!user) return
@@ -212,12 +268,32 @@ export function ClientForm({ client, onSubmit, onCancel }: ClientFormProps): Rea
 						</div>
 						<div className="flex flex-col gap-1 flex-1">
 							<Label>Número</Label>
-							<Input {...register("documentNumber")} placeholder="00000000" />
+							<div className="flex gap-2">
+								<Input {...register("documentNumber")} placeholder="00000000" />
+								{(watch("documentType") === "dni" ||
+									watch("documentType") === "ruc") && (
+										<Button
+											type="button"
+											variant="outline"
+											size="icon"
+											onClick={handleQueryDocument}
+											disabled={isQuerying || !watch("documentNumber")}
+											title="Consultar documento"
+										>
+											{isQuerying ? (
+												<Loader2 size={14} className="animate-spin" />
+											) : (
+												<Search size={14} />
+											)}
+										</Button>
+									)}
+							</div>
 							{errors.documentNumber && (
 								<p className="text-xs text-red-500">
 									{errors.documentNumber.message}
 								</p>
 							)}
+							{queryError && <p className="text-xs text-red-500">{queryError}</p>}
 						</div>
 					</div>
 				</div>
