@@ -9,6 +9,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps): React.ReactElement =
 	const { pathname } = useLocation()
 	const { user, isLoading } = useAuth()
 
+	console.log("ProtectedRoute", { user, pathname, isLoading })
+
 	if (isLoading)
 		return (
 			<div className="flex h-screen items-center justify-center bg-slate-50">
@@ -20,8 +22,6 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps): React.ReactElement =
 				</div>
 			</div>
 		)
-
-	console.log("ProtectedRoute", { user, pathname, isLoading })
 
 	if (!user) return <Navigate to="/login" state={{ from: pathname }} replace />
 

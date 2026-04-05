@@ -23,23 +23,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }): React.React
 
 	useEffect(() => {
 		const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
-			const state: { user: User | null; isLoading: boolean } = {
-				user: null,
-				isLoading: true
-			}
-
 			try {
+				if (!isLoading) setState((prev) => ({ ...prev, isLoading: true }))
 				if (authUser) {
 					const userRef = await getDoc(doc(db, "users", authUser.uid))
 					if (userRef.exists()) {
-						state.user = { id: userRef.id, ...userRef.data() } as User
-					}
-				}
+						const _user = { id: userRef.id, ...userRef.data() } as User
+						setState({ user: _user, isLoading: false })
+					} else throw new Error("Usuario no encontrado en DB")
+				} else throw new Error("Usuario no autenticado")
 			} catch (error) {
 				console.error("Error fetching user data:", error)
-			} finally {
-				state.isLoading = false
-				setState(state)
+				setState({ user: null, isLoading: false })
 			}
 		})
 

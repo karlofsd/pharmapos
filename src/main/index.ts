@@ -8,9 +8,9 @@ import { registerDocumentHandlers } from "./services/document.service"
 function createWindow(): void {
 	// Create the browser window.
 	const mainWindow = new BrowserWindow({
-		closable: false,
-		kiosk: true,
-		resizable: false,
+		// closable: true,
+		// kiosk: true,
+		// resizable: false,
 		show: false,
 		autoHideMenuBar: true,
 		...(process.platform === "linux" ? { icon } : {}),

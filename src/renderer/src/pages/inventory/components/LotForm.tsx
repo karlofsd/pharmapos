@@ -99,7 +99,7 @@ export function LotForm({ onSubmit, onCancel }: LotFormProps): React.ReactElemen
 					<SelectContent>
 						{products.map((p) => (
 							<SelectItem key={p.id} value={p.id}>
-								{p.brand} — {p.manufacturer}
+								{p.brand} — {p.presentation} - {p.manufacturer}
 							</SelectItem>
 						))}
 					</SelectContent>

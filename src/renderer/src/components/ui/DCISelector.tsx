@@ -235,16 +235,19 @@ export function DCISelector({
 						>
 							<p className="text-sm font-medium text-slate-800 flex-1">{item.name}</p>
 							<Input
-								type="number"
-								min={0}
-								value={item.measurement || ""}
-								onChange={(e) =>
-									handleUpdateItem(
-										item.dciId,
-										"measurement",
-										parseFloat(e.target.value) || 0
+								defaultValue={item.measurement.toString() || ""}
+								onChange={(e) => {
+									if (e.target.value == "0") return
+									if (
+										!e.target.value.includes(".") ||
+										e.target.value.split(".").length > 1
 									)
-								}
+										handleUpdateItem(
+											item.dciId,
+											"measurement",
+											parseFloat(e.target.value) || 0
+										)
+								}}
 								className="w-20 h-7 text-sm"
 								placeholder="0"
 							/>

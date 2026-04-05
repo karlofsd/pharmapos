@@ -33,7 +33,6 @@ const LoginPage = (): React.ReactElement => {
 	const {
 		register,
 		handleSubmit,
-		getValues,
 		formState: { errors },
 		reset
 	} = useForm({ resolver: zodResolver(loginSchema), mode: "onSubmit" })
@@ -46,9 +45,9 @@ const LoginPage = (): React.ReactElement => {
 	const handleLogin = async ({ email, password }: LoginFormData): Promise<void> => {
 		setIsLoading(true)
 		try {
-			console.log(getValues())
 			await login(email, password)
 			setTimeout(() => {
+				setIsLoading(false)
 				if (state?.from) {
 					navigate(state.from, { replace: true })
 				} else {
@@ -59,7 +58,6 @@ const LoginPage = (): React.ReactElement => {
 			console.error("Login error:", error)
 			setAuthError("Invalid email or password")
 			reset({ password: "" })
-		} finally {
 			setIsLoading(false)
 		}
 	}

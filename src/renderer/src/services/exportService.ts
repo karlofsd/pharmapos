@@ -1,5 +1,16 @@
 import * as XLSX from "xlsx"
-import { CashMovement, Movement, Order, Sale, TillBalance } from "@renderer/types"
+import {
+	CashMovement,
+	CreditReportRow,
+	InventoryRow,
+	KardexRow,
+	Movement,
+	Order,
+	ProfitabilityRow,
+	Sale,
+	SalesReportRow,
+	TillBalance
+} from "@renderer/types"
 
 const STATUS_LABELS: Record<string, string> = {
 	completed: "Completada",
@@ -143,6 +154,115 @@ export const ExportService = {
 		const ws = XLSX.utils.json_to_sheet(rows)
 		const wb = XLSX.utils.book_new()
 		XLSX.utils.book_append_sheet(wb, ws, "Pedidos")
+		XLSX.writeFile(wb, `${filename}_${new Date().toISOString().slice(0, 10)}.xlsx`)
+	},
+
+	exportSalesReport(rows: SalesReportRow[], filename = "reporte_ventas") {
+		const PAYMENT_LABELS: Record<string, string> = {
+			cash: "Efectivo",
+			card: "Tarjeta",
+			credit: "Crédito",
+			wallet: "Saldo favor",
+			mixed: "Mixto"
+		}
+		const STATUS_LABELS: Record<string, string> = {
+			completed: "Completada",
+			cancelled: "Anulada",
+			credit: "Crédito"
+		}
+		const data = rows.map((r) => ({
+			Fecha: r.date,
+			"ID Venta": r.saleId,
+			Cajero: r.cashierId,
+			"Método Pago": PAYMENT_LABELS[r.paymentMethod] ?? r.paymentMethod,
+			Comprobante: r.voucherType,
+			Ítems: r.items,
+			"Total (S/.)": r.total.toFixed(2),
+			Estado: STATUS_LABELS[r.status] ?? r.status
+		}))
+		const ws = XLSX.utils.json_to_sheet(data)
+		const wb = XLSX.utils.book_new()
+		XLSX.utils.book_append_sheet(wb, ws, "Ventas")
+		XLSX.writeFile(wb, `${filename}_${new Date().toISOString().slice(0, 10)}.xlsx`)
+	},
+
+	exportKardex(rows: KardexRow[], filename = "kardex") {
+		const TYPE_LABELS: Record<string, string> = {
+			entry: "Entrada",
+			sale: "Venta",
+			adjustment: "Ajuste",
+			return: "Devolución",
+			sale_reversal: "Reversión"
+		}
+		const data = rows.map((r) => ({
+			Fecha: r.date,
+			Tipo: TYPE_LABELS[r.type] ?? r.type,
+			Producto: r.productName,
+			Lote: r.lotNumber,
+			Cantidad: r.quantity,
+			"Stock Anterior": r.previousStock,
+			"Stock Nuevo": r.newStock,
+			Motivo: r.reason,
+			Usuario: r.userId
+		}))
+		const ws = XLSX.utils.json_to_sheet(data)
+		const wb = XLSX.utils.book_new()
+		XLSX.utils.book_append_sheet(wb, ws, "Kárdex")
+		XLSX.writeFile(wb, `${filename}_${new Date().toISOString().slice(0, 10)}.xlsx`)
+	},
+
+	exportInventory(rows: InventoryRow[], filename = "inventario") {
+		const data = rows.map((r) => ({
+			Producto: r.productName,
+			Laboratorio: r.manufacturer,
+			Lote: r.lotNumber,
+			Stock: r.stock,
+			"Stock Mínimo": r.minStock,
+			"P. Compra (S/.)": r.purchasePrice.toFixed(2),
+			"P. Venta (S/.)": r.sellPrice.toFixed(2),
+			Vencimiento: r.expirationDate,
+			"Días hasta vencer": r.daysUntilExpiry ?? "Vencido",
+			Estado: r.status
+		}))
+		const ws = XLSX.utils.json_to_sheet(data)
+		const wb = XLSX.utils.book_new()
+		XLSX.utils.book_append_sheet(wb, ws, "Inventario")
+		XLSX.writeFile(wb, `${filename}_${new Date().toISOString().slice(0, 10)}.xlsx`)
+	},
+
+	exportProfitability(rows: ProfitabilityRow[], filename = "rentabilidad") {
+		const data = rows.map((r) => ({
+			Producto: r.productName,
+			Laboratorio: r.manufacturer,
+			Lote: r.lotNumber,
+			Stock: r.stock,
+			"P. Compra (S/.)": r.purchasePrice.toFixed(2),
+			"P. Venta (S/.)": r.sellPrice.toFixed(2),
+			"Margen (S/.)": r.margin.toFixed(2),
+			"Margen (%)": r.marginPercent.toFixed(1) + "%",
+			"Ganancia potencial (S/.)": r.potentialProfit.toFixed(2)
+		}))
+		const ws = XLSX.utils.json_to_sheet(data)
+		const wb = XLSX.utils.book_new()
+		XLSX.utils.book_append_sheet(wb, ws, "Rentabilidad")
+		XLSX.writeFile(wb, `${filename}_${new Date().toISOString().slice(0, 10)}.xlsx`)
+	},
+
+	exportCredits(rows: CreditReportRow[], filename = "creditos") {
+		const data = rows.map((r) => ({
+			Cliente: r.clientName,
+			Documento: r.documentNumber,
+			Tipo: r.type === "debt" ? "Deuda" : "Favor",
+			"Total (S/.)": r.totalAmount.toFixed(2),
+			"Pagado (S/.)": r.paidAmount.toFixed(2),
+			"Saldo (S/.)": r.balance.toFixed(2),
+			Estado: r.status,
+			"Fecha límite": r.dueDate,
+			"Días vencido": r.daysOverdue ?? "-"
+		}))
+		const ws = XLSX.utils.json_to_sheet(data)
+		const wb = XLSX.utils.book_new()
+		XLSX.utils.book_append_sheet(wb, ws, "Créditos")
 		XLSX.writeFile(wb, `${filename}_${new Date().toISOString().slice(0, 10)}.xlsx`)
 	}
 }
