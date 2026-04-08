@@ -1,9 +1,11 @@
-import { Product } from "@renderer/types"
+import { Lot, Product } from "@renderer/types"
 import { Badge } from "@renderer/components/ui/badge"
 import { Button } from "@renderer/components/ui/button"
 import { Separator } from "@renderer/components/ui/separator"
 import { X, Pencil, Trash2 } from "lucide-react"
 import { DetailRow } from "@renderer/components/ui/DetailRow"
+import { useEffect, useState } from "react"
+import { LotService } from "@renderer/services/lotService"
 
 interface ProductDetailProps {
 	product: Product
@@ -18,6 +20,18 @@ export default function ProductDetail({
 	onDeactivate,
 	onClose
 }: ProductDetailProps): React.ReactElement {
+	const [lots, setLots] = useState<Lot[]>([])
+	const [lotsLoading, setLotsLoading] = useState(false)
+
+	useEffect(() => {
+		setLotsLoading(true)
+		LotService.getByProduct(product.id)
+			.then(setLots)
+			.finally(() => setLotsLoading(false))
+	}, [product.id])
+
+	const now = new Date()
+	const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
 	return (
 		<div className="flex flex-col h-full">
 			{/* Header */}
@@ -123,6 +137,65 @@ export default function ProductDetail({
 						</Badge>
 					}
 				/>
+			</div>
+
+			<Separator />
+
+			{/* Lotes */}
+			<div className="flex flex-col gap-3">
+				<p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+					Lotes en inventario
+				</p>
+				{lotsLoading ? (
+					<p className="text-xs text-slate-400">Cargando lotes...</p>
+				) : lots.length === 0 ? (
+					<p className="text-xs text-slate-400">Sin lotes registrados</p>
+				) : (
+					<div className="flex flex-col gap-2">
+						{lots.map((lot) => {
+							const expDate = lot.expirationDate.toDate()
+							const isExpired = expDate < now
+							const isExpiring = expDate <= in30Days && !isExpired
+							const isEmpty = lot.stock === 0
+
+							return (
+								<div
+									key={lot.id}
+									className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2"
+								>
+									<div>
+										<p className="text-xs font-medium text-slate-700">
+											{lot.numberLot}
+										</p>
+										<p className="text-xs text-slate-400">
+											Vence: {expDate.toLocaleDateString("es-PE", {
+												day: "2-digit", month: "short", year: "numeric"
+											})}
+										</p>
+									</div>
+									<div className="flex flex-col items-end gap-1">
+										<span className={`text-xs font-bold ${isEmpty ? "text-red-500"
+											: lot.stock <= product.minStock ? "text-yellow-600"
+												: "text-slate-700"
+											}`}>
+											{lot.stock} u.
+										</span>
+										{isExpired && (
+											<Badge variant="outline" className="text-xs bg-red-50 text-red-600 border-red-200 py-0">
+												Vencido
+											</Badge>
+										)}
+										{isExpiring && !isExpired && (
+											<Badge variant="outline" className="text-xs bg-orange-50 text-orange-600 border-orange-200 py-0">
+												Por vencer
+											</Badge>
+										)}
+									</div>
+								</div>
+							)
+						})}
+					</div>
+				)}
 			</div>
 
 			{/* Acciones */}

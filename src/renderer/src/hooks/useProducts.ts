@@ -26,7 +26,7 @@ type UseProductsReturn = UseProductsState & {
 	setSearchTerm: (searchTerm: string) => void
 	setSort: (sortField: SortField, sortOrder: SortOrder) => void
 	selectProduct: (product: Product | null) => void
-	createProduct: (data: CreateProductDTO) => Promise<void>
+	createProduct: (data: CreateProductDTO) => Promise<Product>
 	updateProduct: (id: string, data: UpdateProductDTO) => Promise<void>
 	deactivateProduct: (id: string) => Promise<void>
 }
@@ -118,7 +118,7 @@ export function useProducts(): UseProductsReturn {
 		setState((prev) => ({ ...prev, selected: product }))
 	}
 
-	async function createProduct(data: CreateProductDTO): Promise<void> {
+	async function createProduct(data: CreateProductDTO): Promise<Product> {
 		const created = await ProductService.create(data)
 		setState((prev) => {
 			const products = [...prev.products, created]
@@ -128,6 +128,7 @@ export function useProducts(): UseProductsReturn {
 				filtered: applyFilters(products, prev.searchTerm, prev.sortField, prev.sortOrder)
 			}
 		})
+		return created
 	}
 
 	async function updateProduct(id: string, data: UpdateProductDTO): Promise<void> {

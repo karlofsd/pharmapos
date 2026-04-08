@@ -15,8 +15,11 @@ import { Product } from "@renderer/types"
 import ProductDetail from "./components/ProductDetail"
 import ProductForm from "./components/ProductForm"
 import ProductCard from "./components/ProductCard"
-import { CreateProductDTO } from "@renderer/services/productService"
+import { CreateProductDTO, UpdateProductDTO } from "@renderer/services/productService"
 import { useUIStore } from "@renderer/store/uiStore"
+import { useLots } from "@renderer/hooks/useLots"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@renderer/components/ui/dialog"
+import { LotForm } from "../inventory/components/LotForm"
 
 export default function ProductsPage(): React.ReactElement {
 	const { user } = useAuth()
@@ -37,6 +40,10 @@ export default function ProductsPage(): React.ReactElement {
 	} = useProducts()
 	const { setSidebarCollapsed } = useUIStore()
 	const [showForm, setShowForm] = useState(false)
+	const [showAddLotPrompt, setShowAddLotPrompt] = useState(false)
+	const [showLotForm, setShowLotForm] = useState(false)
+	const [createdProductId, setCreatedProductId] = useState<string | null>(null)
+	const { createLot } = useLots()
 
 	const isAdmin = user?.role === "admin"
 
@@ -64,6 +71,18 @@ export default function ProductsPage(): React.ReactElement {
 
 	function handleCancelEdit(): void {
 		setShowForm(false)
+	}
+
+	async function handleSubmit(data: CreateProductDTO | UpdateProductDTO): Promise<void> {
+		if (selected) {
+			await updateProduct(selected.id, data as UpdateProductDTO)
+			setShowForm(false)
+		} else {
+			const created = await createProduct(data as CreateProductDTO)
+			setShowForm(false)
+			setCreatedProductId(created.id)
+			setShowAddLotPrompt(true)  // ← pregunta si agrega lote
+		}
 	}
 
 	return (
@@ -158,14 +177,7 @@ export default function ProductsPage(): React.ReactElement {
 					{showForm ? (
 						<ProductForm
 							product={selected ?? undefined}
-							onSubmit={async (data) => {
-								if (selected) {
-									await updateProduct(selected.id, data)
-								} else {
-									await createProduct(data as CreateProductDTO)
-								}
-								setShowForm(false)
-							}}
+							onSubmit={handleSubmit}
 							onCancel={handleCancelEdit}
 						/>
 					) : selected ? (
@@ -180,6 +192,72 @@ export default function ProductsPage(): React.ReactElement {
 					) : null}
 				</div>
 			)}
+
+			{/* Dialog — ¿Agregar lote? */}
+			<Dialog
+				open={showAddLotPrompt}
+				onOpenChange={(open) => !open && setShowAddLotPrompt(false)}
+			>
+				<DialogContent className="max-w-sm">
+					<DialogHeader>
+						<DialogTitle>Producto creado</DialogTitle>
+					</DialogHeader>
+					<div className="flex flex-col gap-4">
+						<p className="text-sm text-slate-600">
+							¿Deseas agregar un lote a este producto ahora?
+						</p>
+						<div className="flex gap-2">
+							<Button
+								className="flex-1"
+								onClick={() => {
+									setShowAddLotPrompt(false)
+									setShowLotForm(true)
+								}}
+							>
+								Sí, agregar lote
+							</Button>
+							<Button
+								variant="outline"
+								onClick={() => {
+									setShowAddLotPrompt(false)
+									setCreatedProductId(null)
+								}}
+							>
+								No, terminar
+							</Button>
+						</div>
+					</div>
+				</DialogContent>
+			</Dialog>
+
+			{/* Dialog — Form de lote */}
+			<Dialog
+				open={showLotForm}
+				onOpenChange={(open) => !open && setShowLotForm(false)}
+			>
+				<DialogContent className="max-w-md">
+					<DialogHeader>
+						<DialogTitle>Agregar lote</DialogTitle>
+					</DialogHeader>
+					{createdProductId && (
+						<LotForm
+							productId={createdProductId}
+							onSubmit={async (data) => {
+								await createLot(data)
+								setShowLotForm(false)
+								// Preguntar si agrega otro lote
+								setShowAddLotPrompt(true)
+							}}
+							onCancel={() => {
+								setShowLotForm(false)
+								setCreatedProductId(null)
+							}}
+							submitLabel="Guardar lote"
+							cancelLabel="Terminar"
+						/>
+					)}
+				</DialogContent>
+			</Dialog>
 		</div>
 	)
 }

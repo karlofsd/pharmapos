@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from "@electron-toolkit/utils"
 import icon from "../../resources/icon.png?asset"
 import { registerPrinterHandlers } from "./services/printer"
 import { registerDocumentHandlers } from "./services/document.service"
+import { registerUpdaterHandlers } from "./services/updater"
 
 function createWindow(): void {
 	// Create the browser window.
@@ -42,6 +43,7 @@ function createWindow(): void {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+	const mainWindow = createWindow()
 	// Set app user model id for windows
 	electronApp.setAppUserModelId("com.electron")
 
@@ -65,6 +67,7 @@ app.whenReady().then(() => {
 
 	registerPrinterHandlers()
 	registerDocumentHandlers()
+	registerUpdaterHandlers(mainWindow)
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common

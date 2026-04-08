@@ -26,5 +26,11 @@ export const SettingsService = {
 		await updateDoc(doc(db, COLLECTION, CATALOGS_DOC), {
 			categories: arrayUnion(category)
 		})
+	},
+
+	async addUnit(unit: string): Promise<void> {
+		await updateDoc(doc(db, COLLECTION, CATALOGS_DOC), {
+			units: arrayUnion(unit)
+		})
 	}
 }

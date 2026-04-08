@@ -23,6 +23,7 @@ export interface Credit {
 	status: CreditStatus
 	dueDate: Timestamp
 	payments: CreditPayment[]
+	createdBy?: string
 	createdAt: Timestamp
 }
 

@@ -2,6 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Accesibilidad — modo texto grande */
+.text-large {
+	font-size: 1.125rem;
+}
+
+.text-large button,
+.text-large input,
+.text-large select,
+.text-large label,
+.text-large p,
+.text-large span,
+.text-large td,
+.text-large th {
+	font-size: 1.05rem !important;
+}
+
+.text-large svg {
+	width: 1.25rem !important;
+	height: 1.25rem !important;
+}
+
 @layer base {
 	:root {
 		--background: 0 0% 100%;

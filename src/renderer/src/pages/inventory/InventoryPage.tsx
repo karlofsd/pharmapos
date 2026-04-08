@@ -203,13 +203,12 @@ export default function InventoryPage(): React.ReactElement {
 											<TableCell className="text-right">
 												<span
 													className={`text-sm font-medium
-													${
-														lot.stock === 0
+													${lot.stock === 0
 															? "text-red-500"
 															: lot.stock <= lot.product.minStock
 																? "text-yellow-600"
 																: "text-slate-800"
-													}`}
+														}`}
 												>
 													{lot.stock}
 												</span>
@@ -296,22 +295,36 @@ export default function InventoryPage(): React.ReactElement {
 					{selectedLot && (
 						<div className="flex flex-col gap-4">
 							<div className="bg-slate-50 rounded-lg p-3">
-								<p className="text-sm font-medium">{selectedLot.product.brand}</p>
+								<p className="text-sm font-medium">{selectedLot.product.brand} - {selectedLot.product.presentation}</p>
 								<p className="text-xs text-slate-500">
 									Lote: {selectedLot.numberLot}
 								</p>
 							</div>
-							<div className="flex flex-col gap-1">
-								<label className="text-sm font-medium">
-									Nuevo precio de venta (S/.)
-								</label>
-								<Input
-									type="number"
-									min={0}
-									step={0.01}
-									value={editPrice}
-									onChange={(e) => setEditPrice(e.target.value)}
-								/>
+							<div className="flex gap-4">
+								<div className="flex flex-col gap-1">
+									<label className="text-sm font-medium">
+										Precio de compra (S/.)
+									</label>
+									<Input
+										readOnly
+										disabled
+										type="number"
+										step={0.01}
+										value={selectedLot.purchasePrice}
+									/>
+								</div>
+								<div className="flex flex-col gap-1">
+									<label className="text-sm font-medium">
+										Nuevo precio de venta (S/.)
+									</label>
+									<Input
+										type="number"
+										min={0}
+										step={0.01}
+										value={editPrice}
+										onChange={(e) => setEditPrice(e.target.value)}
+									/>
+								</div>
 							</div>
 							<div className="flex gap-2">
 								<Button onClick={handleUpdatePrice} className="flex-1">

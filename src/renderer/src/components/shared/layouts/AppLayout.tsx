@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { Outlet } from "react-router-dom"
 import Sidebar from "../sidebar/Sidebar"
 import { useUIStore } from "@renderer/store/uiStore"
+import { UpdateNotifier } from "../UpdateNotifier"
 
 export default function AppLayout(): React.ReactElement {
 	const { sidebarCollapsed, setSidebarCollapsed, toggleSidebar } = useUIStore()
@@ -24,11 +25,12 @@ export default function AppLayout(): React.ReactElement {
 	}
 
 	return (
-		<div className="flex h-screen overflow-hidden bg-slate-50">
+		<div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
 			<Sidebar collapsed={sidebarCollapsed} onToggle={handleToggle} />
-			<main className="flex-1 overflow-auto">
+			<main className="flex-1 overflow-auto bg-slate-50 dark:bg-slate-950">
 				<Outlet />
 			</main>
+			<UpdateNotifier />
 		</div>
 	)
 }

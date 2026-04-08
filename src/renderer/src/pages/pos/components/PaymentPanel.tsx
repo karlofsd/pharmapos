@@ -1,4 +1,4 @@
-import { User, FileText, CreditCard } from "lucide-react"
+import { User, FileText, CreditCard, X, Search } from "lucide-react"
 import { Button } from "@renderer/components/ui/button"
 import { Input } from "@renderer/components/ui/input"
 import { Label } from "@renderer/components/ui/label"
@@ -13,6 +13,9 @@ import {
 import { Separator } from "@renderer/components/ui/separator"
 import { useCartStore, VoucherType, CartPaymentMethod } from "@renderer/store/cartStore"
 import { cn } from "@renderer/lib/utils"
+import { useClients } from "@renderer/hooks/useClients"
+import { useState } from "react"
+import { UserUtils } from "@renderer/types"
 
 interface PaymentPanelProps {
 	onConfirm: () => Promise<void>
@@ -38,6 +41,18 @@ export function PaymentPanel({ onConfirm, isProcessing }: PaymentPanelProps): Re
 		setWalletAmount,
 		clearClient
 	} = useCartStore()
+
+	const { clients } = useClients()
+	const { setClient } = useCartStore()
+	const [clientSearch, setClientSearch] = useState("")
+	const [showClientSearch, setShowClientSearch] = useState(false)
+
+	const filteredClients = clientSearch.trim()
+		? clients.filter((c) =>
+			UserUtils.getFullname(c).toLowerCase().includes(clientSearch.toLowerCase()) ||
+			Object.values(c.document).some((v) => v.includes(clientSearch))
+		)
+		: clients.slice(0, 5)
 
 	const isEmpty = items.length === 0
 	const needsClient = voucherType === "factura" || paymentMethod === "credit"
@@ -87,25 +102,69 @@ export function PaymentPanel({ onConfirm, isProcessing }: PaymentPanelProps): Re
 					<User size={13} />
 					Cliente
 					{needsClient && (
-						<Badge variant="destructive" className="text-xs py-0">
-							Requerido
-						</Badge>
+						<Badge variant="destructive" className="text-xs py-0">Requerido</Badge>
 					)}
 				</div>
 				{clientId ? (
 					<div className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2">
 						<p className="text-sm font-medium text-slate-800">{clientName}</p>
 						<button
-							onClick={clearClient}
-							className="text-xs text-slate-400 hover:text-red-500 transition-colors"
+							onClick={() => { clearClient(); setShowClientSearch(false) }}
+							className="text-slate-400 hover:text-red-500 transition-colors"
 						>
-							Quitar
+							<X size={14} />
 						</button>
 					</div>
 				) : (
-					<button className="w-full text-left px-3 py-2 rounded-lg border border-dashed border-slate-300 text-sm text-slate-400 hover:border-slate-400 transition-colors">
-						+ Buscar cliente
-					</button>
+					<div className="relative">
+						<div className="relative">
+							<Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+							<input
+								placeholder="Buscar cliente..."
+								value={clientSearch}
+								onChange={(e) => {
+									setClientSearch(e.target.value)
+									setShowClientSearch(true)
+								}}
+								onFocus={() => setShowClientSearch(true)}
+								className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-300"
+							/>
+						</div>
+						{showClientSearch && (
+							<div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg overflow-hidden">
+								<div className="max-h-40 overflow-y-auto">
+									{filteredClients.length === 0 ? (
+										<p className="text-xs text-slate-400 text-center py-3">
+											No se encontraron clientes
+										</p>
+									) : (
+										filteredClients.map((client) => (
+											<button
+												key={client.id}
+												type="button"
+												onMouseDown={(e) => e.preventDefault()}
+												onClick={() => {
+													setClient(client.id, UserUtils.getFullname(client))
+													setClientSearch("")
+													setShowClientSearch(false)
+												}}
+												className="w-full text-left px-3 py-2 text-sm hover:bg-slate-50 transition-colors"
+											>
+												<p className="font-medium text-slate-800">
+													{UserUtils.getFullname(client)}
+												</p>
+												<p className="text-xs text-slate-400">
+													{Object.entries(client.document)
+														.map(([type, num]) => `${type.toUpperCase()}: ${num}`)
+														.join(", ")}
+												</p>
+											</button>
+										))
+									)}
+								</div>
+							</div>
+						)}
+					</div>
 				)}
 			</div>
 

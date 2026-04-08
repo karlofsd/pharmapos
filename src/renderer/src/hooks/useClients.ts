@@ -25,6 +25,7 @@ interface UseClientsReturn extends UseClientsState {
 	createClient: (data: CreateClientDTO) => Promise<void>
 	updateClient: (id: string, data: UpdateClientDTO) => Promise<void>
 	deactivateClient: (id: string) => Promise<void>
+	getClient: (id: string) => Promise<Client | null>
 }
 
 export function useClients(): UseClientsReturn {
@@ -91,6 +92,15 @@ export function useClients(): UseClientsReturn {
 		// eslint-disable-next-line react-hooks/set-state-in-effect
 		load()
 	}, [load])
+
+	async function getClient(id: string): Promise<Client | null> {
+		try {
+			return await ClientService.getById(id)
+		} catch (error) {
+			console.log("No se pudo obtener cliente: ", error)
+			return null
+		}
+	}
 
 	function setSearchTerm(searchTerm: string): void {
 		setState((prev) => ({
@@ -159,6 +169,7 @@ export function useClients(): UseClientsReturn {
 		selectClient,
 		createClient,
 		updateClient,
-		deactivateClient
+		deactivateClient,
+		getClient
 	}
 }

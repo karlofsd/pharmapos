@@ -1,6 +1,7 @@
 import { Timestamp } from "firebase/firestore"
 
-export type Role = "admin" | "cashier"
+export type Role = "admin" | "cashier" | "supervisor"
+export type PermissionLevel = 1 | 2 | 3
 
 export type PhoneNumber = {
 	code: string
@@ -24,6 +25,7 @@ export interface BaseUser {
 
 export interface User extends BaseUser {
 	role: Role
+	level: PermissionLevel
 }
 
 export const UserUtils = {

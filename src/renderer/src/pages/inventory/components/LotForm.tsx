@@ -4,10 +4,10 @@ import { z } from "zod"
 import { Button } from "@renderer/components/ui/button"
 import { Input } from "@renderer/components/ui/input"
 import { Label } from "@renderer/components/ui/label"
-import { Product } from "@renderer/types"
+import { Product, UserUtils } from "@renderer/types"
 import { CreateLotDTO } from "@renderer/services/lotService"
 import { Timestamp } from "firebase/firestore"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
 	Select,
 	SelectContent,
@@ -32,11 +32,14 @@ const lotSchema = z.object({
 type LotFormData = z.infer<typeof lotSchema>
 
 interface LotFormProps {
+	productId?: string
 	onSubmit: (data: CreateLotDTO) => Promise<void>
 	onCancel: () => void
+	submitLabel?: string
+	cancelLabel?: string
 }
 
-export function LotForm({ onSubmit, onCancel }: LotFormProps): React.ReactElement {
+export function LotForm({ productId, onSubmit, onCancel, submitLabel = "Agregar lote", cancelLabel = "Cancelar" }: LotFormProps): React.ReactElement {
 	const { products } = useProducts()
 	const { suppliers } = useSuppliers()
 	const [isSubmitting, setIsSubmitting] = useState(false)
@@ -56,6 +59,17 @@ export function LotForm({ onSubmit, onCancel }: LotFormProps): React.ReactElemen
 			sellPrice: 0
 		}
 	})
+
+	useEffect(() => {
+		if (productId) {
+			setValue("productId", productId)
+			const product = products.find((p) => p.id === productId)
+			if (product) {
+				setSelectedProduct(product)
+				setValue("manufacturer", product.manufacturer)
+			}
+		}
+	}, [productId, products, setValue])
 
 	async function handleFormSubmit(data: LotFormData): Promise<void> {
 		setIsSubmitting(true)
@@ -92,6 +106,7 @@ export function LotForm({ onSubmit, onCancel }: LotFormProps): React.ReactElemen
 						setSelectedProduct(product)
 						if (product) setValue("manufacturer", product.manufacturer)
 					}}
+					disabled={!!productId}
 				>
 					<SelectTrigger>
 						<SelectValue placeholder="Selecciona un producto..." />
@@ -124,7 +139,7 @@ export function LotForm({ onSubmit, onCancel }: LotFormProps): React.ReactElemen
 						<SelectItem value="none">Sin proveedor</SelectItem>
 						{suppliers.map((s) => (
 							<SelectItem key={s.id} value={s.id}>
-								{s.name}
+								{s.businessName != "-" ? s.businessName : UserUtils.getFullname(s)}
 							</SelectItem>
 						))}
 					</SelectContent>
@@ -196,10 +211,10 @@ export function LotForm({ onSubmit, onCancel }: LotFormProps): React.ReactElemen
 			{/* Acciones */}
 			<div className="flex gap-2 pt-2">
 				<Button type="submit" disabled={isSubmitting} className="flex-1">
-					{isSubmitting ? "Guardando..." : "Agregar lote"}
+					{isSubmitting ? "Guardando..." : submitLabel}
 				</Button>
 				<Button type="button" variant="outline" onClick={onCancel}>
-					Cancelar
+					{cancelLabel}
 				</Button>
 			</div>
 		</form>
