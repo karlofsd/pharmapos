@@ -6,12 +6,12 @@ import { registerPrinterHandlers } from "./services/printer"
 import { registerDocumentHandlers } from "./services/document.service"
 import { registerUpdaterHandlers } from "./services/updater"
 
-function createWindow(): void {
+function createWindow(): BrowserWindow {
 	// Create the browser window.
 	const mainWindow = new BrowserWindow({
-		// closable: true,
-		// kiosk: true,
-		// resizable: false,
+		width: 1280,
+		height: 800,
+		fullscreen: true,
 		show: false,
 		autoHideMenuBar: true,
 		...(process.platform === "linux" ? { icon } : {}),
@@ -37,13 +37,20 @@ function createWindow(): void {
 	} else {
 		mainWindow.loadFile(join(__dirname, "../renderer/index.html"))
 	}
+
+	ipcMain.handle("window:kiosk", (_event, enabled: boolean) => {
+		const win = BrowserWindow.getAllWindows()[0]
+		if (!win) return
+		win.setKiosk(enabled)
+	})
+
+	return mainWindow
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-	const mainWindow = createWindow()
 	// Set app user model id for windows
 	electronApp.setAppUserModelId("com.electron")
 
@@ -57,7 +64,8 @@ app.whenReady().then(() => {
 	// IPC test
 	ipcMain.on("ping", () => console.log("pong"))
 
-	createWindow()
+	const mainWindow = createWindow()
+	// createWindow()
 
 	app.on("activate", function () {
 		// On macOS it's common to re-create a window in the app when the

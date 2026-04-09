@@ -5,6 +5,7 @@ import { AccessibilityTab } from "./tabs/AccessibilityTab"
 import { CatalogsTab } from "./tabs/CatalogsTab"
 import { UsersTab } from "./tabs/UsersTab"
 import { PermissionsTab } from "./tabs/PermissionsTab"
+import { HardwareTab } from "./tabs/HardwareTab"
 
 export default function SettingsPage(): React.ReactElement {
 	return (
@@ -22,6 +23,7 @@ export default function SettingsPage(): React.ReactElement {
 					<TabsTrigger value="catalogs">Catálogos</TabsTrigger>
 					<TabsTrigger value="users">Usuarios</TabsTrigger>
 					<TabsTrigger value="permissions">Permisos</TabsTrigger>
+					<TabsTrigger value="hardware">Hardware</TabsTrigger>
 				</TabsList>
 
 				<div className="flex-1 overflow-y-auto pt-6">
@@ -42,6 +44,9 @@ export default function SettingsPage(): React.ReactElement {
 					</TabsContent>
 					<TabsContent value="permissions">
 						<PermissionsTab />
+					</TabsContent>
+					<TabsContent value="hardware">
+						<HardwareTab />
 					</TabsContent>
 				</div>
 			</Tabs>

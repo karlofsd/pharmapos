@@ -25,25 +25,36 @@ interface SettingsState {
 	fontSize: FontSize
 	language: Language
 	primaryColor: PrimaryColor
+	emitReceipt: boolean
+	openDrawer: boolean
+	kioskMode: boolean
 	setTheme: (theme: ThemeMode) => void
 	setFontSize: (size: FontSize) => void
 	setLanguage: (lang: Language) => void
 	setPrimaryColor: (color: PrimaryColor) => void
+	toggleEmitReceipt: () => void
+	toggleOpenDrawer: () => void
+	activeKioskMode: () => void
 }
 
 export const useSettingsStore = create<SettingsState>()(
 	persist(
-		(set) => ({
+		(set, get) => ({
 			theme: "light",
 			fontSize: "normal",
 			language: "es",
 			primaryColor: PRIMARY_COLORS[0],
-
+			emitReceipt: false,
+			openDrawer: true,
+			kioskMode: true,
+			toggleEmitReceipt: () =>
+				set((state) => ({ ...state, emitReceipt: !get().emitReceipt })),
+			toggleOpenDrawer: () => set((state) => ({ ...state, openDrawer: !get().openDrawer })),
 			setTheme: (theme) => {
 				set({ theme })
 				document.documentElement.classList.toggle("dark", theme === "dark")
 			},
-
+			activeKioskMode: () => set((state) => ({ ...state, kioskMode: !get().kioskMode })),
 			setFontSize: (fontSize) => {
 				set({ fontSize })
 				document.documentElement.classList.toggle("text-large", fontSize === "large")

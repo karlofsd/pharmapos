@@ -3,11 +3,16 @@ import { Outlet } from "react-router-dom"
 import Sidebar from "../sidebar/Sidebar"
 import { useUIStore } from "@renderer/store/uiStore"
 import { UpdateNotifier } from "../UpdateNotifier"
+import { useSettingsStore } from "@renderer/store/settingsStore"
 
 export default function AppLayout(): React.ReactElement {
 	const { sidebarCollapsed, setSidebarCollapsed, toggleSidebar } = useUIStore()
 	const [manualOverride, setManualOverride] = useState(false)
+	const { kioskMode } = useSettingsStore()
 
+	useEffect(() => {
+		window.electron.ipcRenderer.invoke("window:kiosk", kioskMode)
+	}, [kioskMode])
 	useEffect(() => {
 		function handleResize(): void {
 			if (!manualOverride) {

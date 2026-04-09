@@ -14,7 +14,7 @@ import {
 import { useSuppliers } from "@renderer/hooks/useSuppliers"
 import { useProducts } from "@renderer/hooks/useProducts"
 import { CreateOrderDTO } from "@renderer/services/orderService"
-import { OrderItem } from "@renderer/types"
+import { OrderItem, UserUtils } from "@renderer/types"
 
 interface OrderFormProps {
 	onSubmit: (data: Omit<CreateOrderDTO, "createdBy">) => Promise<void>
@@ -81,7 +81,7 @@ export function OrderForm({ onSubmit, onCancel }: OrderFormProps): React.ReactEl
 		try {
 			await onSubmit({
 				supplierId,
-				supplierName: selectedSupplier?.businessName ?? "",
+				supplierName: selectedSupplier?.businessName != "" ? selectedSupplier?.businessName as string : UserUtils.getFullname(selectedSupplier!),
 				items: validItems,
 				notes: notes || null,
 				expectedAt: expectedAt ? new Date(expectedAt) : null
@@ -115,7 +115,7 @@ export function OrderForm({ onSubmit, onCancel }: OrderFormProps): React.ReactEl
 						<SelectContent>
 							{suppliers.map((s) => (
 								<SelectItem key={s.id} value={s.id}>
-									{s.businessName}
+									{s.businessName != "-" ? s.businessName : UserUtils.getFullname(s)}
 								</SelectItem>
 							))}
 						</SelectContent>
@@ -123,7 +123,7 @@ export function OrderForm({ onSubmit, onCancel }: OrderFormProps): React.ReactEl
 				</div>
 
 				<div className="grid grid-cols-2 gap-3">
-					<div className="flex flex-col gap-1">
+					<div className="flex flex-col justify-between gap-1">
 						<Label>Fecha esperada (opcional)</Label>
 						<Input
 							type="date"
@@ -131,7 +131,7 @@ export function OrderForm({ onSubmit, onCancel }: OrderFormProps): React.ReactEl
 							onChange={(e) => setExpectedAt(e.target.value)}
 						/>
 					</div>
-					<div className="flex flex-col gap-1">
+					<div className="flex flex-col justify-between gap-1">
 						<Label>Notas (opcional)</Label>
 						<Input
 							placeholder="Indicaciones..."

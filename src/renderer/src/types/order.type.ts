@@ -22,6 +22,7 @@ export interface OrderItem {
 export interface Order {
 	id: string
 	supplierId: string
+	supplierName: string
 	status: OrderStatus
 	items: OrderItem[]
 	totalAmount: number

@@ -8,7 +8,8 @@ import { CashRegisterGate } from "./components/TillGate"
 import { ProductSearch } from "./components/ProductSearch"
 import { Cart } from "./components/Cart"
 import { PaymentPanel } from "./components/PaymentPanel"
-import { Product, Lot } from "@renderer/types"
+import { Product, Lot, UserUtils } from "@renderer/types"
+import { useSettingsStore } from "@renderer/store/settingsStore"
 
 export default function POSPage(): React.ReactElement {
 	const { user } = useAuth()
@@ -25,6 +26,7 @@ export default function POSPage(): React.ReactElement {
 		clear
 	} = useCartStore()
 	const { addItem } = useCartStore()
+	const { openDrawer, emitReceipt } = useSettingsStore()
 
 	const [isProcessing, setIsProcessing] = useState(false)
 
@@ -60,8 +62,9 @@ export default function POSPage(): React.ReactElement {
 			const mixedWallet =
 				paymentMethod === "mixed" ? walletAmount : paymentMethod === "wallet" ? total : 0
 
-			await SaleService.create({
+			const data = {
 				cashierId: user.id,
+				cashierName: UserUtils.getFullname(user),
 				tillId: till.id,
 				items,
 				paymentMethod,
@@ -74,7 +77,10 @@ export default function POSPage(): React.ReactElement {
 				cardAmount: mixedCard,
 				walletAmount: mixedWallet,
 				creditAmount
-			})
+			}
+			const saleId = await SaleService.create(data)
+
+			await SaleService.initPrinterDrawer(saleId, data, openDrawer, emitReceipt)
 
 			clear()
 		} catch (error) {

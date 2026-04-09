@@ -17,7 +17,9 @@ export const IPC_CHANNELS = {
 	UPDATE_CHECK: "update:check",
 	UPDATE_DOWNLOAD: "update:download",
 	UPDATE_INSTALL: "update:install",
-	UPDATE_STATUS: "update:status"
+	UPDATE_STATUS: "update:status",
+
+	APPLY_KIOSK: "window:kiosk"
 } as const
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS]

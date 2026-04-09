@@ -67,22 +67,22 @@ export function ClientForm({ client, onSubmit, onCancel }: ClientFormProps): Rea
 		resolver: zodResolver(clientSchema),
 		defaultValues: client
 			? {
-					name: client.name,
-					lastname: client.lastname,
-					documentType: Object.keys(client.document)[0] as DocumentType,
-					documentNumber: Object.values(client.document)[0],
-					phoneCode: client.phoneNumber.code,
-					phoneNumber: client.phoneNumber.number,
-					email: client.email ?? "",
-					genre: client.genre,
-					birthday: client.birthday.toDate().toISOString().split("T")[0],
-					address: client.address
-				}
+				name: client.name,
+				lastname: client.lastname,
+				documentType: Object.keys(client.document)[0] as DocumentType,
+				documentNumber: Object.values(client.document)[0],
+				phoneCode: client.phoneNumber.code,
+				phoneNumber: client.phoneNumber.number,
+				email: client.email ?? "",
+				genre: client.genre,
+				birthday: client.birthday.toDate().toISOString().split("T")[0],
+				address: client.address
+			}
 			: {
-					documentType: "dni",
-					phoneCode: "+51",
-					genre: "other"
-				}
+				documentType: "dni",
+				phoneCode: "+51",
+				genre: "other"
+			}
 	})
 
 	const [isQuerying, setIsQuerying] = useState(false)
@@ -244,7 +244,7 @@ export function ClientForm({ client, onSubmit, onCancel }: ClientFormProps): Rea
 						Documento
 					</p>
 					<div className="flex gap-2">
-						<div className="flex flex-col gap-1 w-36">
+						<div className="flex flex-col gap-1 w-40">
 							<Label>Tipo</Label>
 							<Select
 								value={watch("documentType")}
@@ -272,21 +272,21 @@ export function ClientForm({ client, onSubmit, onCancel }: ClientFormProps): Rea
 								<Input {...register("documentNumber")} placeholder="00000000" />
 								{(watch("documentType") === "dni" ||
 									watch("documentType") === "ruc") && (
-									<Button
-										type="button"
-										variant="outline"
-										size="icon"
-										onClick={handleQueryDocument}
-										disabled={isQuerying || !watch("documentNumber")}
-										title="Consultar documento"
-									>
-										{isQuerying ? (
-											<Loader2 size={14} className="animate-spin" />
-										) : (
-											<Search size={14} />
-										)}
-									</Button>
-								)}
+										<Button
+											type="button"
+											variant="outline"
+											size="icon"
+											onClick={handleQueryDocument}
+											disabled={isQuerying || !watch("documentNumber")}
+											title="Consultar documento"
+										>
+											{isQuerying ? (
+												<Loader2 size={14} className="animate-spin" />
+											) : (
+												<Search size={14} />
+											)}
+										</Button>
+									)}
 							</div>
 							{errors.documentNumber && (
 								<p className="text-xs text-red-500">

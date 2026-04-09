@@ -6,16 +6,22 @@ import {
 	query,
 	orderBy,
 	getDocs,
-	getDoc
+	getDoc,
+	Timestamp,
+	DocumentSnapshot,
+	DocumentData,
+	DocumentReference
 } from "firebase/firestore"
 import { db } from "@renderer/services/firebase"
 import { CartItem, VoucherType, CartPaymentMethod } from "@renderer/store/cartStore"
 import { Sale } from "@renderer/types"
+import { ReceiptService } from "./receiptService"
 
 const COLLECTION = "sales"
 
 export interface CreateSaleDTO {
 	cashierId: string
+	cashierName: string
 	tillId: string
 	items: CartItem[]
 	paymentMethod: CartPaymentMethod
@@ -41,50 +47,65 @@ export const SaleService = {
 	async create(data: CreateSaleDTO): Promise<string> {
 		const saleId = await runTransaction(db, async (transaction) => {
 			const tillRef = doc(db, "tills", data.tillId)
+			const saleRef = doc(collection(db, "sales"))
+			const cashSnap = await transaction.get(tillRef)
+			const itemsRef: Record<
+				string,
+				{
+					lotRef: DocumentReference<DocumentData, DocumentData>
+					lotSnap: DocumentSnapshot<DocumentData, DocumentData>
+				}
+			> = {}
+
+			for (const i of data.items) {
+				const lotRef = doc(db, "lots", i.lotId)
+				const lotSnap = await transaction.get(lotRef)
+				itemsRef[i.lotId] = { lotRef, lotSnap }
+			}
+
 			console.log(`Actualizando caja para till ${data.tillId}...`, tillRef)
 
-			const cashSnap = await transaction.get(tillRef)
-			console.log(`Datos actuales de la caja para till ${data.tillId}:`, cashSnap.exists())
-			// 1. Verificar y descontar stock por cada item (FEFO ya ordenado)
-			// for (const item of data.items) {
-			// 	// const lotRef = doc(db, "lots", item.lotId)
-			// 	// const lotSnap = await transaction.get(lotRef)
-			// 	// if (!lotSnap.exists()) throw new Error(`Lote ${item.lotId} no encontrado`)
-			// 	// const currentStock = lotSnap.data().stock as number
-			// 	// if (currentStock < item.quantity) {
-			// 	// 	throw new Error(`Stock insuficiente para ${item.productName}`)
-			// 	// }
-			// 	// console.log(
-			// 	// 	`Descontando ${item.quantity} unidades del lote ${item.lotId} (Stock actual: ${currentStock})`
-			// 	// )
-			// 	// const newStock = currentStock - item.quantity
-			// 	// transaction.update(lotRef, { stock: newStock })
-			// 	// 2. Crear movimiento por cada item
-			// 	// const movementRef = doc(collection(db, "movements"))
-			// 	// transaction.set(movementRef, {
-			// 	// 	type: "sale",
-			// 	// 	productId: item.productId,
-			// 	// 	lotId: item.lotId,
-			// 	// 	quantity: -item.quantity,
-			// 	// 	previousQuantity: currentStock,
-			// 	// 	newQuantity: newStock,
-			// 	// 	saleId: null,
-			// 	// 	referenceId: null,
-			// 	// 	originalPrice: item.unitPrice,
-			// 	// 	modifiedPrice: item.alterPrice,
-			// 	// 	userId: data.cashierId,
-			// 	// 	reason: "Venta",
-			// 	// 	createdAt: serverTimestamp()
-			// 	// })
-			// 	// console.log(
-			// 	// 	`Movimiento registrado para lote ${item.lotId}: -${item.quantity} unidades`
-			// 	// )
-			// }
+			//1. Verificar y descontar stock por cada item (FEFO ya ordenado)
+			for (const item of data.items) {
+				// const lotRef = doc(db, "lots", item.lotId)
+				const lotSnap = itemsRef[item.lotId].lotSnap
+				const lotRef = itemsRef[item.lotId].lotRef
+				if (!lotSnap.exists()) throw new Error(`Lote ${item.lotId} no encontrado`)
+				const currentStock = lotSnap.data().stock as number
+				if (currentStock < item.quantity) {
+					throw new Error(`Stock insuficiente para ${item.productName}`)
+				}
+				console.log(
+					`Descontando ${item.quantity} unidades del lote ${item.lotId} (Stock actual: ${currentStock})`
+				)
+				const newStock = currentStock - item.quantity
+				transaction.update(lotRef, { stock: newStock })
+				//2. Crear movimiento por cada item
+				const movementRef = doc(collection(db, "movements"))
+				transaction.set(movementRef, {
+					type: "sale",
+					productId: item.productId,
+					lotId: item.lotId,
+					quantity: -item.quantity,
+					previousQuantity: currentStock,
+					newQuantity: newStock,
+					saleId: null,
+					referenceId: null,
+					originalPrice: item.unitPrice,
+					modifiedPrice: item.alterPrice,
+					userId: data.cashierId,
+					reason: "Venta",
+					createdAt: serverTimestamp()
+				})
+				console.log(
+					`Movimiento registrado para lote ${item.lotId}: -${item.quantity} unidades`
+				)
+			}
 
 			// 3. Crear la venta
-			const saleRef = doc(collection(db, "sales"))
 			transaction.set(saleRef, {
 				cashierId: data.cashierId,
+				cashierName: data.cashierName,
 				tillId: data.tillId,
 				items: data.items.map((item) => ({
 					productId: item.productId,
@@ -98,7 +119,7 @@ export const SaleService = {
 					modification: item.modification
 						? {
 								...item.modification,
-								date: serverTimestamp()
+								date: Timestamp.now()
 							}
 						: null
 				})),
@@ -116,12 +137,13 @@ export const SaleService = {
 				change: data.change,
 				status: data.paymentMethod === "credit" ? "credit" : "completed",
 				isSynced: true,
-				createdAt: serverTimestamp()
+				createdAt: Timestamp.now()
 			})
 
 			console.log(`Venta creada con ID: ${saleRef.id}`)
 
 			// 4. Actualizar caja
+			console.log(`Datos actuales de la caja para till ${data.tillId}:`, cashSnap.exists())
 
 			if (cashSnap.exists()) {
 				const current = cashSnap.data()
@@ -148,45 +170,45 @@ export const SaleService = {
 			return saleRef.id
 		})
 
-		runTransaction(db, async (transaction) => {
-			for (const item of data.items) {
-				const lotRef = doc(db, "lots", item.lotId)
-				const lotSnap = await transaction.get(lotRef)
+		// runTransaction(db, async (transaction) => {
+		// 	for (const item of data.items) {
+		// 		const lotRef = doc(db, "lots", item.lotId)
+		// 		const lotSnap = await transaction.get(lotRef)
 
-				if (!lotSnap.exists()) throw new Error(`Lote ${item.lotId} no encontrado`)
+		// 		if (!lotSnap.exists()) throw new Error(`Lote ${item.lotId} no encontrado`)
 
-				const currentStock = lotSnap.data().stock as number
-				if (currentStock < item.quantity) {
-					throw new Error(`Stock insuficiente para ${item.productName}`)
-				}
+		// 		const currentStock = lotSnap.data().stock as number
+		// 		if (currentStock < item.quantity) {
+		// 			throw new Error(`Stock insuficiente para ${item.productName}`)
+		// 		}
 
-				console.log(
-					`Descontando ${item.quantity} unidades del lote ${item.lotId} (Stock actual: ${currentStock})`
-				)
+		// 		console.log(
+		// 			`Descontando ${item.quantity} unidades del lote ${item.lotId} (Stock actual: ${currentStock})`
+		// 		)
 
-				const newStock = currentStock - item.quantity
-				transaction.update(lotRef, { stock: newStock })
-				const movementRef = doc(collection(db, "movements"))
-				transaction.set(movementRef, {
-					type: "sale",
-					productId: item.productId,
-					lotId: item.lotId,
-					quantity: -item.quantity,
-					previousQuantity: currentStock,
-					newQuantity: newStock,
-					saleId: saleId,
-					referenceId: null,
-					originalPrice: item.unitPrice,
-					modifiedPrice: item.alterPrice,
-					userId: data.cashierId,
-					reason: "Venta",
-					createdAt: serverTimestamp()
-				})
-				console.log(
-					`Movimiento registrado para lote ${item.lotId}: -${item.quantity} unidades`
-				)
-			}
-		})
+		// 		const newStock = currentStock - item.quantity
+		// 		transaction.update(lotRef, { stock: newStock })
+		// 		const movementRef = doc(collection(db, "movements"))
+		// 		transaction.set(movementRef, {
+		// 			type: "sale",
+		// 			productId: item.productId,
+		// 			lotId: item.lotId,
+		// 			quantity: -item.quantity,
+		// 			previousQuantity: currentStock,
+		// 			newQuantity: newStock,
+		// 			saleId: saleId,
+		// 			referenceId: null,
+		// 			originalPrice: item.unitPrice,
+		// 			modifiedPrice: item.alterPrice,
+		// 			userId: data.cashierId,
+		// 			reason: "Venta",
+		// 			createdAt: serverTimestamp()
+		// 		})
+		// 		console.log(
+		// 			`Movimiento registrado para lote ${item.lotId}: -${item.quantity} unidades`
+		// 		)
+		// 	}
+		// })
 
 		return saleId
 	},
@@ -296,5 +318,37 @@ export const SaleService = {
 				transaction.update(tillRef, updates)
 			}
 		})
+	},
+
+	async initPrinterDrawer(
+		saleId: string,
+		data: CreateSaleDTO,
+		canOpenDrawer: boolean,
+		canEmitReceipt: boolean
+	): Promise<void> {
+		if (canEmitReceipt)
+			await ReceiptService.print({
+				saleId,
+				cashierName: data.cashierName,
+				clientName: data.clientId,
+				clientDocument: "73302199",
+				date: new Date(Date.now()).toISOString(),
+				items: data.items.map(
+					({ productName, quantity, subtotal, finalPrice, alterPrice }) => ({
+						productName,
+						quantity,
+						subtotal,
+						finalPrice,
+						alterPrice
+					})
+				),
+				voucherType: data.voucherType,
+				cashReceived: data.receivedAmount,
+				paymentMethod: data.paymentMethod,
+				totalPrice: data.totalPrice,
+				change: data.change
+			})
+
+		if (canOpenDrawer) await ReceiptService.openDrawer()
 	}
 }

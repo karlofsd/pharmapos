@@ -58,6 +58,7 @@ export const OrderService = {
 	async create(data: CreateOrderDTO): Promise<Order> {
 		const payload = {
 			supplierId: data.supplierId,
+			supplierName: data.supplierName,
 			status: "pending" as OrderStatus,
 			items: data.items.map((item) => ({
 				...item,

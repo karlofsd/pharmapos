@@ -1,22 +1,23 @@
 import { ipcMain } from "electron"
 import { IPC_CHANNELS } from "../../../shared/ipcChannels"
 import { Receipt } from "../../../shared/types/receipt.type"
+import { exec } from "child_process"
+import { Buffer } from "node:buffer"
 
-// Formatear línea centrada para 80mm (42 caracteres)
-function center(text: string, width = 42): string {
-	const padding = Math.max(0, Math.floor((width - text.length) / 2))
+const TICKETERA_WIDTH = 48
+
+function center(text: string): string {
+	const padding = Math.max(0, Math.floor((TICKETERA_WIDTH - text.length) / 2))
 	return " ".repeat(padding) + text
 }
 
-// Formatear dos columnas
-function columns(left: string, right: string, width = 42): string {
-	const space = width - left.length - right.length
+function columns(left: string, right: string): string {
+	const space = TICKETERA_WIDTH - left.length - right.length
 	return left + " ".repeat(Math.max(1, space)) + right
 }
 
-// Línea divisoria
-function divider(char = "-", width = 42): string {
-	return char.repeat(width)
+function divider(char = "-"): string {
+	return char.repeat(TICKETERA_WIDTH)
 }
 
 function formatReceipt(data: Receipt): string[] {
@@ -27,120 +28,160 @@ function formatReceipt(data: Receipt): string[] {
 		month: "2-digit",
 		year: "numeric"
 	})
-	const timeStr = date.toLocaleTimeString("es-PE", {
-		hour: "2-digit",
-		minute: "2-digit"
-	})
+	const timeStr = date.toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })
 
-	const voucherLabel = data.voucherType === "boleta" ? "BOLETA DE VENTA" : "FACTURA"
+	// 1. CABECERA
+	lines.push(divider("*"))
+	lines.push(center("      *** BOTICA ***      "))
+	lines.push(center("  NUESTRA SEÑORA DEL VALLE  "))
+	lines.push(divider("*"))
+	lines.push(center("RUC: 10308401036"))
+	lines.push(center("CALLE DEAN VALDIVIA 1106 - COCACHACRA,AREQUIPA"))
+	lines.push(center("TEL: 934562252"))
+	lines.push(divider("="))
+	lines.push(
+		center(
+			data.voucherType === "factura" ? "FACTURA ELECTRÓNICA" : "BOLETA DE VENTA ELECTRÓNICA"
+		)
+	)
+	lines.push(center(`N°: ${data.saleId.slice(-8).toUpperCase()}`))
+	lines.push(divider("="))
 
-	// Cabecera
-	lines.push(center("FARMACIA"))
-	lines.push(center("RUC: 20000000001"))
-	lines.push(center("Av. Principal 123, Lima"))
-	lines.push(center("Tel: 01-000-0000"))
-	lines.push(divider())
-	lines.push(center(voucherLabel))
-	lines.push(center(`N° ${data.saleId.slice(-8).toUpperCase()}`))
-	lines.push(divider())
+	// 2. DATOS DEL CLIENTE Y VENTA
+	lines.push(`FECHA EMISIÓN : ${dateStr} ${timeStr}`)
+	lines.push(`CAJERO        : ${data.cashierName.toUpperCase()}`)
 
-	// Fecha y cajero
-	lines.push(`Fecha : ${dateStr} ${timeStr}`)
-	lines.push(`Cajero: ${data.cashierName}`)
 	if (data.clientName) {
-		lines.push(`Cliente: ${data.clientName}`)
+		lines.push(`CLIENTE       : ${data.clientName.toUpperCase()}`)
+		if (data.clientDocument) {
+			const label = data.clientDocument.length === 11 ? "RUC" : "DNI/CE"
+			lines.push(`${label.padEnd(14)}: ${data.clientDocument}`)
+		}
+	} else {
+		lines.push(`CLIENTE       : VARIOS`)
 	}
-	lines.push(divider())
+	lines.push(divider("-"))
 
-	// Items
-	lines.push(columns("Producto", "Total"))
+	// 3. DETALLE DE PRODUCTOS
+	lines.push(columns("CANT  DESCRIPCIÓN", "TOTAL"))
 	lines.push(divider("-"))
 
 	for (const item of data.items) {
-		lines.push(item?.productName.slice(0, 42))
-		lines.push(
-			columns(
-				`  ${item.quantity} x S/. ${item.finalPrice.toFixed(2)}`,
-				`S/. ${item.subtotal.toFixed(2)}`
-			)
-		)
-		if (item.alterPrice !== null) {
-			lines.push(`  * Precio modificado`)
+		const qtyPrefix = `${item.quantity}`.padEnd(6)
+		const name = item.productName.toUpperCase()
+		const total = item.subtotal.toFixed(2)
+
+		// Si el nombre es muy largo, lo ponemos en una línea y el precio en otra
+		if (name.length > 30) {
+			lines.push(qtyPrefix + name)
+			lines.push(columns("", total))
+		} else {
+			lines.push(columns(qtyPrefix + name, total))
+		}
+
+		// Detalle de precio unitario si es más de 1 unidad
+		if (item.quantity > 1) {
+			lines.push(`       (${item.quantity} x S/. ${item.finalPrice.toFixed(2)})`)
 		}
 	}
 
-	lines.push(divider())
+	// 4. TOTALES
+	lines.push(divider("-"))
+	const subtotal = data.totalPrice / 1.18
+	const igv = data.totalPrice - subtotal
 
-	// Totales
-	lines.push(columns("TOTAL", `S/. ${data.totalPrice.toFixed(2)}`))
+	lines.push(columns("   OP. GRAVADA:  S/.", subtotal.toFixed(2)))
+	lines.push(columns("   I.G.V. (18%): S/.", igv.toFixed(2)))
+	lines.push(columns("   TOTAL A PAGAR:S/.", data.totalPrice.toFixed(2)))
+	lines.push(divider("-"))
 
+	// 5. PAGO
 	const methodLabels: Record<string, string> = {
-		cash: "Efectivo",
-		card: "Tarjeta",
-		credit: "Crédito",
-		wallet: "Saldo favor",
-		mixed: "Mixto"
+		cash: "EFECTIVO",
+		card: "TARJETA",
+		credit: "CRÉDITO",
+		wallet: "YAPE/PLIN",
+		mixed: "MIXTO"
 	}
-	lines.push(columns("Pago", methodLabels[data.paymentMethod] ?? data.paymentMethod))
+	lines.push(
+		columns("PAGO CON:", methodLabels[data.paymentMethod] || data.paymentMethod.toUpperCase())
+	)
 
-	if (data.paymentMethod === "cash" && data.cashReceived > 0) {
-		lines.push(columns("Recibido", `S/. ${data.cashReceived.toFixed(2)}`))
-		lines.push(columns("Cambio", `S/. ${data.change.toFixed(2)}`))
+	if (data.paymentMethod === "cash") {
+		lines.push(columns("RECIBIDO:", `S/. ${data.cashReceived.toFixed(2)}`))
+		lines.push(columns("CAMBIO:", `S/. ${data.change.toFixed(2)}`))
 	}
 
-	lines.push(divider())
-	lines.push(center("Gracias por su compra"))
-	lines.push(center("Conserve su comprobante"))
+	// 6. ADVERTENCIAS Y POLÍTICAS
+	lines.push(divider("-"))
+	lines.push(center("POLÍTICA DE DEVOLUCIONES:"))
+	lines.push(center("Solo se aceptan cambios dentro de las 24h"))
+	lines.push(center("con empaque sellado y comprobante."))
+	lines.push(center("No se aceptan devoluciones de refrigerados."))
+
+	// 7. CÓDIGO DE BARRAS / IDENTIFICADOR
+	lines.push("")
+	lines.push(center("ID DE VENTA PARA SEGUIMIENTO"))
+	// Generamos una representación visual del ID de venta
+	lines.push(center(`* ${data.saleId.toUpperCase()} *`))
+
+	// 8. SECCIÓN FISAL OBLIGATORIA (Post-totales)
+	// lines.push(divider("-"))
+	// lines.push(`Hash: ${nubefact.codigo_hash}`)
+	// lines.push("")
+
+	// // Representación del QR en texto (Requerido si no hay imagen)
+	// lines.push(center("Resumen para QR:"))
+	// lines.push(center(nubefact.cadena_para_codigo_qr.slice(0, 48))) // Primera parte
+	// if (nubefact.cadena_para_codigo_qr.length > 48) {
+	// 	lines.push(center(nubefact.cadena_para_codigo_qr.slice(48, 96)))
+	// }
+
+	// 9. PIE DE PÁGINA
+	lines.push(divider("="))
+	lines.push(center("¡GRACIAS POR SU COMPRA!"))
+	// lines.push(center("Representación impresa de la " + data.voucherType.toUpperCase()))
+	// lines.push(center("Consulte su comprobante en:"))
+	// lines.push(center("://farmacia.com.pe/consultas"))
 	lines.push("")
 	lines.push("")
-	lines.push("")
+	lines.push("") // Espacio para el corte físico
 
 	return lines
 }
 
 export function registerPrinterHandlers(): void {
+	const PRINTER_NAME = "TicketeraPOS"
 	ipcMain.handle(IPC_CHANNELS.PRINT_RECEIPT, async (_event, data: Receipt) => {
 		try {
-			// Importación dinámica para evitar errores si no hay USB conectado
-			const { default: USB } = await import("@node-escpos/usb-adapter")
-			const { Printer } = await import("@node-escpos/core")
-
-			const device = new USB()
-			await device.open()
-
-			const printer = new Printer(device, { encoding: "UTF-8" })
 			const lines = formatReceipt(data)
-
-			for (const line of lines) {
-				await printer.text(line)
-			}
-
-			await printer.cut()
-			await printer.close()
+			// Unimos las líneas y añadimos el comando de corte ESC/POS (GS V 66 0)
+			const textBuffer = Buffer.from(lines.join("\n"), "utf-8")
+			const footerBuffer = Buffer.from("\n\n\n\x1dV\x42\x00")
+			const finalBuffer = Buffer.concat([textBuffer, Buffer.from("\n"), footerBuffer])
+			// Enviamos el texto directamente a la cola de impresión que ya probaste
+			const child = exec(`lp -d ${PRINTER_NAME} -o raw`)
+			child.stdin?.write(finalBuffer)
+			child.stdin?.end()
 
 			return { success: true }
 		} catch (error) {
-			console.error("Print error:", error)
+			console.error("Error de impresión:", error)
 			return { success: false, error: String(error) }
 		}
 	})
 
 	ipcMain.handle(IPC_CHANNELS.OPEN_DRAWER, async () => {
 		try {
-			const { default: USB } = await import("@node-escpos/usb-adapter")
-			const { Printer } = await import("@node-escpos/core")
+			const openDrawer = "\x1bp\x00\x19\xfa"
 
-			const device = new USB()
-			await device.open()
-			const printer = new Printer(device, {})
-
-			// Comando ESC/POS para abrir cajón
-			await printer.cashdraw(2)
-			await printer.close()
+			const child = exec(`lp -d ${PRINTER_NAME} -o raw`)
+			child.stdin?.write(openDrawer)
+			child.stdin?.end()
 
 			return { success: true }
 		} catch (error) {
-			console.error("Drawer error:", error)
+			console.error("Error al abrir cajón:", error)
 			return { success: false, error: String(error) }
 		}
 	})

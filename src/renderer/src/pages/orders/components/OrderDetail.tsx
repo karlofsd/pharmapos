@@ -63,7 +63,7 @@ export function OrderDetail({
 					<Badge variant="outline" className={`text-xs w-fit ${statusConfig.className}`}>
 						{statusConfig.label}
 					</Badge>
-					<p className="text-sm font-medium text-slate-800">{order.supplierId}</p>
+					<p className="text-sm font-medium text-slate-800">{order.supplierName}</p>
 					{order.expectedAt && (
 						<p className="text-xs text-slate-500">
 							Esperado: {order.expectedAt.toDate().toLocaleDateString("es-PE")}

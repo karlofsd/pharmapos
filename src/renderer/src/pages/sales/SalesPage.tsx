@@ -130,7 +130,7 @@ export default function SalesPage(): React.ReactElement {
 								type="date"
 								value={dateFrom}
 								onChange={(e) => setDateFrom(e.target.value)}
-								className="w-36"
+								className="w-40"
 							/>
 						</div>
 						<div className="flex flex-col gap-1">
@@ -139,11 +139,11 @@ export default function SalesPage(): React.ReactElement {
 								type="date"
 								value={dateTo}
 								onChange={(e) => setDateTo(e.target.value)}
-								className="w-36"
+								className="w-40"
 							/>
 						</div>
 						<Select value={statusFilter} onValueChange={setStatusFilter}>
-							<SelectTrigger className="w-36">
+							<SelectTrigger className="w-40">
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>

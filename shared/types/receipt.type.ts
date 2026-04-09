@@ -6,13 +6,14 @@ export interface Receipt {
 		quantity: number
 		subtotal: number
 		finalPrice: number
-		alterPrice: number
+		alterPrice: number | null
 	}[]
 	totalPrice: number
 	cashReceived: number
 	change: number
 	paymentMethod: string
 	clientName: string | null
+	clientDocument: string | null
 	cashierName: string
 	date: string
 }
