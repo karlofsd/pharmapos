@@ -78,46 +78,5 @@
 		"tsx": "^4.21.0",
 		"typescript": "^5.9.3",
 		"vite": "^7.2.6"
-	},
-	"build": {
-		"appId": "com.tuempresa.pharmapos",
-		"productName": "Farmacia POS",
-		"copyright": "Copyright © 2024",
-		"directories": {
-			"output": "dist"
-		},
-		"files": [
-			"out/**/*",
-			"node_modules/**/*",
-			"package.json"
-		],
-		"win": {
-			"target": [
-				{
-					"target": "nsis",
-					"arch": [
-						"x64"
-					]
-				}
-			],
-			"icon": "resources/icon.ico",
-			"publisherName": "ArkaN"
-		},
-		"nsis": {
-			"oneClick": false,
-			"allowToChangeInstallationDirectory": true,
-			"installerIcon": "resources/icon.ico",
-			"uninstallerIcon": "resources/icon.ico",
-			"installerHeaderIcon": "resources/icon.ico",
-			"createDesktopShortcut": true,
-			"createStartMenuShortcut": true,
-			"shortcutName": "Farmacia POS"
-		},
-		"publish": {
-			"provider": "github",
-			"owner": "karlofsd",
-			"repo": "pharmapos",
-			"private": false
-		}
 	}
 }
