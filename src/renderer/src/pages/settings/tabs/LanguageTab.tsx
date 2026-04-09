@@ -26,7 +26,9 @@ export function LanguageTab(): React.ReactElement {
 					>
 						<span className="text-3xl">{lang.flag}</span>
 						<div>
-							<p className={`font-medium ${language === lang.value ? "text-slate-800" : "text-slate-600"}`}>
+							<p
+								className={`font-medium ${language === lang.value ? "text-slate-800" : "text-slate-600"}`}
+							>
 								{lang.label}
 							</p>
 							<p className="text-xs text-slate-400">{lang.description}</p>

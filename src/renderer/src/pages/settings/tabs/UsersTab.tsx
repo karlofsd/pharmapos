@@ -2,12 +2,7 @@ import { useState } from "react"
 import { Plus, Pencil, UserX } from "lucide-react"
 import { Button } from "@renderer/components/ui/button"
 import { Badge } from "@renderer/components/ui/badge"
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle
-} from "@renderer/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@renderer/components/ui/dialog"
 import {
 	Table,
 	TableBody,
@@ -49,7 +44,13 @@ export function UsersTab(): React.ReactElement {
 				<p className="text-sm font-semibold text-slate-700">
 					{users.length} usuarios registrados
 				</p>
-				<Button size="sm" onClick={() => { setEditingUser(null); setShowForm(true) }}>
+				<Button
+					size="sm"
+					onClick={() => {
+						setEditingUser(null)
+						setShowForm(true)
+					}}
+				>
 					<Plus size={14} />
 					Nuevo usuario
 				</Button>
@@ -82,7 +83,10 @@ export function UsersTab(): React.ReactElement {
 											{user.email}
 										</TableCell>
 										<TableCell>
-											<Badge variant="outline" className={`text-xs ${roleConfig.className}`}>
+											<Badge
+												variant="outline"
+												className={`text-xs ${roleConfig.className}`}
+											>
 												{roleConfig.label}
 											</Badge>
 										</TableCell>
@@ -92,9 +96,10 @@ export function UsersTab(): React.ReactElement {
 										<TableCell>
 											<Badge
 												variant="outline"
-												className={user.isActive
-													? "bg-green-50 text-green-700 border-green-200"
-													: "bg-slate-100 text-slate-500"
+												className={
+													user.isActive
+														? "bg-green-50 text-green-700 border-green-200"
+														: "bg-slate-100 text-slate-500"
 												}
 											>
 												{user.isActive ? "Activo" : "Inactivo"}
@@ -106,7 +111,10 @@ export function UsersTab(): React.ReactElement {
 													size="icon"
 													variant="ghost"
 													className="h-7 w-7"
-													onClick={() => { setEditingUser(user); setShowForm(true) }}
+													onClick={() => {
+														setEditingUser(user)
+														setShowForm(true)
+													}}
 												>
 													<Pencil size={13} />
 												</Button>

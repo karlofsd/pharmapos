@@ -30,7 +30,7 @@ export type StockAdjustDTO = {
 export const LotService = {
 	async getAll(): Promise<Lot[]> {
 		const q = query(
-			collection(db, LOTS),
+			collection(db!, LOTS),
 			where("isActive", "==", true),
 			orderBy("expirationDate", "asc")
 		)
@@ -42,7 +42,7 @@ export const LotService = {
 
 	async getByProduct(productId: string): Promise<Lot[]> {
 		const q = query(
-			collection(db, LOTS),
+			collection(db!, LOTS),
 			where("productId", "==", productId),
 			where("isActive", "==", true),
 			orderBy("expirationDate", "asc")
@@ -58,10 +58,10 @@ export const LotService = {
 			createdAt: serverTimestamp()
 		}
 
-		const lotRef = await addDoc(collection(db, LOTS), lotPayload)
+		const lotRef = await addDoc(collection(db!, LOTS), lotPayload)
 
 		// Registrar movimiento de entrada
-		await addDoc(collection(db, MOVEMENTS), {
+		await addDoc(collection(db!, MOVEMENTS), {
 			type: "entry",
 			productId: data.productId,
 			lotId: lotRef.id,
@@ -81,16 +81,16 @@ export const LotService = {
 	},
 
 	async updatePrice(lotId: string, sellPrice: number): Promise<void> {
-		await updateDoc(doc(db, LOTS, lotId), {
+		await updateDoc(doc(db!, LOTS, lotId), {
 			sellPrice,
 			updatedAt: serverTimestamp()
 		})
 	},
 
 	async adjustStock(data: StockAdjustDTO): Promise<void> {
-		const lotRef = doc(db, LOTS, data.lotId)
+		const lotRef = doc(db!, LOTS, data.lotId)
 
-		await runTransaction(db, async (transaction) => {
+		await runTransaction(db!, async (transaction) => {
 			const lotSnap = await transaction.get(lotRef)
 			if (!lotSnap.exists()) throw new Error("Lote no encontrado")
 
@@ -104,7 +104,7 @@ export const LotService = {
 				updatedAt: serverTimestamp()
 			})
 
-			const movementRef = doc(collection(db, MOVEMENTS))
+			const movementRef = doc(collection(db!, MOVEMENTS))
 			transaction.set(movementRef, {
 				type: "adjustment",
 				productId: data.productId,
@@ -124,7 +124,7 @@ export const LotService = {
 	},
 
 	async deactivate(lotId: string): Promise<void> {
-		await updateDoc(doc(db, LOTS, lotId), {
+		await updateDoc(doc(db!, LOTS, lotId), {
 			isActive: false,
 			updatedAt: serverTimestamp()
 		})

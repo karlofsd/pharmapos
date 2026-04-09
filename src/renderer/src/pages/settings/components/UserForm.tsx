@@ -62,18 +62,20 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps): React.Rea
 		formState: { errors }
 	} = useForm<CreateFormData | UpdateFormData>({
 		resolver: zodResolver(isEditing ? updateSchema : createSchema),
-		defaultValues: user ? {
-			name: user.name,
-			lastname: user.lastname,
-			role: user.role,
-			level: user.level,
-			phoneCode: user.phoneNumber.code,
-			phoneNumber: user.phoneNumber.number
-		} : {
-			role: "cashier",
-			level: 1,
-			phoneCode: "+51"
-		}
+		defaultValues: user
+			? {
+					name: user.name,
+					lastname: user.lastname,
+					role: user.role,
+					level: user.level,
+					phoneCode: user.phoneNumber.code,
+					phoneNumber: user.phoneNumber.number
+				}
+			: {
+					role: "cashier",
+					level: 1,
+					phoneCode: "+51"
+				}
 	})
 
 	async function handleFormSubmit(data: CreateFormData | UpdateFormData): Promise<void> {
@@ -87,7 +89,7 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps): React.Rea
 					level: data.level as PermissionLevel,
 					phoneNumber: { code: data.phoneCode, number: data.phoneNumber }
 				} as UpdateUserDTO)
-			} else if ('email' in data) {
+			} else if ("email" in data) {
 				await onSubmit({
 					name: data.name,
 					lastname: data.lastname,
@@ -115,21 +117,31 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps): React.Rea
 				<div className="flex flex-col gap-1">
 					<Label>Apellido</Label>
 					<Input {...register("lastname")} placeholder="Pérez" />
-					{errors.lastname && <p className="text-xs text-red-500">{errors.lastname.message}</p>}
+					{errors.lastname && (
+						<p className="text-xs text-red-500">{errors.lastname.message}</p>
+					)}
 				</div>
 			</div>
 
-			{(!isEditing && 'email' in errors) && (
+			{!isEditing && "email" in errors && (
 				<>
 					<div className="flex flex-col gap-1">
 						<Label>Correo electrónico</Label>
-						<Input {...register("email")} type="email" placeholder="juan@farmacia.com" />
-						{errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
+						<Input
+							{...register("email")}
+							type="email"
+							placeholder="juan@farmacia.com"
+						/>
+						{errors.email && (
+							<p className="text-xs text-red-500">{errors.email.message}</p>
+						)}
 					</div>
 					<div className="flex flex-col gap-1">
 						<Label>Contraseña</Label>
 						<Input {...register("password")} type="password" placeholder="••••••••" />
-						{errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
+						{errors.password && (
+							<p className="text-xs text-red-500">{errors.password.message}</p>
+						)}
 					</div>
 				</>
 			)}
@@ -158,9 +170,13 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps): React.Rea
 							<SelectValue />
 						</SelectTrigger>
 						<SelectContent>
-							{(Object.entries(ROLE_LABELS) as [Role, string][]).map(([val, label]) => (
-								<SelectItem key={val} value={val}>{label}</SelectItem>
-							))}
+							{(Object.entries(ROLE_LABELS) as [Role, string][]).map(
+								([val, label]) => (
+									<SelectItem key={val} value={val}>
+										{label}
+									</SelectItem>
+								)
+							)}
 						</SelectContent>
 					</Select>
 				</div>
@@ -175,7 +191,9 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps): React.Rea
 						</SelectTrigger>
 						<SelectContent>
 							{Object.entries(LEVEL_LABELS).map(([val, label]) => (
-								<SelectItem key={val} value={val}>{label}</SelectItem>
+								<SelectItem key={val} value={val}>
+									{label}
+								</SelectItem>
 							))}
 						</SelectContent>
 					</Select>
@@ -184,7 +202,11 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps): React.Rea
 
 			<div className="flex gap-2 pt-2">
 				<Button type="submit" disabled={isSubmitting} className="flex-1">
-					{isSubmitting ? "Guardando..." : isEditing ? "Guardar cambios" : "Crear usuario"}
+					{isSubmitting
+						? "Guardando..."
+						: isEditing
+							? "Guardar cambios"
+							: "Crear usuario"}
 				</Button>
 				<Button type="button" variant="outline" onClick={onCancel}>
 					Cancelar

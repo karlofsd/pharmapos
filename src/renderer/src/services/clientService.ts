@@ -23,14 +23,14 @@ export type UpdateClientDTO = Partial<Omit<Client, "id" | "createdAt" | "created
 
 export const ClientService = {
 	async getAll(): Promise<Client[]> {
-		const q = query(collection(db, COLLECTION), orderBy("name", "asc"))
+		const q = query(collection(db!, COLLECTION), orderBy("name", "asc"))
 		const snapshot = await getDocs(q)
 		console.log("Clients: ", snapshot.docs)
 		return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Client)
 	},
 
 	async getById(id: string): Promise<Client | null> {
-		const snapshot = await getDoc(doc(db, COLLECTION, id))
+		const snapshot = await getDoc(doc(db!, COLLECTION, id))
 		if (!snapshot.exists()) return null
 		return { id: snapshot.id, ...snapshot.data() } as Client
 	},
@@ -40,7 +40,7 @@ export const ClientService = {
 			...data,
 			createdAt: serverTimestamp()
 		}
-		const docRef = await addDoc(collection(db, COLLECTION), payload)
+		const docRef = await addDoc(collection(db!, COLLECTION), payload)
 		return {
 			id: docRef.id,
 			...payload,
@@ -50,7 +50,7 @@ export const ClientService = {
 	},
 
 	async update(id: string, data: UpdateClientDTO, userId: string): Promise<void> {
-		await updateDoc(doc(db, COLLECTION, id), {
+		await updateDoc(doc(db!, COLLECTION, id), {
 			...data,
 			updatedAt: serverTimestamp(),
 			updatedBy: userId
@@ -58,11 +58,11 @@ export const ClientService = {
 	},
 
 	async deactivate(id: string): Promise<void> {
-		await updateDoc(doc(db, COLLECTION, id), { isActive: false, updatedAt: serverTimestamp() })
+		await updateDoc(doc(db!, COLLECTION, id), { isActive: false, updatedAt: serverTimestamp() })
 	},
 
 	async activate(id: string): Promise<void> {
-		await updateDoc(doc(db, COLLECTION, id), { isActive: true, updatedAt: serverTimestamp() })
+		await updateDoc(doc(db!, COLLECTION, id), { isActive: true, updatedAt: serverTimestamp() })
 	},
 
 	async search(query: string): Promise<Client[]> {

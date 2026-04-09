@@ -30,7 +30,7 @@ export interface CreateCashMovementDTO {
 export const TillService = {
 	async getActive(cashierId: string): Promise<TillBalance | null> {
 		const q = query(
-			collection(db, TILLS),
+			collection(db!, TILLS),
 			where("cashierId", "==", cashierId),
 			where("closedAt", "==", null)
 		)
@@ -41,14 +41,14 @@ export const TillService = {
 	},
 
 	async getAll(): Promise<TillBalance[]> {
-		const q = query(collection(db, TILLS), orderBy("createdAt", "desc"))
+		const q = query(collection(db!, TILLS), orderBy("createdAt", "desc"))
 		const snapshot = await getDocs(q)
 		return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as TillBalance)
 	},
 
 	async getMovements(tillId: string): Promise<CashMovement[]> {
 		const q = query(
-			collection(db, MOVEMENTS),
+			collection(db!, MOVEMENTS),
 			where("tillId", "==", tillId),
 			orderBy("createdAt", "asc")
 		)
@@ -75,9 +75,9 @@ export const TillService = {
 			createdAt: serverTimestamp()
 		}
 
-		const ref = await addDoc(collection(db, TILLS), payload)
+		const ref = await addDoc(collection(db!, TILLS), payload)
 
-		await addDoc(collection(db, MOVEMENTS), {
+		await addDoc(collection(db!, MOVEMENTS), {
 			tillId: ref.id,
 			type: "till_init",
 			direction: "in",
@@ -97,8 +97,8 @@ export const TillService = {
 	},
 
 	async addMovement(data: CreateCashMovementDTO): Promise<CashMovement> {
-		await runTransaction(db, async (transaction) => {
-			const tillRef = doc(db, TILLS, data.tillId)
+		await runTransaction(db!, async (transaction) => {
+			const tillRef = doc(db!, TILLS, data.tillId)
 			const tillSnap = await transaction.get(tillRef)
 			if (!tillSnap.exists()) throw new Error("Caja no encontrada")
 
@@ -117,7 +117,7 @@ export const TillService = {
 
 			transaction.update(tillRef, { [field]: current + data.amount })
 
-			const movRef = doc(collection(db, MOVEMENTS))
+			const movRef = doc(collection(db!, MOVEMENTS))
 			transaction.set(movRef, {
 				tillId: data.tillId,
 				type: data.type,
@@ -130,12 +130,12 @@ export const TillService = {
 			})
 		})
 
-		const mov = await addDoc(collection(db, MOVEMENTS), {})
+		const mov = await addDoc(collection(db!, MOVEMENTS), {})
 		return { id: mov.id, ...data, createdAt: Timestamp.now() } as CashMovement
 	},
 
 	async close(tillId: string, closingAmount: number, userId: string): Promise<number> {
-		const tillRef = doc(db, TILLS, tillId)
+		const tillRef = doc(db!, TILLS, tillId)
 		const tillSnap = await getDoc(tillRef)
 		if (!tillSnap.exists()) throw new Error("Caja no encontrada")
 
@@ -152,7 +152,7 @@ export const TillService = {
 			isSynced: false
 		})
 
-		await addDoc(collection(db, MOVEMENTS), {
+		await addDoc(collection(db!, MOVEMENTS), {
 			tillId,
 			type: "till_close",
 			direction: "out",

@@ -203,12 +203,13 @@ export default function InventoryPage(): React.ReactElement {
 											<TableCell className="text-right">
 												<span
 													className={`text-sm font-medium
-													${lot.stock === 0
+													${
+														lot.stock === 0
 															? "text-red-500"
 															: lot.stock <= lot.product.minStock
 																? "text-yellow-600"
 																: "text-slate-800"
-														}`}
+													}`}
 												>
 													{lot.stock}
 												</span>
@@ -295,7 +296,9 @@ export default function InventoryPage(): React.ReactElement {
 					{selectedLot && (
 						<div className="flex flex-col gap-4">
 							<div className="bg-slate-50 rounded-lg p-3">
-								<p className="text-sm font-medium">{selectedLot.product.brand} - {selectedLot.product.presentation}</p>
+								<p className="text-sm font-medium">
+									{selectedLot.product.brand} - {selectedLot.product.presentation}
+								</p>
 								<p className="text-xs text-slate-500">
 									Lote: {selectedLot.numberLot}
 								</p>

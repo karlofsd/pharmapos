@@ -168,25 +168,39 @@ export default function ProductDetail({
 											{lot.numberLot}
 										</p>
 										<p className="text-xs text-slate-400">
-											Vence: {expDate.toLocaleDateString("es-PE", {
-												day: "2-digit", month: "short", year: "numeric"
+											Vence:{" "}
+											{expDate.toLocaleDateString("es-PE", {
+												day: "2-digit",
+												month: "short",
+												year: "numeric"
 											})}
 										</p>
 									</div>
 									<div className="flex flex-col items-end gap-1">
-										<span className={`text-xs font-bold ${isEmpty ? "text-red-500"
-											: lot.stock <= product.minStock ? "text-yellow-600"
-												: "text-slate-700"
-											}`}>
+										<span
+											className={`text-xs font-bold ${
+												isEmpty
+													? "text-red-500"
+													: lot.stock <= product.minStock
+														? "text-yellow-600"
+														: "text-slate-700"
+											}`}
+										>
 											{lot.stock} u.
 										</span>
 										{isExpired && (
-											<Badge variant="outline" className="text-xs bg-red-50 text-red-600 border-red-200 py-0">
+											<Badge
+												variant="outline"
+												className="text-xs bg-red-50 text-red-600 border-red-200 py-0"
+											>
 												Vencido
 											</Badge>
 										)}
 										{isExpiring && !isExpired && (
-											<Badge variant="outline" className="text-xs bg-orange-50 text-orange-600 border-orange-200 py-0">
+											<Badge
+												variant="outline"
+												className="text-xs bg-orange-50 text-orange-600 border-orange-200 py-0"
+											>
 												Por vencer
 											</Badge>
 										)}

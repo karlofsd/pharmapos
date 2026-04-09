@@ -65,26 +65,26 @@ export function SupplierForm({
 		resolver: zodResolver(schema),
 		defaultValues: supplier
 			? {
-				name: supplier.name,
-				lastname: supplier.lastname,
-				businessName: supplier.businessName,
-				documentType: Object.keys(supplier.document)[0] as DocumentType,
-				documentNumber: Object.values(supplier.document)[0],
-				phoneCode: supplier.phoneNumber.code,
-				phoneNumber: supplier.phoneNumber.number,
-				email: supplier.email ?? "",
-				address: supplier.address ?? "",
-				paymentCondition: supplier.paymentCondition,
-				creditDays: supplier.creditDays,
-				creditLimit: supplier.creditLimit
-			}
+					name: supplier.name,
+					lastname: supplier.lastname,
+					businessName: supplier.businessName,
+					documentType: Object.keys(supplier.document)[0] as DocumentType,
+					documentNumber: Object.values(supplier.document)[0],
+					phoneCode: supplier.phoneNumber.code,
+					phoneNumber: supplier.phoneNumber.number,
+					email: supplier.email ?? "",
+					address: supplier.address ?? "",
+					paymentCondition: supplier.paymentCondition,
+					creditDays: supplier.creditDays,
+					creditLimit: supplier.creditLimit
+				}
 			: {
-				documentType: "ruc",
-				phoneCode: "+51",
-				paymentCondition: "cash",
-				creditDays: 0,
-				creditLimit: 0
-			}
+					documentType: "ruc",
+					phoneCode: "+51",
+					paymentCondition: "cash",
+					creditDays: 0,
+					creditLimit: 0
+				}
 	})
 
 	const [isQuerying, setIsQuerying] = useState(false)
@@ -196,7 +196,10 @@ export function SupplierForm({
 					<div className="grid grid-cols-2 gap-3">
 						<div className="flex flex-col gap-1">
 							<Label>Nombre</Label>
-							<Input {...register("name", { required: !getValues('businessName') })} placeholder="Juan" />
+							<Input
+								{...register("name", { required: !getValues("businessName") })}
+								placeholder="Juan"
+							/>
 							{errors.name && (
 								<p className="text-xs text-red-500">{errors.name.message}</p>
 							)}
@@ -212,7 +215,7 @@ export function SupplierForm({
 					<div className="flex flex-col gap-1">
 						<Label>Razón social</Label>
 						<Input
-							{...register("businessName", { required: !getValues('name') })}
+							{...register("businessName", { required: !getValues("name") })}
 							placeholder="Distribuidora Farma S.A."
 						/>
 						{errors.businessName && (
@@ -254,24 +257,29 @@ export function SupplierForm({
 						<div className="flex flex-col gap-1 flex-1">
 							<Label>Número</Label>
 							<div className="flex gap-2">
-								<Input {...register("documentNumber", { required: !!getValues('businessName') })} placeholder="00000000" />
+								<Input
+									{...register("documentNumber", {
+										required: !!getValues("businessName")
+									})}
+									placeholder="00000000"
+								/>
 								{(watch("documentType") === "dni" ||
 									watch("documentType") === "ruc") && (
-										<Button
-											type="button"
-											variant="outline"
-											size="icon"
-											onClick={handleQueryDocument}
-											disabled={isQuerying || !watch("documentNumber")}
-											title="Consultar documento"
-										>
-											{isQuerying ? (
-												<Loader2 size={14} className="animate-spin" />
-											) : (
-												<Search size={14} />
-											)}
-										</Button>
-									)}
+									<Button
+										type="button"
+										variant="outline"
+										size="icon"
+										onClick={handleQueryDocument}
+										disabled={isQuerying || !watch("documentNumber")}
+										title="Consultar documento"
+									>
+										{isQuerying ? (
+											<Loader2 size={14} className="animate-spin" />
+										) : (
+											<Search size={14} />
+										)}
+									</Button>
+								)}
 							</div>
 							{errors.documentNumber && (
 								<p className="text-xs text-red-500">

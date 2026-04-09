@@ -45,9 +45,9 @@ export interface SalesFilters {
 
 export const SaleService = {
 	async create(data: CreateSaleDTO): Promise<string> {
-		const saleId = await runTransaction(db, async (transaction) => {
-			const tillRef = doc(db, "tills", data.tillId)
-			const saleRef = doc(collection(db, "sales"))
+		const saleId = await runTransaction(db!, async (transaction) => {
+			const tillRef = doc(db!, "tills", data.tillId)
+			const saleRef = doc(collection(db!, "sales"))
 			const cashSnap = await transaction.get(tillRef)
 			const itemsRef: Record<
 				string,
@@ -58,7 +58,7 @@ export const SaleService = {
 			> = {}
 
 			for (const i of data.items) {
-				const lotRef = doc(db, "lots", i.lotId)
+				const lotRef = doc(db!, "lots", i.lotId)
 				const lotSnap = await transaction.get(lotRef)
 				itemsRef[i.lotId] = { lotRef, lotSnap }
 			}
@@ -67,7 +67,7 @@ export const SaleService = {
 
 			//1. Verificar y descontar stock por cada item (FEFO ya ordenado)
 			for (const item of data.items) {
-				// const lotRef = doc(db, "lots", item.lotId)
+				// const lotRef = doc(db!, "lots", item.lotId)
 				const lotSnap = itemsRef[item.lotId].lotSnap
 				const lotRef = itemsRef[item.lotId].lotRef
 				if (!lotSnap.exists()) throw new Error(`Lote ${item.lotId} no encontrado`)
@@ -81,7 +81,7 @@ export const SaleService = {
 				const newStock = currentStock - item.quantity
 				transaction.update(lotRef, { stock: newStock })
 				//2. Crear movimiento por cada item
-				const movementRef = doc(collection(db, "movements"))
+				const movementRef = doc(collection(db!, "movements"))
 				transaction.set(movementRef, {
 					type: "sale",
 					productId: item.productId,
@@ -170,9 +170,9 @@ export const SaleService = {
 			return saleRef.id
 		})
 
-		// runTransaction(db, async (transaction) => {
+		// runTransaction(db!, async (transaction) => {
 		// 	for (const item of data.items) {
-		// 		const lotRef = doc(db, "lots", item.lotId)
+		// 		const lotRef = doc(db!, "lots", item.lotId)
 		// 		const lotSnap = await transaction.get(lotRef)
 
 		// 		if (!lotSnap.exists()) throw new Error(`Lote ${item.lotId} no encontrado`)
@@ -188,7 +188,7 @@ export const SaleService = {
 
 		// 		const newStock = currentStock - item.quantity
 		// 		transaction.update(lotRef, { stock: newStock })
-		// 		const movementRef = doc(collection(db, "movements"))
+		// 		const movementRef = doc(collection(db!, "movements"))
 		// 		transaction.set(movementRef, {
 		// 			type: "sale",
 		// 			productId: item.productId,
@@ -214,7 +214,7 @@ export const SaleService = {
 	},
 
 	async getAll(filters: SalesFilters = {}): Promise<Sale[]> {
-		const q = query(collection(db, COLLECTION), orderBy("createdAt", "desc"))
+		const q = query(collection(db!, COLLECTION), orderBy("createdAt", "desc"))
 
 		const snapshot = await getDocs(q)
 		let sales = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Sale)
@@ -239,14 +239,14 @@ export const SaleService = {
 	},
 
 	async getById(id: string): Promise<Sale | null> {
-		const snapshot = await getDoc(doc(db, COLLECTION, id))
+		const snapshot = await getDoc(doc(db!, COLLECTION, id))
 		if (!snapshot.exists()) return null
 		return { id: snapshot.id, ...snapshot.data() } as Sale
 	},
 
 	async cancel(saleId: string, userId: string, reason: string): Promise<void> {
-		await runTransaction(db, async (transaction) => {
-			const saleRef = doc(db, COLLECTION, saleId)
+		await runTransaction(db!, async (transaction) => {
+			const saleRef = doc(db!, COLLECTION, saleId)
 			const saleSnap = await transaction.get(saleRef)
 
 			if (!saleSnap.exists()) throw new Error("Venta no encontrada")
@@ -259,7 +259,7 @@ export const SaleService = {
 
 			// Revertir stock por cada item
 			for (const item of sale.items) {
-				const lotRef = doc(db, "lots", item.lotId)
+				const lotRef = doc(db!, "lots", item.lotId)
 				const lotSnap = await transaction.get(lotRef)
 
 				if (!lotSnap.exists()) continue
@@ -270,7 +270,7 @@ export const SaleService = {
 				transaction.update(lotRef, { stock: newStock })
 
 				// Crear movimiento de reversión
-				const movementRef = doc(collection(db, "movements"))
+				const movementRef = doc(collection(db!, "movements"))
 				transaction.set(movementRef, {
 					type: "sale_reversal",
 					productId: item.productId,
@@ -302,7 +302,7 @@ export const SaleService = {
 			})
 
 			// Revertir totales en caja
-			const tillRef = doc(db, "tills", sale.tillId)
+			const tillRef = doc(db!, "tills", sale.tillId)
 			const tillSnap = await transaction.get(tillRef)
 
 			if (tillSnap.exists()) {

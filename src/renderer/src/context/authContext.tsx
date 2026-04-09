@@ -22,11 +22,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }): React.React
 	})
 
 	useEffect(() => {
-		const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
+		const unsubscribe = onAuthStateChanged(auth!, async (authUser) => {
 			try {
 				if (!isLoading) setState((prev) => ({ ...prev, isLoading: true }))
 				if (authUser) {
-					const userRef = await getDoc(doc(db, "users", authUser.uid))
+					const userRef = await getDoc(doc(db!, "users", authUser.uid))
 					if (userRef.exists()) {
 						const _user = { id: userRef.id, ...userRef.data() } as User
 						setState({ user: _user, isLoading: false })
@@ -42,12 +42,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }): React.React
 	}, [])
 
 	const login = async (email: string, password: string): Promise<void> => {
-		await signInWithEmailAndPassword(auth, email, password)
+		await signInWithEmailAndPassword(auth!, email, password)
 		// setState((prev) => ({ ...prev, isLoading: true }))
 	}
 
 	const logout = async (): Promise<void> => {
-		await auth.signOut()
+		await auth!.signOut()
 	}
 
 	return (

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react"
-import { Movement, MovementsService, MovementsFilters } from "@renderer/services/movementService"
-import { Product } from "@renderer/types"
+import { MovementsService, MovementsFilters } from "@renderer/services/movementService"
+import { Movement, Product } from "@renderer/types"
 import { ProductService } from "@renderer/services/productService"
 
 interface UseMovementsState {

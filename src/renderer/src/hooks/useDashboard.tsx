@@ -51,17 +51,17 @@ export function useDashboard(): UseDashboardReturn {
 				await Promise.all([
 					getDocs(
 						query(
-							collection(db, "sales"),
+							collection(db!, "sales"),
 							where("createdAt", ">=", Timestamp.fromDate(startOfDay)),
 							where("status", "!=", "cancelled")
 						)
 					),
-					getDocs(query(collection(db, "lots"), where("isActive", "==", true))),
-					getDocs(collection(db, "products")),
-					getDocs(query(collection(db, "credits"), where("status", "==", "pending"))),
+					getDocs(query(collection(db!, "lots"), where("isActive", "==", true))),
+					getDocs(collection(db!, "products")),
+					getDocs(query(collection(db!, "credits"), where("status", "==", "pending"))),
 					getDocs(
 						query(
-							collection(db, "orders"),
+							collection(db!, "orders"),
 							where("status", "in", ["pending", "in_transit"])
 						)
 					),

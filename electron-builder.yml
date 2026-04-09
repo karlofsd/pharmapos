@@ -3,72 +3,71 @@ productName: Farmacia POS
 copyright: Copyright © 2024 ArkaN
 
 directories:
-  buildResources: build
-  output: dist
+    buildResources: build
+    output: dist
 
 files:
-  - "!**/.vscode/*"
-  - "!src/*"
-  - "!electron.vite.config.{js,ts,mjs,cjs}"
-  - "!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}"
-  - "!{.env,.env.*,.npmrc,pnpm-lock.yaml}"
-  - "!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}"
-  - "out/**/*"
-  - "node_modules/**/*"
-  - "package.json"
+    - "!**/.vscode/*"
+    - "!src/*"
+    - "!electron.vite.config.{js,ts,mjs,cjs}"
+    - "!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}"
+    - "!{.env,.env.*,.npmrc,pnpm-lock.yaml}"
+    - "!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}"
+    - "out/**/*"
+    - "node_modules/**/*"
+    - "package.json"
 
 asarUnpack:
-  - resources/**
+    - resources/**
 
 publish:
-  provider: github
-  owner: karlofsd
-  repo: pharmapos
-  private: false
+    provider: github
+    owner: karlofsd
+    repo: pharmapos
+    private: false
 
 win:
-  executableName: pharmapos
-  icon: resources/icon.ico
-  publisherName: ArkaN
-  target:
-    - target: nsis
-      arch:
-        - x64
+    executableName: pharmapos
+    icon: resources/icon.ico
+    target:
+        - target: nsis
+          arch:
+              - x64
 
 nsis:
-  artifactName: ${name}-${version}-setup.${ext}
-  shortcutName: ${productName}
-  uninstallDisplayName: ${productName}
-  createDesktopShortcut: always
-  oneClick: false
-  allowToChangeInstallationDirectory: true
+    artifactName: ${name}-${version}-setup.${ext}
+    shortcutName: ${productName}
+    uninstallDisplayName: ${productName}
+    createDesktopShortcut: always
+    oneClick: false
+    allowToChangeInstallationDirectory: true
 
 mac:
-  icon: resources/icon.icns
-  entitlementsInherit: build/entitlements.mac.plist
-  notarize: false
-  target:
-    - target: dmg
-      arch:
-        - x64
-        - arm64
+    icon: resources/icon.icns
+    entitlementsInherit: build/entitlements.mac.plist
+    notarize: false
+    target:
+        - target: dmg
+          arch:
+              - x64
+              - arm64
 
 dmg:
-  artifactName: ${name}-${version}.${ext}
+    artifactName: ${name}-${version}.${ext}
 
 linux:
-  icon: resources/icon.png
-  target:
-    - target: AppImage
-      arch:
-        - x64
-    - target: deb
-      arch:
-        - x64
-  maintainer: karlofsd
-  category: Utility
+    icon: resources/icon.png
+    target:
+        - target: AppImage
+          arch:
+              - x64
+        - target: deb
+          arch:
+              - x64
+    maintainer: karlofsd
+    category: Utility
 
 appImage:
-  artifactName: ${name}-${version}.${ext}
+    artifactName: ${name}-${version}.${ext}
 
 npmRebuild: false

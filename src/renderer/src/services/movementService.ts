@@ -11,7 +11,7 @@ export interface MovementsFilters {
 
 export const MovementsService = {
 	async getAll(filters: MovementsFilters = {}): Promise<Movement[]> {
-		const q = query(collection(db, "movements"), orderBy("createdAt", "desc"))
+		const q = query(collection(db!, "movements"), orderBy("createdAt", "desc"))
 
 		const snapshot = await getDocs(q)
 		let movements = snapshot.docs.map(

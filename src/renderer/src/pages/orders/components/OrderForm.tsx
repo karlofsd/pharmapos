@@ -81,7 +81,10 @@ export function OrderForm({ onSubmit, onCancel }: OrderFormProps): React.ReactEl
 		try {
 			await onSubmit({
 				supplierId,
-				supplierName: selectedSupplier?.businessName != "" ? selectedSupplier?.businessName as string : UserUtils.getFullname(selectedSupplier!),
+				supplierName:
+					selectedSupplier?.businessName != ""
+						? (selectedSupplier?.businessName as string)
+						: UserUtils.getFullname(selectedSupplier!),
 				items: validItems,
 				notes: notes || null,
 				expectedAt: expectedAt ? new Date(expectedAt) : null
@@ -115,7 +118,9 @@ export function OrderForm({ onSubmit, onCancel }: OrderFormProps): React.ReactEl
 						<SelectContent>
 							{suppliers.map((s) => (
 								<SelectItem key={s.id} value={s.id}>
-									{s.businessName != "-" ? s.businessName : UserUtils.getFullname(s)}
+									{s.businessName != "-"
+										? s.businessName
+										: UserUtils.getFullname(s)}
 								</SelectItem>
 							))}
 						</SelectContent>

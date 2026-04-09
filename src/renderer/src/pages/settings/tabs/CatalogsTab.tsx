@@ -13,7 +13,12 @@ interface CatalogSectionProps {
 	onRemove?: (item: string) => Promise<void>
 }
 
-function CatalogSection({ title, items, onAdd, onRemove }: CatalogSectionProps): React.ReactElement {
+function CatalogSection({
+	title,
+	items,
+	onAdd,
+	onRemove
+}: CatalogSectionProps): React.ReactElement {
 	const [newItem, setNewItem] = useState("")
 	const [editingItem, setEditingItem] = useState<string | null>(null)
 	const [editValue, setEditValue] = useState("")
@@ -86,7 +91,10 @@ function CatalogSection({ title, items, onAdd, onRemove }: CatalogSectionProps):
 							<>
 								<span className="text-xs text-slate-700">{item}</span>
 								<button
-									onClick={() => { setEditingItem(item); setEditValue(item) }}
+									onClick={() => {
+										setEditingItem(item)
+										setEditValue(item)
+									}}
 									className="text-slate-400 hover:text-slate-600 ml-1"
 								>
 									<Pencil size={10} />
@@ -103,9 +111,7 @@ function CatalogSection({ title, items, onAdd, onRemove }: CatalogSectionProps):
 						)}
 					</div>
 				))}
-				{items.length === 0 && (
-					<p className="text-xs text-slate-400">No hay elementos</p>
-				)}
+				{items.length === 0 && <p className="text-xs text-slate-400">No hay elementos</p>}
 			</div>
 		</div>
 	)
@@ -128,11 +134,7 @@ export function CatalogsTab(): React.ReactElement {
 
 	return (
 		<div className="flex flex-col gap-6 max-w-2xl">
-			<CatalogSection
-				title="Laboratorios"
-				items={catalogs.labs}
-				onAdd={addLab}
-			/>
+			<CatalogSection title="Laboratorios" items={catalogs.labs} onAdd={addLab} />
 			<Separator />
 			<CatalogSection
 				title="Categorías"
@@ -140,11 +142,7 @@ export function CatalogsTab(): React.ReactElement {
 				onAdd={handleAddCategory}
 			/>
 			<Separator />
-			<CatalogSection
-				title="Unidades"
-				items={catalogs.units}
-				onAdd={handleAddUnit}
-			/>
+			<CatalogSection title="Unidades" items={catalogs.units} onAdd={handleAddUnit} />
 		</div>
 	)
 }

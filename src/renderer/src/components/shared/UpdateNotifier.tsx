@@ -57,9 +57,7 @@ export function UpdateNotifier(): React.ReactElement | null {
 			{status.type === "downloaded" && (
 				<div className="bg-white border border-green-200 rounded-xl shadow-lg p-4 flex flex-col gap-3">
 					<div>
-						<p className="text-sm font-semibold text-slate-800">
-							Actualización lista
-						</p>
+						<p className="text-sm font-semibold text-slate-800">Actualización lista</p>
 						<p className="text-xs text-slate-500 mt-0.5">
 							Versión {status.version} descargada. Reinicia para instalar.
 						</p>
@@ -69,11 +67,7 @@ export function UpdateNotifier(): React.ReactElement | null {
 							<RefreshCw size={14} />
 							Reiniciar e instalar
 						</Button>
-						<Button
-							size="sm"
-							variant="outline"
-							onClick={() => setDismissed(true)}
-						>
+						<Button size="sm" variant="outline" onClick={() => setDismissed(true)}>
 							Después
 						</Button>
 					</div>
@@ -83,9 +77,7 @@ export function UpdateNotifier(): React.ReactElement | null {
 			{status.type === "error" && (
 				<div className="bg-white border border-red-200 rounded-xl shadow-lg p-4 flex items-start justify-between gap-3">
 					<div>
-						<p className="text-sm font-semibold text-slate-800">
-							Error al actualizar
-						</p>
+						<p className="text-sm font-semibold text-slate-800">Error al actualizar</p>
 						<p className="text-xs text-red-500 mt-0.5">{status.message}</p>
 					</div>
 					<button

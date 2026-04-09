@@ -48,10 +48,11 @@ export function PaymentPanel({ onConfirm, isProcessing }: PaymentPanelProps): Re
 	const [showClientSearch, setShowClientSearch] = useState(false)
 
 	const filteredClients = clientSearch.trim()
-		? clients.filter((c) =>
-			UserUtils.getFullname(c).toLowerCase().includes(clientSearch.toLowerCase()) ||
-			Object.values(c.document).some((v) => v.includes(clientSearch))
-		)
+		? clients.filter(
+				(c) =>
+					UserUtils.getFullname(c).toLowerCase().includes(clientSearch.toLowerCase()) ||
+					Object.values(c.document).some((v) => v.includes(clientSearch))
+			)
 		: clients.slice(0, 5)
 
 	const isEmpty = items.length === 0
@@ -102,14 +103,19 @@ export function PaymentPanel({ onConfirm, isProcessing }: PaymentPanelProps): Re
 					<User size={13} />
 					Cliente
 					{needsClient && (
-						<Badge variant="destructive" className="text-xs py-0">Requerido</Badge>
+						<Badge variant="destructive" className="text-xs py-0">
+							Requerido
+						</Badge>
 					)}
 				</div>
 				{clientId ? (
 					<div className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2">
 						<p className="text-sm font-medium text-slate-800">{clientName}</p>
 						<button
-							onClick={() => { clearClient(); setShowClientSearch(false) }}
+							onClick={() => {
+								clearClient()
+								setShowClientSearch(false)
+							}}
 							className="text-slate-400 hover:text-red-500 transition-colors"
 						>
 							<X size={14} />
@@ -118,7 +124,10 @@ export function PaymentPanel({ onConfirm, isProcessing }: PaymentPanelProps): Re
 				) : (
 					<div className="relative">
 						<div className="relative">
-							<Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+							<Search
+								size={14}
+								className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+							/>
 							<input
 								placeholder="Buscar cliente..."
 								value={clientSearch}
@@ -144,7 +153,10 @@ export function PaymentPanel({ onConfirm, isProcessing }: PaymentPanelProps): Re
 												type="button"
 												onMouseDown={(e) => e.preventDefault()}
 												onClick={() => {
-													setClient(client.id, UserUtils.getFullname(client))
+													setClient(
+														client.id,
+														UserUtils.getFullname(client)
+													)
 													setClientSearch("")
 													setShowClientSearch(false)
 												}}
@@ -155,7 +167,10 @@ export function PaymentPanel({ onConfirm, isProcessing }: PaymentPanelProps): Re
 												</p>
 												<p className="text-xs text-slate-400">
 													{Object.entries(client.document)
-														.map(([type, num]) => `${type.toUpperCase()}: ${num}`)
+														.map(
+															([type, num]) =>
+																`${type.toUpperCase()}: ${num}`
+														)
 														.join(", ")}
 												</p>
 											</button>

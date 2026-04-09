@@ -41,15 +41,19 @@ export function AccessibilityTab(): React.ReactElement {
 							)}
 						>
 							<div className="flex flex-col gap-1">
-								<p className={`font-medium ${size.preview} ${fontSize === size.value ? "text-slate-800" : "text-slate-600"}`}>
+								<p
+									className={`font-medium ${size.preview} ${fontSize === size.value ? "text-slate-800" : "text-slate-600"}`}
+								>
 									{size.label}
 								</p>
 								<p className="text-xs text-slate-400">{size.description}</p>
 							</div>
-							<div className={cn(
-								"flex items-center gap-1",
-								fontSize === size.value ? "text-slate-800" : "text-slate-300"
-							)}>
+							<div
+								className={cn(
+									"flex items-center gap-1",
+									fontSize === size.value ? "text-slate-800" : "text-slate-300"
+								)}
+							>
 								<Type size={size.value === "normal" ? 16 : 22} />
 							</div>
 						</button>
@@ -60,10 +64,12 @@ export function AccessibilityTab(): React.ReactElement {
 			{/* Preview */}
 			<div className="bg-slate-50 rounded-xl p-4 flex flex-col gap-3 border border-slate-200">
 				<p className="text-xs text-slate-400 uppercase tracking-wide">Vista previa</p>
-				<div className={cn(
-					"flex flex-col gap-2",
-					fontSize === "large" ? "text-base" : "text-sm"
-				)}>
+				<div
+					className={cn(
+						"flex flex-col gap-2",
+						fontSize === "large" ? "text-base" : "text-sm"
+					)}
+				>
 					<p className="font-bold text-slate-800">Farmacia POS</p>
 					<p className="text-slate-600">Paracetamol 500mg — S/. 5.00</p>
 					<p className="text-slate-400">Lote: LT-2024-001 · Stock: 45</p>

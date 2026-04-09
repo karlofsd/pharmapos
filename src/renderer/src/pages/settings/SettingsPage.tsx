@@ -12,7 +12,9 @@ export default function SettingsPage(): React.ReactElement {
 		<div className="flex flex-col h-full p-6 gap-4">
 			<div>
 				<h1 className="text-xl font-bold text-slate-800">Configuración</h1>
-				<p className="text-sm text-slate-500">Personaliza el sistema según tus necesidades</p>
+				<p className="text-sm text-slate-500">
+					Personaliza el sistema según tus necesidades
+				</p>
 			</div>
 
 			<Tabs defaultValue="theme" className="flex-1 flex flex-col">

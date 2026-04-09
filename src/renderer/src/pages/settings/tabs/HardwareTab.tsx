@@ -3,6 +3,8 @@ import { Switch } from "@renderer/components/ui/switch"
 import { Label } from "@renderer/components/ui/label"
 import { Separator } from "@renderer/components/ui/separator"
 import { Printer, Landmark, Monitor } from "lucide-react"
+import { useFirebaseStore } from "@renderer/store/firebaseStore"
+import { Button } from "@renderer/components/ui/button"
 
 interface SettingRowProps {
 	icon: React.ElementType
@@ -24,9 +26,15 @@ function SettingRow({
 	return (
 		<div className="flex items-center justify-between gap-4">
 			<div className="flex items-start gap-3">
-				<div className={`mt-0.5 p-2 rounded-lg ${destructive ? "bg-orange-50" : "bg-slate-100"
-					}`}>
-					<Icon size={16} className={destructive ? "text-orange-500" : "text-slate-500"} />
+				<div
+					className={`mt-0.5 p-2 rounded-lg ${
+						destructive ? "bg-orange-50" : "bg-slate-100"
+					}`}
+				>
+					<Icon
+						size={16}
+						className={destructive ? "text-orange-500" : "text-slate-500"}
+					/>
 				</div>
 				<div>
 					<Label className="text-sm font-medium text-slate-800">{label}</Label>
@@ -47,6 +55,8 @@ export function HardwareTab(): React.ReactElement {
 		toggleOpenDrawer,
 		activeKioskMode
 	} = useSettingsStore()
+
+	const { clearConfig } = useFirebaseStore()
 
 	return (
 		<div className="flex flex-col gap-6 max-w-lg">
@@ -72,9 +82,33 @@ export function HardwareTab(): React.ReactElement {
 				</div>
 				{!emitReceipt && !openDrawer && (
 					<p className="text-xs text-slate-400">
-						Ambas funciones están desactivadas. La venta se procesará sin interacción con hardware.
+						Ambas funciones están desactivadas. La venta se procesará sin interacción
+						con hardware.
 					</p>
 				)}
+				<Separator />
+
+				<div>
+					<Label className="text-sm font-medium text-slate-800">Conexion</Label>
+					<p className="text-xs text-slate-400 mt-0.5">
+						Credencial de configuracion de base de datos
+					</p>
+					<Button
+						variant="destructive"
+						onClick={() => {
+							if (
+								confirm(
+									"¿Estás seguro? Tendrás que ingresar las credenciales nuevamente."
+								)
+							) {
+								clearConfig()
+								window.location.reload()
+							}
+						}}
+					>
+						Reconfigurar Firebase
+					</Button>
+				</div>
 			</div>
 
 			<Separator />

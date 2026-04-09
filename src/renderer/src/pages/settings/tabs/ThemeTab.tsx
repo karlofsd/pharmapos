@@ -11,10 +11,12 @@ export function ThemeTab(): React.ReactElement {
 			<div className="flex flex-col gap-3">
 				<p className="text-sm font-semibold text-slate-700">Modo de visualización</p>
 				<div className="grid grid-cols-2 gap-3">
-					{([
-						{ value: "light", label: "Claro", icon: Sun },
-						{ value: "dark", label: "Oscuro", icon: Moon }
-					] as const).map(({ value, label, icon: Icon }) => (
+					{(
+						[
+							{ value: "light", label: "Claro", icon: Sun },
+							{ value: "dark", label: "Oscuro", icon: Moon }
+						] as const
+					).map(({ value, label, icon: Icon }) => (
 						<button
 							key={value}
 							onClick={() => setTheme(value)}
@@ -25,8 +27,13 @@ export function ThemeTab(): React.ReactElement {
 									: "border-slate-200 hover:border-slate-300"
 							)}
 						>
-							<Icon size={24} className={theme === value ? "text-slate-800" : "text-slate-400"} />
-							<span className={`text-sm font-medium ${theme === value ? "text-slate-800" : "text-slate-500"}`}>
+							<Icon
+								size={24}
+								className={theme === value ? "text-slate-800" : "text-slate-400"}
+							/>
+							<span
+								className={`text-sm font-medium ${theme === value ? "text-slate-800" : "text-slate-500"}`}
+							>
 								{label}
 							</span>
 						</button>

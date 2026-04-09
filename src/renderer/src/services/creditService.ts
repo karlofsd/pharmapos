@@ -36,7 +36,7 @@ export interface PaymentDTO {
 export const CreditService = {
 	async getAll(): Promise<Credit[]> {
 		const q = query(
-			collection(db, COLLECTION),
+			collection(db!, COLLECTION),
 			where("status", "in", ["pending", "overdue"]),
 			orderBy("dueDate", "asc")
 		)
@@ -46,7 +46,7 @@ export const CreditService = {
 
 	async getByClient(clientId: string): Promise<Credit[]> {
 		const q = query(
-			collection(db, COLLECTION),
+			collection(db!, COLLECTION),
 			where("clientId", "==", clientId),
 			orderBy("createdAt", "desc")
 		)
@@ -68,7 +68,7 @@ export const CreditService = {
 			payments: [],
 			createdAt: serverTimestamp()
 		}
-		const ref = await addDoc(collection(db, COLLECTION), payload)
+		const ref = await addDoc(collection(db!, COLLECTION), payload)
 		return { id: ref.id, ...payload, createdAt: Timestamp.now() } as Credit
 	},
 
@@ -78,9 +78,9 @@ export const CreditService = {
 		amount: number,
 		cashierId: string
 	): Promise<void> {
-		await runTransaction(db, async (transaction) => {
-			const clientRef = doc(db, "clients", clientId)
-			const creditRef = doc(collection(db, COLLECTION))
+		await runTransaction(db!, async (transaction) => {
+			const clientRef = doc(db!, "clients", clientId)
+			const creditRef = doc(collection(db!, COLLECTION))
 			// Actualizar saldoFavor del cliente
 			const clientSnap = await transaction.get(clientRef)
 			if (clientSnap.exists()) {
@@ -109,8 +109,8 @@ export const CreditService = {
 	},
 
 	async registerPayment(data: PaymentDTO): Promise<void> {
-		await runTransaction(db, async (transaction) => {
-			const creditRef = doc(db, COLLECTION, data.creditId)
+		await runTransaction(db!, async (transaction) => {
+			const creditRef = doc(db!, COLLECTION, data.creditId)
 			const creditSnap = await transaction.get(creditRef)
 			if (!creditSnap.exists()) throw new Error("Crédito no encontrado")
 
@@ -137,7 +137,7 @@ export const CreditService = {
 			})
 
 			// Actualizar saldo del cliente
-			const clientRef = doc(db, "clients", data.clientId)
+			const clientRef = doc(db!, "clients", data.clientId)
 			const clientSnap = await transaction.get(clientRef)
 			if (clientSnap.exists()) {
 				const clientData = clientSnap.data()
@@ -160,14 +160,14 @@ export const CreditService = {
 
 	async checkAndUpdateOverdue(): Promise<void> {
 		const q = query(
-			collection(db, COLLECTION),
+			collection(db!, COLLECTION),
 			where("status", "==", "pending"),
 			where("dueDate", "<", Timestamp.now())
 		)
 		const snapshot = await getDocs(q)
 
 		await Promise.all(
-			snapshot.docs.map((d) => updateDoc(doc(db, COLLECTION, d.id), { status: "overdue" }))
+			snapshot.docs.map((d) => updateDoc(doc(db!, COLLECTION, d.id), { status: "overdue" }))
 		)
 	}
 }

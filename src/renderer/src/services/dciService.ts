@@ -11,7 +11,7 @@ export type CreateDCIDTO = {
 
 export const DCIService = {
 	async getAll(): Promise<DCI[]> {
-		const q = query(collection(db, COLLECTION), orderBy("name", "asc"))
+		const q = query(collection(db!, COLLECTION), orderBy("name", "asc"))
 		const snapshot = await getDocs(q)
 		console.log(
 			"Fetched DCI data:",
@@ -22,7 +22,7 @@ export const DCIService = {
 
 	async create(data: CreateDCIDTO): Promise<DCI> {
 		const payload = { ...data, createdAt: serverTimestamp() }
-		const ref = await addDoc(collection(db, COLLECTION), payload)
+		const ref = await addDoc(collection(db!, COLLECTION), payload)
 		return { id: ref.id, ...data }
 	}
 }

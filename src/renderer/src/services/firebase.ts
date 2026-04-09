@@ -1,22 +1,33 @@
-import { initializeApp } from "firebase/app"
-import { initializeFirestore, persistentLocalCache } from "firebase/firestore"
-import { getAuth } from "firebase/auth"
+import { initializeApp, getApps, FirebaseApp } from "firebase/app"
+import { initializeFirestore, persistentLocalCache, Firestore } from "firebase/firestore"
+import { getAuth, Auth } from "firebase/auth"
+import { FirebaseConfig } from "@renderer/store/firebaseStore"
 
-const firebaseConfig = {
-	apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-	authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-	projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-	storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-	messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-	appId: import.meta.env.VITE_FIREBASE_APP_ID
+let app: FirebaseApp | null = null
+let db: Firestore | null = null
+let auth: Auth | null = null
+
+export function initializeFirebase(config: FirebaseConfig): void {
+	if (getApps().length > 0) return // ya inicializado
+
+	app = initializeApp(config)
+	auth = getAuth(app)
+	db = initializeFirestore(app, {
+		localCache: persistentLocalCache({
+			cacheSizeBytes: 100 * 1024 * 1024
+		})
+	})
 }
 
-const app = initializeApp(firebaseConfig)
+export function getDb(): Firestore {
+	if (!db) throw new Error("Firebase no inicializado")
+	return db
+}
 
-const auth = getAuth(app)
-const db = initializeFirestore(app, {
-	localCache: persistentLocalCache({
-		cacheSizeBytes: 100 * 1024 * 1024 // 100MB
-	})
-})
-export { auth, db }
+export function getAuthInstance(): Auth {
+	if (!auth) throw new Error("Firebase no inicializado")
+	return auth
+}
+
+// Compatibilidad con imports existentes
+export { db, auth }

@@ -16,7 +16,7 @@ import {
 
 export const ReportService = {
 	async getSalesReport(filters: ReportsFilters = {}): Promise<SalesReportRow[]> {
-		const q = query(collection(db, "sales"), orderBy("createdAt", "desc"))
+		const q = query(collection(db!, "sales"), orderBy("createdAt", "desc"))
 		const snapshot = await getDocs(q)
 
 		let sales = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Sale)
@@ -46,7 +46,9 @@ export const ReportService = {
 	},
 
 	async getSalesByPayment(filters: ReportsFilters = {}): Promise<Record<string, number>> {
-		const snapshot = await getDocs(query(collection(db, "sales"), orderBy("createdAt", "desc")))
+		const snapshot = await getDocs(
+			query(collection(db!, "sales"), orderBy("createdAt", "desc"))
+		)
 		let sales = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Sale)
 
 		if (filters.dateFrom) {
@@ -75,7 +77,9 @@ export const ReportService = {
 	async getSalesByCashier(
 		filters: ReportsFilters = {}
 	): Promise<Record<string, { total: number; transactions: number }>> {
-		const snapshot = await getDocs(query(collection(db, "sales"), orderBy("createdAt", "desc")))
+		const snapshot = await getDocs(
+			query(collection(db!, "sales"), orderBy("createdAt", "desc"))
+		)
 		let sales = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Sale)
 
 		if (filters.dateFrom) {
@@ -100,7 +104,7 @@ export const ReportService = {
 	},
 
 	async getKardex(filters: ReportsFilters = {}): Promise<KardexRow[]> {
-		const q = query(collection(db, "movements"), orderBy("createdAt", "desc"))
+		const q = query(collection(db!, "movements"), orderBy("createdAt", "desc"))
 		const snapshot = await getDocs(q)
 
 		let movements = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Movement)
@@ -119,8 +123,8 @@ export const ReportService = {
 
 		// Enriquecer con nombres de productos y lotes
 		const [productsSnap, lotsSnap] = await Promise.all([
-			getDocs(collection(db, "products")),
-			getDocs(collection(db, "lots"))
+			getDocs(collection(db!, "products")),
+			getDocs(collection(db!, "lots"))
 		])
 
 		const productMap = new Map(productsSnap.docs.map((d) => [d.id, d.data().brand as string]))
@@ -146,8 +150,8 @@ export const ReportService = {
 
 	async getInventoryReport(): Promise<InventoryRow[]> {
 		const [lotsSnap, productsSnap] = await Promise.all([
-			getDocs(query(collection(db, "lots"), where("isActive", "==", true))),
-			getDocs(collection(db, "products"))
+			getDocs(query(collection(db!, "lots"), where("isActive", "==", true))),
+			getDocs(collection(db!, "products"))
 		])
 
 		const productMap = new Map(
@@ -227,7 +231,7 @@ export const ReportService = {
 	},
 
 	async getCreditsReport(): Promise<CreditReportRow[]> {
-		const snapshot = await getDocs(query(collection(db, "credits"), orderBy("dueDate", "asc")))
+		const snapshot = await getDocs(query(collection(db!, "credits"), orderBy("dueDate", "asc")))
 
 		const now = new Date()
 

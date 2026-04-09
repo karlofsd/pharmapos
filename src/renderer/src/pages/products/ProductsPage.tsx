@@ -81,7 +81,7 @@ export default function ProductsPage(): React.ReactElement {
 			const created = await createProduct(data as CreateProductDTO)
 			setShowForm(false)
 			setCreatedProductId(created.id)
-			setShowAddLotPrompt(true)  // ← pregunta si agrega lote
+			setShowAddLotPrompt(true) // ← pregunta si agrega lote
 		}
 	}
 
@@ -231,10 +231,7 @@ export default function ProductsPage(): React.ReactElement {
 			</Dialog>
 
 			{/* Dialog — Form de lote */}
-			<Dialog
-				open={showLotForm}
-				onOpenChange={(open) => !open && setShowLotForm(false)}
-			>
+			<Dialog open={showLotForm} onOpenChange={(open) => !open && setShowLotForm(false)}>
 				<DialogContent className="max-w-md">
 					<DialogHeader>
 						<DialogTitle>Agregar lote</DialogTitle>

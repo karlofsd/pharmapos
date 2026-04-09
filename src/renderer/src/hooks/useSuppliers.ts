@@ -42,7 +42,7 @@ export function useSuppliers(): UseSuppliersReturn {
 			(s) =>
 				s.name.toLowerCase().includes(lower) ||
 				s.lastname.toLowerCase().includes(lower) ||
-				s.businessName.toLowerCase().includes(lower) ||
+				s.businessName?.toLowerCase()?.includes(lower) ||
 				Object.values(s.document).some((v) => v.includes(term)) ||
 				s.phoneNumber.number.includes(term)
 		)

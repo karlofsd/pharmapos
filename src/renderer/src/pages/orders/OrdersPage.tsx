@@ -197,8 +197,8 @@ export default function OrdersPage(): React.ReactElement {
 												<TableCell className="text-sm text-slate-600">
 													{order.expectedAt
 														? order.expectedAt
-															.toDate()
-															.toLocaleDateString("es-PE")
+																.toDate()
+																.toLocaleDateString("es-PE")
 														: "-"}
 												</TableCell>
 												<TableCell className="text-right font-bold text-slate-800">

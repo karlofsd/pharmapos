@@ -45,7 +45,8 @@ const ROLE_COLORS: Record<Role, string> = {
 
 function PermissionIcon({ value }: { value: boolean | "read" }): React.ReactElement {
 	if (value === true) return <Check size={14} className="text-green-600" />
-	if (value === "read") return <span className="text-xs text-blue-500 font-medium">Solo lectura</span>
+	if (value === "read")
+		return <span className="text-xs text-blue-500 font-medium">Solo lectura</span>
 	return <X size={14} className="text-slate-300" />
 }
 
@@ -61,17 +62,26 @@ export function PermissionsTab(): React.ReactElement {
 			</div>
 
 			<p className="text-xs text-slate-400">
-				Los permisos están definidos por rol y nivel. Esta tabla es de solo lectura — para modificar permisos personaliza los roles en el código.
+				Los permisos están definidos por rol y nivel. Esta tabla es de solo lectura — para
+				modificar permisos personaliza los roles en el código.
 			</p>
 
 			<div className="rounded-lg border border-slate-200 overflow-hidden">
 				<table className="w-full text-sm">
 					<thead className="bg-slate-50">
 						<tr>
-							<th className="text-left px-4 py-3 text-slate-600 font-medium">Módulo</th>
-							<th className="text-center px-4 py-3 text-purple-600 font-medium">Admin</th>
-							<th className="text-center px-4 py-3 text-green-600 font-medium">Supervisor</th>
-							<th className="text-center px-4 py-3 text-blue-600 font-medium">Cajero</th>
+							<th className="text-left px-4 py-3 text-slate-600 font-medium">
+								Módulo
+							</th>
+							<th className="text-center px-4 py-3 text-purple-600 font-medium">
+								Admin
+							</th>
+							<th className="text-center px-4 py-3 text-green-600 font-medium">
+								Supervisor
+							</th>
+							<th className="text-center px-4 py-3 text-blue-600 font-medium">
+								Cajero
+							</th>
 						</tr>
 					</thead>
 					<tbody className="divide-y divide-slate-100">

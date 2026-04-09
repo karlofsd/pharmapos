@@ -39,7 +39,13 @@ interface LotFormProps {
 	cancelLabel?: string
 }
 
-export function LotForm({ productId, onSubmit, onCancel, submitLabel = "Agregar lote", cancelLabel = "Cancelar" }: LotFormProps): React.ReactElement {
+export function LotForm({
+	productId,
+	onSubmit,
+	onCancel,
+	submitLabel = "Agregar lote",
+	cancelLabel = "Cancelar"
+}: LotFormProps): React.ReactElement {
 	const { products } = useProducts()
 	const { suppliers } = useSuppliers()
 	const [isSubmitting, setIsSubmitting] = useState(false)

@@ -40,14 +40,14 @@ export type ReceiveOrderDTO = {
 
 export const OrderService = {
 	async getAll(): Promise<Order[]> {
-		const q = query(collection(db, COLLECTION), orderBy("createdAt", "desc"))
+		const q = query(collection(db!, COLLECTION), orderBy("createdAt", "desc"))
 		const snapshot = await getDocs(q)
 		return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Order)
 	},
 
 	async getBySupplier(supplierId: string): Promise<Order[]> {
 		const q = query(
-			collection(db, COLLECTION),
+			collection(db!, COLLECTION),
 			where("supplierId", "==", supplierId),
 			orderBy("createdAt", "desc")
 		)
@@ -77,20 +77,20 @@ export const OrderService = {
 			createdBy: data.createdBy,
 			createdAt: serverTimestamp()
 		}
-		const ref = await addDoc(collection(db, COLLECTION), payload)
+		const ref = await addDoc(collection(db!, COLLECTION), payload)
 		return { id: ref.id, ...payload, createdAt: Timestamp.now() } as Order
 	},
 
 	async updateStatus(id: string, status: Order["status"]): Promise<void> {
-		await updateDoc(doc(db, COLLECTION, id), {
+		await updateDoc(doc(db!, COLLECTION, id), {
 			status,
 			updatedAt: serverTimestamp()
 		})
 	},
 
 	async receive(data: ReceiveOrderDTO): Promise<void> {
-		await runTransaction(db, async (transaction) => {
-			const orderRef = doc(db, COLLECTION, data.orderId)
+		await runTransaction(db!, async (transaction) => {
+			const orderRef = doc(db!, COLLECTION, data.orderId)
 			const orderSnap = await transaction.get(orderRef)
 			if (!orderSnap.exists()) throw new Error("Pedido no encontrado")
 
@@ -125,7 +125,7 @@ export const OrderService = {
 				const orderItem = order.items.find((i) => i.productId === item.productId)
 				if (!orderItem) continue
 
-				const lotRef = doc(collection(db, "lots"))
+				const lotRef = doc(collection(db!, "lots"))
 				transaction.set(lotRef, {
 					productId: item.productId,
 					brand: orderItem.productName ?? "",
@@ -141,7 +141,7 @@ export const OrderService = {
 					createdAt: serverTimestamp()
 				})
 
-				const movementRef = doc(collection(db, "movements"))
+				const movementRef = doc(collection(db!, "movements"))
 				transaction.set(movementRef, {
 					type: "entry",
 					productId: item.productId,

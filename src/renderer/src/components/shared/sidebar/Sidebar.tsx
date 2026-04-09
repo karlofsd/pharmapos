@@ -29,11 +29,13 @@ const Sidebar = ({ collapsed, onToggle }: SidebarProps): React.ReactElement => {
 		user?.role ? item.allowedRoles.includes(user?.role) : false
 	)
 	return (
-		<aside className={cn(
-			"flex flex-col h-screen transition-all duration-300 shrink-0",
-			"bg-slate-900 dark:bg-slate-950 text-white",
-			collapsed ? "w-16" : "w-56"
-		)}>
+		<aside
+			className={cn(
+				"flex flex-col h-screen transition-all duration-300 shrink-0",
+				"bg-slate-900 dark:bg-slate-950 text-white",
+				collapsed ? "w-16" : "w-56"
+			)}
+		>
 			{/* Logo */}
 			<div
 				className={cn(
@@ -67,7 +69,8 @@ const Sidebar = ({ collapsed, onToggle }: SidebarProps): React.ReactElement => {
 										cn(
 											"flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors w-full",
 											"text-slate-300 hover:bg-slate-700 dark:hover:bg-slate-800 hover:text-white",
-											isActive && "bg-slate-700 dark:bg-slate-800 text-white font-medium",
+											isActive &&
+												"bg-slate-700 dark:bg-slate-800 text-white font-medium",
 											collapsed && "justify-center px-0"
 										)
 									}
@@ -100,7 +103,9 @@ const Sidebar = ({ collapsed, onToggle }: SidebarProps): React.ReactElement => {
 				</div>
 				{!collapsed && (
 					<div className="flex-1 min-w-0">
-						<p className="text-sm font-medium truncate">{UserUtils.getFullname(user!)}</p>
+						<p className="text-sm font-medium truncate">
+							{UserUtils.getFullname(user!)}
+						</p>
 						<button
 							onClick={logout}
 							className="text-xs text-slate-400 hover:text-white transition-colors"
