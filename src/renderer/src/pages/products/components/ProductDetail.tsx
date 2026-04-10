@@ -137,79 +137,78 @@ export default function ProductDetail({
 						</Badge>
 					}
 				/>
-			</div>
 
-			<Separator />
+				<Separator />
 
-			{/* Lotes */}
-			<div className="flex flex-col gap-3">
-				<p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
-					Lotes en inventario
-				</p>
-				{lotsLoading ? (
-					<p className="text-xs text-slate-400">Cargando lotes...</p>
-				) : lots.length === 0 ? (
-					<p className="text-xs text-slate-400">Sin lotes registrados</p>
-				) : (
-					<div className="flex flex-col gap-2">
-						{lots.map((lot) => {
-							const expDate = lot.expirationDate.toDate()
-							const isExpired = expDate < now
-							const isExpiring = expDate <= in30Days && !isExpired
-							const isEmpty = lot.stock === 0
+				{/* Lotes */}
+				<div className="flex flex-col gap-3">
+					<p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+						Lotes en inventario
+					</p>
+					{lotsLoading ? (
+						<p className="text-xs text-slate-400">Cargando lotes...</p>
+					) : lots.length === 0 ? (
+						<p className="text-xs text-slate-400">Sin lotes registrados</p>
+					) : (
+						<div className="flex flex-col gap-2">
+							{lots.map((lot) => {
+								const expDate = lot.expirationDate.toDate()
+								const isExpired = expDate < now
+								const isExpiring = expDate <= in30Days && !isExpired
+								const isEmpty = lot.stock === 0
 
-							return (
-								<div
-									key={lot.id}
-									className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2"
-								>
-									<div>
-										<p className="text-xs font-medium text-slate-700">
-											{lot.numberLot}
-										</p>
-										<p className="text-xs text-slate-400">
-											Vence:{" "}
-											{expDate.toLocaleDateString("es-PE", {
-												day: "2-digit",
-												month: "short",
-												year: "numeric"
-											})}
-										</p>
-									</div>
-									<div className="flex flex-col items-end gap-1">
-										<span
-											className={`text-xs font-bold ${
-												isEmpty
+								return (
+									<div
+										key={lot.id}
+										className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2"
+									>
+										<div>
+											<p className="text-xs font-medium text-slate-700">
+												{lot.numberLot}
+											</p>
+											<p className="text-xs text-slate-400">
+												Vence:{" "}
+												{expDate.toLocaleDateString("es-PE", {
+													day: "2-digit",
+													month: "short",
+													year: "numeric"
+												})}
+											</p>
+										</div>
+										<div className="flex flex-col items-end gap-1">
+											<span
+												className={`text-xs font-bold ${isEmpty
 													? "text-red-500"
 													: lot.stock <= product.minStock
 														? "text-yellow-600"
 														: "text-slate-700"
-											}`}
-										>
-											{lot.stock} u.
-										</span>
-										{isExpired && (
-											<Badge
-												variant="outline"
-												className="text-xs bg-red-50 text-red-600 border-red-200 py-0"
+													}`}
 											>
-												Vencido
-											</Badge>
-										)}
-										{isExpiring && !isExpired && (
-											<Badge
-												variant="outline"
-												className="text-xs bg-orange-50 text-orange-600 border-orange-200 py-0"
-											>
-												Por vencer
-											</Badge>
-										)}
+												{lot.stock} u.
+											</span>
+											{isExpired && (
+												<Badge
+													variant="outline"
+													className="text-xs bg-red-50 text-red-600 border-red-200 py-0"
+												>
+													Vencido
+												</Badge>
+											)}
+											{isExpiring && !isExpired && (
+												<Badge
+													variant="outline"
+													className="text-xs bg-orange-50 text-orange-600 border-orange-200 py-0"
+												>
+													Por vencer
+												</Badge>
+											)}
+										</div>
 									</div>
-								</div>
-							)
-						})}
-					</div>
-				)}
+								)
+							})}
+						</div>
+					)}
+				</div>
 			</div>
 
 			{/* Acciones */}

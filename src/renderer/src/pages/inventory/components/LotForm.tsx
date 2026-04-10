@@ -26,7 +26,7 @@ const lotSchema = z.object({
 	purchasePrice: z.number().min(0, "Requerido"),
 	sellPrice: z.number().min(0, "Requerido"),
 	manufacturer: z.string().min(1, "Requerido"),
-	supplierId: z.string().optional()
+	supplierId: z.string("Requerido")
 })
 
 type LotFormData = z.infer<typeof lotSchema>
@@ -133,9 +133,9 @@ export function LotForm({
 			<div className="flex flex-col gap-1">
 				<Label>Proveedor (opcional)</Label>
 				<Select
-					value={watch("supplierId") ?? "none"}
+					value={watch("supplierId")}
 					onValueChange={(val) =>
-						setValue("supplierId", val === "none" ? undefined : val)
+						setValue("supplierId", val)
 					}
 				>
 					<SelectTrigger>
@@ -145,11 +145,14 @@ export function LotForm({
 						<SelectItem value="none">Sin proveedor</SelectItem>
 						{suppliers.map((s) => (
 							<SelectItem key={s.id} value={s.id}>
-								{s.businessName != "-" ? s.businessName : UserUtils.getFullname(s)}
+								{s.businessName != "" ? s.businessName : UserUtils.getFullname(s)}
 							</SelectItem>
 						))}
 					</SelectContent>
 				</Select>
+				{errors.supplierId && (
+					<p className="text-xs text-red-500">{errors.supplierId.message}</p>
+				)}
 			</div>
 
 			{/* Número de lote */}

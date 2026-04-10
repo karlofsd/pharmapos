@@ -27,9 +27,8 @@ function SettingRow({
 		<div className="flex items-center justify-between gap-4">
 			<div className="flex items-start gap-3">
 				<div
-					className={`mt-0.5 p-2 rounded-lg ${
-						destructive ? "bg-orange-50" : "bg-slate-100"
-					}`}
+					className={`mt-0.5 p-2 rounded-lg ${destructive ? "bg-orange-50" : "bg-slate-100"
+						}`}
 				>
 					<Icon
 						size={16}
@@ -86,29 +85,6 @@ export function HardwareTab(): React.ReactElement {
 						con hardware.
 					</p>
 				)}
-				<Separator />
-
-				<div>
-					<Label className="text-sm font-medium text-slate-800">Conexion</Label>
-					<p className="text-xs text-slate-400 mt-0.5">
-						Credencial de configuracion de base de datos
-					</p>
-					<Button
-						variant="destructive"
-						onClick={() => {
-							if (
-								confirm(
-									"¿Estás seguro? Tendrás que ingresar las credenciales nuevamente."
-								)
-							) {
-								clearConfig()
-								window.location.reload()
-							}
-						}}
-					>
-						Reconfigurar Firebase
-					</Button>
-				</div>
 			</div>
 
 			<Separator />
@@ -132,6 +108,30 @@ export function HardwareTab(): React.ReactElement {
 						<span className="font-mono font-bold">Alt+F4</span>.
 					</div>
 				)}
+			</div>
+
+			<Separator />
+
+			<div className="flex flex-col gap-4">
+				<Label className="text-sm font-medium text-slate-800">Conexion</Label>
+				<p className="text-xs text-slate-400 mt-0.5">
+					Credencial de configuracion de base de datos
+				</p>
+				<Button
+					variant="destructive"
+					onClick={() => {
+						if (
+							confirm(
+								"¿Estás seguro? Tendrás que ingresar las credenciales nuevamente."
+							)
+						) {
+							clearConfig()
+							window.location.reload()
+						}
+					}}
+				>
+					Reconfigurar Firebase
+				</Button>
 			</div>
 		</div>
 	)
