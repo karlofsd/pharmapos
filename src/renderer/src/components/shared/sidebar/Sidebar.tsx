@@ -10,7 +10,6 @@ import {
 } from "@renderer/components/ui/tooltip"
 import { NavLink } from "react-router-dom"
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
-import { UserUtils } from "@renderer/types"
 import { useEffect } from "react"
 
 type SidebarProps = {
@@ -19,7 +18,7 @@ type SidebarProps = {
 }
 
 const Sidebar = ({ collapsed, onToggle }: SidebarProps): React.ReactElement => {
-	const { user, logout } = useAuth()
+	const { user } = useAuth()
 
 	useEffect(() => {
 		console.log(user)
@@ -87,10 +86,10 @@ const Sidebar = ({ collapsed, onToggle }: SidebarProps): React.ReactElement => {
 				</TooltipProvider>
 			</nav>
 
-			<Separator className="bg-slate-700" />
+			{/* <Separator className="bg-slate-700" /> */}
 
 			{/* User info + logout */}
-			<div
+			{/* <div
 				className={cn(
 					"flex items-center gap-3 px-4 py-4 shrink-0",
 					collapsed && "justify-center px-0"
@@ -114,7 +113,7 @@ const Sidebar = ({ collapsed, onToggle }: SidebarProps): React.ReactElement => {
 						</button>
 					</div>
 				)}
-			</div>
+			</div> */}
 		</aside>
 	)
 }

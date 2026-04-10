@@ -5,6 +5,7 @@ import icon from "../../resources/icon.png?asset"
 import { registerPrinterHandlers } from "./services/printer"
 import { registerDocumentHandlers } from "./services/document.service"
 import { registerUpdaterHandlers } from "./services/updater"
+import { exec } from "child_process"
 
 function createWindow(): BrowserWindow {
 	// Create the browser window.
@@ -42,6 +43,30 @@ function createWindow(): BrowserWindow {
 		const win = BrowserWindow.getAllWindows()[0]
 		if (!win) return
 		win.setKiosk(enabled)
+	})
+
+	ipcMain.handle("system:shutdown", async () => {
+		try {
+			const command =
+				process.platform === "win32"
+					? "shutdown /s /t 0"
+					: process.platform === "darwin"
+						? "sudo shutdown -h now"
+						: "shutdown -h now"
+
+			exec(command, (error) => {
+				if (error) {
+					return { success: false, error: "Sin permisos para apagar el equipo" }
+				}
+			})
+			return { success: true }
+		} catch (error) {
+			return { success: false, error: String(error) }
+		}
+	})
+
+	ipcMain.handle("system:close", () => {
+		app.quit()
 	})
 
 	return mainWindow

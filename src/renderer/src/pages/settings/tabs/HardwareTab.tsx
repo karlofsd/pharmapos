@@ -27,8 +27,9 @@ function SettingRow({
 		<div className="flex items-center justify-between gap-4">
 			<div className="flex items-start gap-3">
 				<div
-					className={`mt-0.5 p-2 rounded-lg ${destructive ? "bg-orange-50" : "bg-slate-100"
-						}`}
+					className={`mt-0.5 p-2 rounded-lg ${
+						destructive ? "bg-orange-50" : "bg-slate-100"
+					}`}
 				>
 					<Icon
 						size={16}

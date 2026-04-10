@@ -134,9 +134,7 @@ export function LotForm({
 				<Label>Proveedor (opcional)</Label>
 				<Select
 					value={watch("supplierId")}
-					onValueChange={(val) =>
-						setValue("supplierId", val)
-					}
+					onValueChange={(val) => setValue("supplierId", val)}
 				>
 					<SelectTrigger>
 						<SelectValue placeholder="Sin proveedor" />

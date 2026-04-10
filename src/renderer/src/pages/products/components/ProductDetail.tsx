@@ -24,6 +24,7 @@ export default function ProductDetail({
 	const [lotsLoading, setLotsLoading] = useState(false)
 
 	useEffect(() => {
+		// eslint-disable-next-line react-hooks/set-state-in-effect
 		setLotsLoading(true)
 		LotService.getByProduct(product.id)
 			.then(setLots)
@@ -177,12 +178,13 @@ export default function ProductDetail({
 										</div>
 										<div className="flex flex-col items-end gap-1">
 											<span
-												className={`text-xs font-bold ${isEmpty
-													? "text-red-500"
-													: lot.stock <= product.minStock
-														? "text-yellow-600"
-														: "text-slate-700"
-													}`}
+												className={`text-xs font-bold ${
+													isEmpty
+														? "text-red-500"
+														: lot.stock <= product.minStock
+															? "text-yellow-600"
+															: "text-slate-700"
+												}`}
 											>
 												{lot.stock} u.
 											</span>

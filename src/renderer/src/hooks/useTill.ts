@@ -3,6 +3,7 @@ import { CashMovement, TillBalance } from "@renderer/types"
 import { useAuth } from "./useAuth"
 import { useCallback, useEffect, useState } from "react"
 import { TillService } from "@renderer/services/tillService"
+import { useTillStore } from "@renderer/store/tillStore"
 
 interface UseTillState {
 	tills: TillBalance[]
@@ -45,6 +46,13 @@ export function useTill(): UseTillReturn {
 				TillService.getAll(),
 				TillService.getActive(user.id)
 			])
+
+			if (activeTill) {
+				useTillStore.getState().openTill(activeTill.id)
+			} else {
+				useTillStore.getState().closeTill()
+			}
+
 			setState((prev) => ({
 				...prev,
 				tills,
@@ -72,6 +80,7 @@ export function useTill(): UseTillReturn {
 	async function openTill(openingAmount: number): Promise<void> {
 		if (!user) return
 		const till = await TillService.open(user.id, openingAmount)
+		useTillStore.getState().openTill(till.id)
 		setState((prev) => ({
 			...prev,
 			activeTill: till,
@@ -103,6 +112,7 @@ export function useTill(): UseTillReturn {
 	async function closeTill(closingAmount: number): Promise<number> {
 		if (!user || !state.activeTill) return 0
 		const difference = await TillService.close(state.activeTill.id, closingAmount, user.id)
+		useTillStore.getState().closeTill()
 		await load()
 		return difference
 	}

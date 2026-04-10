@@ -4,6 +4,7 @@ import Sidebar from "../sidebar/Sidebar"
 import { useUIStore } from "@renderer/store/uiStore"
 import { UpdateNotifier } from "../UpdateNotifier"
 import { useSettingsStore } from "@renderer/store/settingsStore"
+import { StatusBar } from "../statusbar/StatusBar"
 
 export default function AppLayout(): React.ReactElement {
 	const { sidebarCollapsed, setSidebarCollapsed, toggleSidebar } = useUIStore()
@@ -13,6 +14,7 @@ export default function AppLayout(): React.ReactElement {
 	useEffect(() => {
 		window.electron.ipcRenderer.invoke("window:kiosk", kioskMode)
 	}, [kioskMode])
+
 	useEffect(() => {
 		function handleResize(): void {
 			if (!manualOverride) {
@@ -22,7 +24,7 @@ export default function AppLayout(): React.ReactElement {
 		handleResize()
 		window.addEventListener("resize", handleResize)
 		return () => window.removeEventListener("resize", handleResize)
-	}, [manualOverride])
+	}, [manualOverride, setSidebarCollapsed])
 
 	function handleToggle(): void {
 		setManualOverride(true)
@@ -30,11 +32,14 @@ export default function AppLayout(): React.ReactElement {
 	}
 
 	return (
-		<div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
-			<Sidebar collapsed={sidebarCollapsed} onToggle={handleToggle} />
-			<main className="flex-1 overflow-auto bg-slate-50 dark:bg-slate-950">
-				<Outlet />
-			</main>
+		<div className="flex flex-col h-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
+			<div className="flex flex-1 overflow-hidden">
+				<Sidebar collapsed={sidebarCollapsed} onToggle={handleToggle} />
+				<main className="flex-1 overflow-auto bg-slate-50 dark:bg-slate-950">
+					<Outlet />
+				</main>
+			</div>
+			<StatusBar />
 			<UpdateNotifier />
 		</div>
 	)
