@@ -7,25 +7,6 @@ import { UserUtils } from "@renderer/types"
 import { PowerModal } from "../modals/PowerModal"
 import { cn } from "@renderer/lib/utils"
 
-function useOnlineStatus(): boolean {
-	const [isOnline, setIsOnline] = useState(navigator.onLine)
-	useEffect(() => {
-		function handleOnline(): void {
-			setIsOnline(true)
-		}
-		function handleOffline(): void {
-			setIsOnline(false)
-		}
-		window.addEventListener("online", handleOnline)
-		window.addEventListener("offline", handleOffline)
-		return () => {
-			window.removeEventListener("online", handleOnline)
-			window.removeEventListener("offline", handleOffline)
-		}
-	}, [])
-	return isOnline
-}
-
 function useClock(): Date {
 	const [time, setTime] = useState(new Date())
 	useEffect(() => {
@@ -38,8 +19,7 @@ function useClock(): Date {
 export function StatusBar(): React.ReactElement {
 	const { user } = useAuth()
 	const { isOpen: isTillOpen } = useTillStore()
-	const isOnline = useOnlineStatus()
-	const { status: syncStatus, pendingCount } = useSyncStore()
+	const { status: syncStatus, pendingCount, isOnline } = useSyncStore()
 	const time = useClock()
 	const [showPowerModal, setShowPowerModal] = useState(false)
 

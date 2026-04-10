@@ -22,16 +22,10 @@ import MovementsPage from "./pages/movements/MovementsPage"
 import { SetupPage } from "./pages/setup/SetupPage"
 import { useFirebaseStore } from "./store/firebaseStore"
 import { AuthProvider } from "./context/authContext"
+import { useOfflineSync } from "./hooks/useOfflineSync"
 
-function App(): React.ReactElement {
-	const { isConfigured } = useFirebaseStore()
-	console.log("Firebase is configured: ", isConfigured)
-	// Si no hay credenciales configuradas, mostrar pantalla de setup
-	if (!isConfigured) {
-		console.log("Redirigiendo a configuracion")
-		return <SetupPage />
-	}
-
+function AppContent(): React.ReactElement {
+	useOfflineSync()
 	return (
 		<HashRouter>
 			<AuthProvider>
@@ -77,6 +71,18 @@ function App(): React.ReactElement {
 			</AuthProvider>
 		</HashRouter>
 	)
+}
+
+function App(): React.ReactElement {
+	const { isConfigured } = useFirebaseStore()
+	console.log("Firebase is configured: ", isConfigured)
+	// Si no hay credenciales configuradas, mostrar pantalla de setup
+	if (!isConfigured) {
+		console.log("Redirigiendo a configuracion")
+		return <SetupPage />
+	}
+
+	return <AppContent />
 }
 
 export default App

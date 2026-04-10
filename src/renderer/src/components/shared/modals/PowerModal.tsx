@@ -34,7 +34,11 @@ export function PowerModal({ open, onClose }: PowerModalProps): React.ReactEleme
 
 	async function handleCloseApp(): Promise<void> {
 		if (isTillOpen) return
-		await window.electron.ipcRenderer.invoke("system:close")
+		try {
+			await window.electron.ipcRenderer.invoke("system:close")
+		} catch {
+			setError("No se pudo cerrar la aplicación")
+		}
 	}
 
 	async function handleShutdown(): Promise<void> {
