@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react"
-import {
-	Filter, RefreshCw, ArrowUpDown,
-	ArrowUp, ArrowDown, Eye, RotateCw
-} from "lucide-react"
+import { Filter, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, Eye, RotateCw } from "lucide-react"
 import { Button } from "@renderer/components/ui/button"
 import { Input } from "@renderer/components/ui/input"
 import { Badge } from "@renderer/components/ui/badge"
@@ -42,18 +39,36 @@ const VOUCHER_CONFIG: Record<string, { label: string; className: string }> = {
 	factura: { label: "Factura", className: "bg-purple-100 text-purple-700 border-purple-200" }
 }
 
-function SortIcon({ field, current, order }: {
+function SortIcon({
+	field,
+	current,
+	order
+}: {
 	field: SortField
 	current: SortField
 	order: "asc" | "desc"
 }): React.ReactElement {
 	if (field !== current) return <ArrowUpDown size={12} className="text-slate-300" />
-	return order === "asc"
-		? <ArrowUp size={12} className="text-slate-600" />
-		: <ArrowDown size={12} className="text-slate-600" />
+	return order === "asc" ? (
+		<ArrowUp size={12} className="text-slate-600" />
+	) : (
+		<ArrowDown size={12} className="text-slate-600" />
+	)
 }
 
-function SortableHead({ field, sortField, order, label, onSort }: { field: SortField; sortField: SortField, order: SortOrder, label: string, onSort: (field: SortField) => void }): React.ReactElement {
+function SortableHead({
+	field,
+	sortField,
+	order,
+	label,
+	onSort
+}: {
+	field: SortField
+	sortField: SortField
+	order: SortOrder
+	label: string
+	onSort: (field: SortField) => void
+}): React.ReactElement {
 	return (
 		<TableHead
 			className="cursor-pointer select-none hover:text-slate-800 transition-colors"
@@ -196,18 +211,45 @@ export default function DocumentsPage(): React.ReactElement {
 							<Table>
 								<TableHeader>
 									<TableRow className="bg-slate-50">
-										<SortableHead field="date" label="Nº Serie / Fecha" sortField={sortField} order={sortOrder} onSort={setSort} />
-										<SortableHead field="voucherType" label="Tipo" sortField={sortField} order={sortOrder} onSort={setSort} />
+										<SortableHead
+											field="date"
+											label="Nº Serie / Fecha"
+											sortField={sortField}
+											order={sortOrder}
+											onSort={setSort}
+										/>
+										<SortableHead
+											field="voucherType"
+											label="Tipo"
+											sortField={sortField}
+											order={sortOrder}
+											onSort={setSort}
+										/>
 										<TableHead>Cliente</TableHead>
-										<SortableHead field="totalPrice" label="Total" sortField={sortField} order={sortOrder} onSort={setSort} />
-										<SortableHead field="sunatStatus" label="Estado SUNAT" sortField={sortField} order={sortOrder} onSort={setSort} />
+										<SortableHead
+											field="totalPrice"
+											label="Total"
+											sortField={sortField}
+											order={sortOrder}
+											onSort={setSort}
+										/>
+										<SortableHead
+											field="sunatStatus"
+											label="Estado SUNAT"
+											sortField={sortField}
+											order={sortOrder}
+											onSort={setSort}
+										/>
 										<TableHead className="text-right">Acciones</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
 									{isLoading ? (
 										<TableRow>
-											<TableCell colSpan={6} className="text-center text-slate-400 py-12">
+											<TableCell
+												colSpan={6}
+												className="text-center text-slate-400 py-12"
+											>
 												<div className="flex items-center justify-center gap-2">
 													<RefreshCw size={14} className="animate-spin" />
 													Cargando...
@@ -216,14 +258,20 @@ export default function DocumentsPage(): React.ReactElement {
 										</TableRow>
 									) : receipts.length === 0 ? (
 										<TableRow>
-											<TableCell colSpan={6} className="text-center text-slate-400 py-12">
+											<TableCell
+												colSpan={6}
+												className="text-center text-slate-400 py-12"
+											>
 												No se encontraron comprobantes
 											</TableCell>
 										</TableRow>
 									) : (
 										receipts.map((receipt) => {
-											const statusConfig = STATUS_CONFIG[receipt.sunatStatus] ?? STATUS_CONFIG.PENDING
-											const voucherConfig = VOUCHER_CONFIG[receipt.voucherType]
+											const statusConfig =
+												STATUS_CONFIG[receipt.sunatStatus] ??
+												STATUS_CONFIG.PENDING
+											const voucherConfig =
+												VOUCHER_CONFIG[receipt.voucherType]
 											const isUpdating = updatingId === receipt.id
 
 											return (
@@ -240,7 +288,8 @@ export default function DocumentsPage(): React.ReactElement {
 															{receipt.serialCode}
 														</p>
 														<p className="text-xs text-slate-400">
-															{receipt.date} {receipt.hour?.slice(0, 5)}
+															{receipt.date}{" "}
+															{receipt.hour?.slice(0, 5)}
 														</p>
 													</TableCell>
 													<TableCell>
@@ -248,7 +297,8 @@ export default function DocumentsPage(): React.ReactElement {
 															variant="outline"
 															className={`text-xs ${voucherConfig?.className ?? ""} capitalize`}
 														>
-															{voucherConfig?.label ?? receipt.voucherType}
+															{voucherConfig?.label ??
+																receipt.voucherType}
 														</Badge>
 													</TableCell>
 													<TableCell>
@@ -257,7 +307,8 @@ export default function DocumentsPage(): React.ReactElement {
 														</p>
 														{receipt.clientDocument && (
 															<p className="text-xs text-slate-400">
-																{receipt.clientDocumentType}: {receipt.clientDocument}
+																{receipt.clientDocumentType}:{" "}
+																{receipt.clientDocument}
 															</p>
 														)}
 													</TableCell>
@@ -284,11 +335,17 @@ export default function DocumentsPage(): React.ReactElement {
 																className="h-7 w-7"
 																title="Actualizar estado SUNAT"
 																disabled={isUpdating}
-																onClick={() => updateStatus(receipt)}
+																onClick={() =>
+																	updateStatus(receipt)
+																}
 															>
 																<RotateCw
 																	size={13}
-																	className={isUpdating ? "animate-spin" : ""}
+																	className={
+																		isUpdating
+																			? "animate-spin"
+																			: ""
+																	}
 																/>
 															</Button>
 															{/* Preview */}
@@ -297,7 +354,9 @@ export default function DocumentsPage(): React.ReactElement {
 																variant="ghost"
 																className="h-7 w-7"
 																title="Ver comprobante"
-																onClick={() => handleSelect(receipt)}
+																onClick={() =>
+																	handleSelect(receipt)
+																}
 															>
 																<Eye size={13} />
 															</Button>
@@ -327,7 +386,8 @@ export default function DocumentsPage(): React.ReactElement {
 										Anterior
 									</Button>
 									{Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-										const p = Math.max(1, Math.min(page - 2, totalPages - 4)) + i
+										const p =
+											Math.max(1, Math.min(page - 2, totalPages - 4)) + i
 										return (
 											<Button
 												key={p}

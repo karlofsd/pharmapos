@@ -19,8 +19,11 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
 }
 
 const PAYMENT_LABELS: Record<string, string> = {
-	cash: "Efectivo", card: "Tarjeta", credit: "Crédito",
-	wallet: "Saldo favor", mixed: "Mixto"
+	cash: "Efectivo",
+	card: "Tarjeta",
+	credit: "Crédito",
+	wallet: "Saldo favor",
+	mixed: "Mixto"
 }
 
 export function ReceiptPreview({ receipt, onClose }: ReceiptPreviewProps): React.ReactElement {
@@ -79,7 +82,10 @@ export function ReceiptPreview({ receipt, onClose }: ReceiptPreviewProps): React
 					<div className="p-4 flex flex-col gap-4">
 						{/* Estado SUNAT */}
 						<div className="flex items-center justify-between">
-							<Badge variant="outline" className={`text-xs ${statusConfig.className}`}>
+							<Badge
+								variant="outline"
+								className={`text-xs ${statusConfig.className}`}
+							>
 								{statusConfig.label}
 							</Badge>
 							{receipt.sunatMessage && (
@@ -91,7 +97,9 @@ export function ReceiptPreview({ receipt, onClose }: ReceiptPreviewProps): React
 
 						{/* Emisor */}
 						<div className="bg-slate-50 rounded-lg p-3 text-center">
-							<p className="font-bold text-slate-800 text-sm">{receipt.ownerBussinesName}</p>
+							<p className="font-bold text-slate-800 text-sm">
+								{receipt.ownerBussinesName}
+							</p>
 							<p className="text-xs text-slate-500">RUC: {receipt.ownerRUC}</p>
 							<p className="text-xs text-slate-400">{receipt.ownerAddress}</p>
 						</div>
@@ -102,13 +110,23 @@ export function ReceiptPreview({ receipt, onClose }: ReceiptPreviewProps): React
 								{ label: "Serie-Número", value: receipt.serialCode },
 								{ label: "Fecha", value: `${receipt.date} ${receipt.hour}` },
 								{ label: "Cliente", value: receipt.clientName },
-								{ label: receipt.clientDocumentType ?? "Doc.", value: receipt.clientDocument ?? "-" },
+								{
+									label: receipt.clientDocumentType ?? "Doc.",
+									value: receipt.clientDocument ?? "-"
+								},
 								{ label: "Cajero", value: receipt.cashierName },
-								{ label: "Pago", value: PAYMENT_LABELS[receipt.paymentMethod] ?? receipt.paymentMethod }
+								{
+									label: "Pago",
+									value:
+										PAYMENT_LABELS[receipt.paymentMethod] ??
+										receipt.paymentMethod
+								}
 							].map(({ label, value }) => (
 								<div key={label} className="flex justify-between text-sm">
 									<span className="text-slate-500">{label}</span>
-									<span className="font-medium text-slate-800 text-right max-w-48 truncate">{value}</span>
+									<span className="font-medium text-slate-800 text-right max-w-48 truncate">
+										{value}
+									</span>
 								</div>
 							))}
 						</div>
@@ -121,9 +139,14 @@ export function ReceiptPreview({ receipt, onClose }: ReceiptPreviewProps): React
 								Productos
 							</p>
 							{receipt.items.map((item, i) => (
-								<div key={i} className="flex justify-between bg-slate-50 rounded px-3 py-2">
+								<div
+									key={i}
+									className="flex justify-between bg-slate-50 rounded px-3 py-2"
+								>
 									<div>
-										<p className="text-xs font-medium text-slate-800">{item.productName}</p>
+										<p className="text-xs font-medium text-slate-800">
+											{item.productName}
+										</p>
 										<p className="text-xs text-slate-400">
 											{item.quantity} x S/. {item.finalPrice.toFixed(2)}
 										</p>
@@ -142,12 +165,16 @@ export function ReceiptPreview({ receipt, onClose }: ReceiptPreviewProps): React
 							{receipt.totalIGV > 0 && (
 								<div className="flex justify-between text-sm">
 									<span className="text-slate-500">IGV</span>
-									<span className="text-slate-800">S/. {receipt.totalIGV.toFixed(2)}</span>
+									<span className="text-slate-800">
+										S/. {receipt.totalIGV.toFixed(2)}
+									</span>
 								</div>
 							)}
 							<div className="flex justify-between text-base font-bold">
 								<span className="text-slate-700">Total</span>
-								<span className="text-slate-800">S/. {receipt.totalPrice.toFixed(2)}</span>
+								<span className="text-slate-800">
+									S/. {receipt.totalPrice.toFixed(2)}
+								</span>
 							</div>
 							{receipt.paymentMethod === "cash" && (
 								<>
@@ -166,7 +193,9 @@ export function ReceiptPreview({ receipt, onClose }: ReceiptPreviewProps): React
 						{/* Hash SUNAT */}
 						{receipt.hash && (
 							<div className="bg-slate-50 rounded-lg p-2">
-								<p className="text-xs text-slate-400 break-all font-mono">{receipt.hash}</p>
+								<p className="text-xs text-slate-400 break-all font-mono">
+									{receipt.hash}
+								</p>
 							</div>
 						)}
 					</div>

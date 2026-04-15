@@ -136,11 +136,7 @@ export function CatalogsTab(): React.ReactElement {
 		<div className="flex flex-col gap-6 max-w-2xl">
 			<CatalogSection title="Laboratorios" items={catalogs.labs} onAdd={addLab} />
 			<Separator />
-			<CatalogSection
-				title="Categorías"
-				items={categories}
-				onAdd={handleAddCategory}
-			/>
+			<CatalogSection title="Categorías" items={categories} onAdd={handleAddCategory} />
 			<Separator />
 			<CatalogSection title="Unidades" items={units} onAdd={handleAddUnit} />
 		</div>

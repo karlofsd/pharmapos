@@ -26,7 +26,7 @@ const clientSchema = z.object({
 	documentNumber: z.string().min(1, "Requerido"),
 	phoneCode: z.string().min(1, "Requerido"),
 	phoneNumber: z.string().min(6, "Requerido"),
-	email: z.string().email("Email inválido").optional().or(z.literal("")),
+	email: z.email("Email inválido").optional().or(z.literal("")),
 	genre: z.enum(["male", "female", "other"]),
 	birthday: z.string().min(1, "Requerido"),
 	address: z.string().min(1, "Requerido")

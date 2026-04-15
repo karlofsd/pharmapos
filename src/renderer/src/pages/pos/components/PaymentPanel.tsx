@@ -48,10 +48,10 @@ export function PaymentPanel({ onConfirm, isProcessing }: PaymentPanelProps): Re
 
 	const filteredClients = clientSearch.trim()
 		? clients.filter(
-			(c) =>
-				UserUtils.getFullname(c).toLowerCase().includes(clientSearch.toLowerCase()) ||
-				Object.values(c.document).some((v) => v.includes(clientSearch))
-		)
+				(c) =>
+					UserUtils.getFullname(c).toLowerCase().includes(clientSearch.toLowerCase()) ||
+					Object.values(c.document).some((v) => v.includes(clientSearch))
+			)
 		: clients.slice(0, 5)
 
 	const isEmpty = items.length === 0
@@ -109,7 +109,9 @@ export function PaymentPanel({ onConfirm, isProcessing }: PaymentPanelProps): Re
 				</div>
 				{client?.id ? (
 					<div className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2">
-						<p className="text-sm font-medium text-slate-800">{UserUtils.getFullname(client)}</p>
+						<p className="text-sm font-medium text-slate-800">
+							{UserUtils.getFullname(client)}
+						</p>
 						<button
 							onClick={() => {
 								clearClient()
@@ -152,9 +154,7 @@ export function PaymentPanel({ onConfirm, isProcessing }: PaymentPanelProps): Re
 												type="button"
 												onMouseDown={(e) => e.preventDefault()}
 												onClick={() => {
-													setClient(
-														client
-													)
+													setClient(client)
 													setClientSearch("")
 													setShowClientSearch(false)
 												}}

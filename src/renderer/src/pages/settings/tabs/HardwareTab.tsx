@@ -13,14 +13,18 @@ interface SettingRowProps {
 	checked: boolean
 	onCheckedChange: () => void
 	destructive?: boolean
+	disabled?: boolean
+	alert?: string
 }
 
-function SettingRow({
+export function SettingRow({
 	icon: Icon,
 	label,
 	description,
 	checked,
 	onCheckedChange,
+	disabled,
+	alert,
 	destructive = false
 }: SettingRowProps): React.ReactElement {
 	return (
@@ -39,9 +43,10 @@ function SettingRow({
 				<div>
 					<Label className="text-sm font-medium text-slate-800">{label}</Label>
 					<p className="text-xs text-slate-400 mt-0.5">{description}</p>
+					{alert && <p className="text-xs text-yellow-400 mt-0/5">{alert}</p>}
 				</div>
 			</div>
-			<Switch checked={checked} onCheckedChange={onCheckedChange} />
+			<Switch disabled={disabled} checked={checked} onCheckedChange={onCheckedChange} />
 		</div>
 	)
 }
@@ -51,6 +56,7 @@ export function HardwareTab(): React.ReactElement {
 		emitReceipt,
 		openDrawer,
 		kioskMode,
+		sentSunat,
 		toggleEmitReceipt,
 		toggleOpenDrawer,
 		activeKioskMode
@@ -70,6 +76,12 @@ export function HardwareTab(): React.ReactElement {
 						description="Imprime automáticamente el comprobante al confirmar una venta"
 						checked={emitReceipt}
 						onCheckedChange={toggleEmitReceipt}
+						disabled={!sentSunat}
+						alert={
+							!sentSunat
+								? "Active la facturacion en la pestaña de negocio"
+								: undefined
+						}
 					/>
 					<Separator />
 					<SettingRow

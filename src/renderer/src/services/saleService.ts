@@ -314,11 +314,11 @@ export const SaleService = {
 	},
 
 	async initPrinterDrawer(
-		data: Receipt,
+		data: Receipt | undefined,
 		canOpenDrawer: boolean,
 		canEmitReceipt: boolean
 	): Promise<void> {
-		if (canEmitReceipt) await ReceiptService.print(data)
+		if (data && canEmitReceipt) await ReceiptService.print(data)
 
 		if (canOpenDrawer) await ReceiptService.openDrawer()
 	}

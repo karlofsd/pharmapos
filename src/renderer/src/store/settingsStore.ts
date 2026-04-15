@@ -28,12 +28,14 @@ interface SettingsState {
 	emitReceipt: boolean
 	openDrawer: boolean
 	kioskMode: boolean
+	sentSunat: boolean
 	setTheme: (theme: ThemeMode) => void
 	setFontSize: (size: FontSize) => void
 	setLanguage: (lang: Language) => void
 	setPrimaryColor: (color: PrimaryColor) => void
 	toggleEmitReceipt: () => void
 	toggleOpenDrawer: () => void
+	toggleSunat: () => void
 	activeKioskMode: () => void
 }
 
@@ -45,6 +47,7 @@ export const useSettingsStore = create<SettingsState>()(
 			language: "es",
 			primaryColor: PRIMARY_COLORS[0],
 			emitReceipt: false,
+			sentSunat: false,
 			openDrawer: true,
 			kioskMode: true,
 			toggleEmitReceipt: () =>
@@ -68,7 +71,14 @@ export const useSettingsStore = create<SettingsState>()(
 			setPrimaryColor: (primaryColor) => {
 				set({ primaryColor })
 				document.documentElement.style.setProperty("--primary", primaryColor.hsl)
-			}
+			},
+
+			toggleSunat: () =>
+				set((state) => ({
+					...state,
+					sentSunat: !get().sentSunat,
+					emitReceipt: !get().sentSunat && get().emitReceipt
+				}))
 		}),
 		{ name: "pharmapos-settings" }
 	)

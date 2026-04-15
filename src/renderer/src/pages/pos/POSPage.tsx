@@ -27,7 +27,7 @@ export default function POSPage(): React.ReactElement {
 		clear
 	} = useCartStore()
 	const { addItem } = useCartStore()
-	const { openDrawer, emitReceipt } = useSettingsStore()
+	const { openDrawer, emitReceipt, sentSunat } = useSettingsStore()
 
 	const [isProcessing, setIsProcessing] = useState(false)
 
@@ -80,31 +80,33 @@ export default function POSPage(): React.ReactElement {
 				creditAmount
 			} as CreateSaleDTO
 			const saleId = await SaleService.create(data)
-			const { receipt } = await ReceiptSunatService.emit({
-				cashierName: data.cashierName,
-				cashReceived,
-				voucherType,
-				clientName: client ? UserUtils.getFullname(client) : null,
-				clientDocumentType: !client
-					? null
-					: voucherType == "factura"
-						? "RUC"
-						: client.document?.dni
-							? "DNI"
-							: "CE",
-				clientDocument: !client
-					? null
-					: voucherType == "factura"
-						? client.document.ruc
-						: (client.document?.ce ?? client.document?.dni),
-				clientAddress: client?.address ?? null,
-				saleId,
-				paymentMethod,
-				change: data.change,
-				items: items,
-				totalPrice: data.totalPrice
-			})
-			await SaleService.initPrinterDrawer(receipt!, openDrawer, emitReceipt)
+			const { receipt } = sentSunat
+				? await ReceiptSunatService.emit({
+						cashierName: data.cashierName,
+						cashReceived,
+						voucherType,
+						clientName: client ? UserUtils.getFullname(client) : null,
+						clientDocumentType: !client
+							? null
+							: voucherType == "factura"
+								? "RUC"
+								: client.document?.dni
+									? "DNI"
+									: "CE",
+						clientDocument: !client
+							? null
+							: voucherType == "factura"
+								? client.document.ruc
+								: (client.document?.ce ?? client.document?.dni),
+						clientAddress: client?.address ?? null,
+						saleId,
+						paymentMethod,
+						change: data.change,
+						items: items,
+						totalPrice: data.totalPrice
+					})
+				: {}
+			await SaleService.initPrinterDrawer(receipt, openDrawer, emitReceipt)
 
 			clear()
 		} catch (error) {
