@@ -138,11 +138,11 @@ export function CatalogsTab(): React.ReactElement {
 			<Separator />
 			<CatalogSection
 				title="Categorías"
-				items={catalogs.categories}
+				items={categories}
 				onAdd={handleAddCategory}
 			/>
 			<Separator />
-			<CatalogSection title="Unidades" items={catalogs.units} onAdd={handleAddUnit} />
+			<CatalogSection title="Unidades" items={units} onAdd={handleAddUnit} />
 		</div>
 	)
 }

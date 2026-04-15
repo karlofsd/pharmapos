@@ -70,11 +70,11 @@ export function LabSelector({ labs, value, onChange }: LabSelectorProps): React.
 						<button
 							type="button"
 							onMouseDown={(e) => e.preventDefault()}
-							onClick={() => handleSelect(search.trim())}
+							onClick={() => handleSelect(search?.trim() ?? '')}
 							className="w-full flex items-center gap-2 px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 border-b border-slate-100 transition-colors"
 						>
 							<Plus size={14} />
-							Usar <span className="font-medium">{'"' + search.trim() + '"'} </span>
+							Usar <span className="font-medium">{'"' + (search?.trim() ?? "") + '"'} </span>
 							<span className="text-xs text-slate-400 ml-auto">
 								Se guardará al crear el producto
 							</span>

@@ -46,7 +46,7 @@ export default function MovementsPage(): React.ReactElement {
 		const term = search.toLowerCase()
 		return (
 			(m.productName ?? "").toLowerCase().includes(term) ||
-			m.reason.toLowerCase().includes(term)
+			m.reason?.toLowerCase().includes(term)
 		)
 	})
 
@@ -225,10 +225,10 @@ export default function MovementsPage(): React.ReactElement {
 													{movement.quantity}
 												</TableCell>
 												<TableCell className="text-right text-sm text-slate-600">
-													{movement.previousQuantity}
+													{movement.previousStock}
 												</TableCell>
 												<TableCell className="text-right text-sm text-slate-800 font-medium">
-													{movement.newQuantity}
+													{movement.newStock}
 												</TableCell>
 												<TableCell className="text-sm text-slate-500 max-w-xs truncate">
 													{movement.reason}
@@ -249,7 +249,7 @@ export default function MovementsPage(): React.ReactElement {
 					<div className="flex items-center justify-between">
 						<h2 className="font-bold text-slate-800">Detalle</h2>
 						<button
-							onClick={() => selectMovement(null)}
+							onClick={() => selectMovement(selected)}
 							className="text-slate-400 hover:text-slate-600"
 						>
 							<X size={18} />
@@ -267,8 +267,8 @@ export default function MovementsPage(): React.ReactElement {
 								label: "Cantidad",
 								value: `${selected.quantity > 0 ? "+" : ""}${selected.quantity}`
 							},
-							{ label: "Stock anterior", value: selected.previousQuantity },
-							{ label: "Stock nuevo", value: selected.newQuantity },
+							{ label: "Stock anterior", value: selected.previousStock },
+							{ label: "Stock nuevo", value: selected.newStock },
 							{ label: "Motivo", value: selected.reason },
 							{ label: "Usuario", value: selected.userId }
 						].map(({ label, value }) => (
@@ -289,13 +289,13 @@ export default function MovementsPage(): React.ReactElement {
 								</p>
 							</div>
 						)}
-						{selected.modifiedPrice !== null && (
+						{selected.alterPrice !== null && (
 							<div className="flex flex-col gap-0.5">
 								<p className="text-xs text-slate-400 uppercase tracking-wide">
 									Precio modificado
 								</p>
 								<p className="text-sm text-blue-600 font-medium">
-									S/. {selected.modifiedPrice?.toFixed(2)}
+									S/. {selected.alterPrice?.toFixed(2)}
 								</p>
 							</div>
 						)}

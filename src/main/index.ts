@@ -54,12 +54,15 @@ function createWindow(): BrowserWindow {
 						? "sudo shutdown -h now"
 						: "shutdown -h now"
 
-			exec(command, (error) => {
-				if (error) {
-					return { success: false, error: "Sin permisos para apagar el equipo" }
-				}
+			return new Promise((resolve) => {
+				exec(command, (error) => {
+					if (error) {
+						resolve({ success: false, error: "Sin permisos para apagar el equipo" })
+					} else {
+						resolve({ success: true })
+					}
+				})
 			})
-			return { success: true }
 		} catch (error) {
 			return { success: false, error: String(error) }
 		}

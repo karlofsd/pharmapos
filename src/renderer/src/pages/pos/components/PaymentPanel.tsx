@@ -29,8 +29,7 @@ export function PaymentPanel({ onConfirm, isProcessing }: PaymentPanelProps): Re
 		change,
 		voucherType,
 		paymentMethod,
-		clientId,
-		clientName,
+		client,
 		cashReceived,
 		cardAmount,
 		walletAmount,
@@ -49,10 +48,10 @@ export function PaymentPanel({ onConfirm, isProcessing }: PaymentPanelProps): Re
 
 	const filteredClients = clientSearch.trim()
 		? clients.filter(
-				(c) =>
-					UserUtils.getFullname(c).toLowerCase().includes(clientSearch.toLowerCase()) ||
-					Object.values(c.document).some((v) => v.includes(clientSearch))
-			)
+			(c) =>
+				UserUtils.getFullname(c).toLowerCase().includes(clientSearch.toLowerCase()) ||
+				Object.values(c.document).some((v) => v.includes(clientSearch))
+		)
 		: clients.slice(0, 5)
 
 	const isEmpty = items.length === 0
@@ -60,7 +59,7 @@ export function PaymentPanel({ onConfirm, isProcessing }: PaymentPanelProps): Re
 
 	const isValid = (() => {
 		if (isEmpty) return false
-		if (needsClient && !clientId) return false
+		if (needsClient && !client?.id) return false
 		if (paymentMethod === "cash" && cashReceived < total) return false
 		if (paymentMethod === "mixed") {
 			const covered = cashReceived + cardAmount + walletAmount
@@ -108,9 +107,9 @@ export function PaymentPanel({ onConfirm, isProcessing }: PaymentPanelProps): Re
 						</Badge>
 					)}
 				</div>
-				{clientId ? (
+				{client?.id ? (
 					<div className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2">
-						<p className="text-sm font-medium text-slate-800">{clientName}</p>
+						<p className="text-sm font-medium text-slate-800">{UserUtils.getFullname(client)}</p>
 						<button
 							onClick={() => {
 								clearClient()
@@ -154,8 +153,7 @@ export function PaymentPanel({ onConfirm, isProcessing }: PaymentPanelProps): Re
 												onMouseDown={(e) => e.preventDefault()}
 												onClick={() => {
 													setClient(
-														client.id,
-														UserUtils.getFullname(client)
+														client
 													)
 													setClientSearch("")
 													setShowClientSearch(false)
