@@ -17,17 +17,17 @@ jobs:
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: 24
-                  cache: "npm"
+                  node-version: 22
+                  cache: "yarn"
 
             - name: Install dependencies
-              run: npm ci
+              run: yarn install --frozen-lockfile
 
             - name: Build Windows
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   VITE_DECOLECTA_API_KEY: ${{ secrets.VITE_DECOLECTA_API_KEY }}
-              run: npm run build:win
+              run: yarn build:win
 
     build-mac:
         runs-on: macos-latest
@@ -40,17 +40,17 @@ jobs:
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: 24
-                  cache: "npm"
+                  node-version: 22
+                  cache: "yarn"
 
             - name: Install dependencies
-              run: npm ci
+              run: yarn install --frozen-lockfile
 
             - name: Build macOS
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   VITE_DECOLECTA_API_KEY: ${{ secrets.VITE_DECOLECTA_API_KEY }}
-              run: npm run build:mac
+              run: yarn build:mac
 
     build-linux:
         runs-on: ubuntu-latest
@@ -63,11 +63,11 @@ jobs:
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: 24
-                  cache: "npm"
+                  node-version: 22
+                  cache: "yarn"
 
             - name: Install dependencies
-              run: npm ci
+              run: yarn install --frozen-lockfile
 
             - name: Install Linux dependencies
               run: |
@@ -78,4 +78,4 @@ jobs:
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   VITE_DECOLECTA_API_KEY: ${{ secrets.VITE_DECOLECTA_API_KEY }}
-              run: npm run build:linux
+              run: yarn build:linux
