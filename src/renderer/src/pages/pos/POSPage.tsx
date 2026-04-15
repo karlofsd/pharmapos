@@ -3,13 +3,14 @@ import { Separator } from "@renderer/components/ui/separator"
 import { useCartStore } from "@renderer/store/cartStore"
 import { useTill } from "@renderer/hooks/useTill"
 import { useAuth } from "@renderer/hooks/useAuth"
-import { SaleService } from "@renderer/services/saleService"
+import { CreateSaleDTO, SaleService } from "@renderer/services/saleService"
 import { CashRegisterGate } from "./components/TillGate"
 import { ProductSearch } from "./components/ProductSearch"
 import { Cart } from "./components/Cart"
 import { PaymentPanel } from "./components/PaymentPanel"
 import { Product, Lot, UserUtils } from "@renderer/types"
 import { useSettingsStore } from "@renderer/store/settingsStore"
+import { ReceiptSunatService } from "@renderer/services/sunatService"
 
 export default function POSPage(): React.ReactElement {
 	const { user } = useAuth()
@@ -19,7 +20,7 @@ export default function POSPage(): React.ReactElement {
 		total,
 		voucherType,
 		paymentMethod,
-		clientId,
+		client,
 		cashReceived,
 		cardAmount,
 		walletAmount,
@@ -69,7 +70,7 @@ export default function POSPage(): React.ReactElement {
 				items,
 				paymentMethod,
 				voucherType,
-				clientId,
+				clientId: client?.id ?? null,
 				totalPrice: total,
 				receivedAmount: cashReceived,
 				change: Math.max(0, cashReceived - total),
@@ -77,10 +78,33 @@ export default function POSPage(): React.ReactElement {
 				cardAmount: mixedCard,
 				walletAmount: mixedWallet,
 				creditAmount
-			}
+			} as CreateSaleDTO
 			const saleId = await SaleService.create(data)
-
-			await SaleService.initPrinterDrawer(saleId, data, openDrawer, emitReceipt)
+			const { receipt } = await ReceiptSunatService.emit({
+				cashierName: data.cashierName,
+				cashReceived,
+				voucherType,
+				clientName: client ? UserUtils.getFullname(client) : null,
+				clientDocumentType: !client
+					? null
+					: voucherType == "factura"
+						? "RUC"
+						: client.document?.dni
+							? "DNI"
+							: "CE",
+				clientDocument: !client
+					? null
+					: voucherType == "factura"
+						? client.document.ruc
+						: (client.document?.ce ?? client.document?.dni),
+				clientAddress: client?.address ?? null,
+				saleId,
+				paymentMethod,
+				change: data.change,
+				items: items,
+				totalPrice: data.totalPrice
+			})
+			await SaleService.initPrinterDrawer(receipt!, openDrawer, emitReceipt)
 
 			clear()
 		} catch (error) {

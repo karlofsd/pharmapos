@@ -12,7 +12,8 @@ import {
 	Settings,
 	LucideIcon,
 	Pill,
-	ChartAreaIcon
+	ChartAreaIcon,
+	FileText
 } from "lucide-react"
 import { Role } from "@renderer/types"
 
@@ -39,7 +40,13 @@ export const navItems: NavItem[] = [
 	{ label: "Créditos", path: "/credits", icon: CreditCard, allowedRoles: ["admin", "cashier"] },
 	{ label: "Clientes", path: "/admin/clients", icon: Users, allowedRoles: ["admin"] },
 	{ label: "Proveedores", path: "/admin/suppliers", icon: Truck, allowedRoles: ["admin"] },
-	{ label: "Reportes", path: "/admin/reports", icon: BarChart2, allowedRoles: ["admin"] },
+	{
+		label: "Reportes",
+		path: "/admin/reports",
+		icon: BarChart2,
+		allowedRoles: ["admin"]
+	},
+	{ label: "Documentos", path: "/admin/documents", icon: FileText, allowedRoles: ["admin"] },
 	{ label: "Caja", path: "/till", icon: Landmark, allowedRoles: ["admin", "cashier"] },
 	{ label: "Configuración", path: "/admin/settings", icon: Settings, allowedRoles: ["admin"] }
 ]

@@ -8,6 +8,8 @@
 			http-equiv="Content-Security-Policy"
 			content="
     default-src 'self';
+	frame-src 'self'
+	http://sandbox.apisunat.pe;
     script-src 'self';
     style-src 'self' 'unsafe-inline';
     img-src 'self' data: https:;
@@ -16,6 +18,7 @@
       https://*.firebaseio.com
       https://*.firebaseapp.com
       wss://*.firebaseio.com
+	  http://sandbox.apisunat.pe;
   "
 		/>
 	</head>

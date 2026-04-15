@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
-import { Lot, Product } from "@renderer/types"
+import { Client, Lot, Product } from "@renderer/types"
 
 export interface CartItem {
 	lotId: string
@@ -26,8 +26,7 @@ interface CartState {
 	items: CartItem[]
 	voucherType: VoucherType
 	paymentMethod: CartPaymentMethod
-	clientId: string | null
-	clientName: string | null
+	client: Client | null
 	cashReceived: number
 	cardAmount: number
 	walletAmount: number
@@ -44,7 +43,7 @@ interface CartState {
 	updatePrice: (lotId: string, price: number, userId: string, reason: string) => void
 	setVoucherType: (type: VoucherType) => void
 	setPaymentMethod: (method: CartPaymentMethod) => void
-	setClient: (clientId: string, clientName: string) => void
+	setClient: (client: Client) => void
 	clearClient: () => void
 	setCashReceived: (amount: number) => void
 	setCardAmount: (amount: number) => void
@@ -63,8 +62,7 @@ export const useCartStore = create<CartState>()(
 			items: [],
 			voucherType: "boleta",
 			paymentMethod: "cash",
-			clientId: null,
-			clientName: null,
+			client: null,
 			cashReceived: 0,
 			cardAmount: 0,
 			walletAmount: 0,
@@ -156,8 +154,8 @@ export const useCartStore = create<CartState>()(
 					change: 0
 				}),
 
-			setClient: (clientId, clientName) => set({ clientId, clientName }),
-			clearClient: () => set({ clientId: null, clientName: null }),
+			setClient: (client) => set({ client }),
+			clearClient: () => set({ client: null }),
 
 			setCashReceived: (cashReceived) => {
 				const { total } = get()
@@ -173,8 +171,7 @@ export const useCartStore = create<CartState>()(
 					items: [],
 					voucherType: "boleta",
 					paymentMethod: "cash",
-					clientId: null,
-					clientName: null,
+					client: null,
 					cashReceived: 0,
 					cardAmount: 0,
 					walletAmount: 0,

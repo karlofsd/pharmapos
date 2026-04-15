@@ -23,6 +23,7 @@ import { SetupPage } from "./pages/setup/SetupPage"
 import { useFirebaseStore } from "./store/firebaseStore"
 import { AuthProvider } from "./context/authContext"
 import { useOfflineSync } from "./hooks/useOfflineSync"
+import DocumentsPage from "./pages/documents/DocumentsPage"
 
 function AppContent(): React.ReactElement {
 	useOfflineSync()
@@ -61,6 +62,7 @@ function AppContent(): React.ReactElement {
 								<Route path="suppliers" element={<SuppliersPage />} />
 								<Route path="orders" element={<OrdersPage />} />
 								<Route path="users" element={<UsersPage />} />
+								<Route path="documents" element={<DocumentsPage />} />
 								<Route path="settings" element={<SettingsPage />} />
 							</Route>
 						</Route>

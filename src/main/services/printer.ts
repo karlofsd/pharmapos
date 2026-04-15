@@ -3,6 +3,7 @@ import { IPC_CHANNELS } from "../../../shared/ipcChannels"
 import { Receipt } from "../../../shared/types/receipt.type"
 import { exec } from "child_process"
 import { Buffer } from "node:buffer"
+import iconv from "iconv-lite"
 
 const TICKETERA_WIDTH = 48
 
@@ -33,11 +34,11 @@ function formatReceipt(data: Receipt): string[] {
 	// 1. CABECERA
 	lines.push(divider("*"))
 	lines.push(center("      *** BOTICA ***      "))
-	lines.push(center("  NUESTRA SEÑORA DEL VALLE  "))
+	lines.push(center(`  ${data.ownerBussinesName} `))
 	lines.push(divider("*"))
-	lines.push(center("RUC: 10308401036"))
-	lines.push(center("CALLE DEAN VALDIVIA 1106 - COCACHACRA,AREQUIPA"))
-	lines.push(center("TEL: 934562252"))
+	lines.push(center(`RUC: ${data.ownerRUC}`))
+	lines.push(center(`${data.ownerAddress}`))
+	lines.push(center(`TEL: ${data.ownerPhone}`))
 	lines.push(divider("="))
 	lines.push(
 		center(
@@ -87,8 +88,8 @@ function formatReceipt(data: Receipt): string[] {
 
 	// 4. TOTALES
 	lines.push(divider("-"))
-	const subtotal = data.totalPrice / 1.18
-	const igv = data.totalPrice - subtotal
+	const subtotal = data.totalPrice - data.totalIGV
+	const igv = data.totalIGV
 
 	lines.push(columns("   OP. GRAVADA:  S/.", subtotal.toFixed(2)))
 	lines.push(columns("   I.G.V. (18%): S/.", igv.toFixed(2)))
@@ -126,11 +127,11 @@ function formatReceipt(data: Receipt): string[] {
 	lines.push(center(`* ${data.saleId.toUpperCase()} *`))
 
 	// 8. SECCIÓN FISAL OBLIGATORIA (Post-totales)
-	// lines.push(divider("-"))
-	// lines.push(`Hash: ${nubefact.codigo_hash}`)
-	// lines.push("")
+	lines.push(divider("-"))
+	lines.push(`Hash: ${data.hash}`)
+	lines.push("")
 
-	// // Representación del QR en texto (Requerido si no hay imagen)
+	// Representación del QR en texto (Requerido si no hay imagen)
 	// lines.push(center("Resumen para QR:"))
 	// lines.push(center(nubefact.cadena_para_codigo_qr.slice(0, 48))) // Primera parte
 	// if (nubefact.cadena_para_codigo_qr.length > 48) {
@@ -140,7 +141,7 @@ function formatReceipt(data: Receipt): string[] {
 	// 9. PIE DE PÁGINA
 	lines.push(divider("="))
 	lines.push(center("¡GRACIAS POR SU COMPRA!"))
-	// lines.push(center("Representación impresa de la " + data.voucherType.toUpperCase()))
+	lines.push(center("Representación impresa de la " + data.voucherType.toUpperCase()))
 	// lines.push(center("Consulte su comprobante en:"))
 	// lines.push(center("://farmacia.com.pe/consultas"))
 	lines.push("")
@@ -150,15 +151,56 @@ function formatReceipt(data: Receipt): string[] {
 	return lines
 }
 
+function getQRString(data: Receipt): string {
+	const [serie, numero] = data.serialCode.split("-")
+	const rucEmisor = data.ownerRUC
+	const tipoComp = data.voucherType == "factura" ? "1" : "3" // 01 Factura, 03 Boleta
+	const igv = data.totalIGV // Ejemplo
+	const total = data.totalPrice // Ejemplo
+	const fecha = data.date
+	const tipoDocCli = data.voucherType ? "6" : data.clientDocumentType == "CE" ? "4" : "1" // DNI
+	const numDocCli = data.clientDocument ?? "00000000"
+	const hash = data.hash
+	return `${rucEmisor}|${tipoComp}|${serie}|${numero}|${igv}|${total}|${fecha}|${tipoDocCli}|${numDocCli}|${hash}`
+}
+
+export function getQRCommands(data: string): Buffer {
+	const utf8Data = Buffer.from(data, "utf-8")
+	const store_len = utf8Data.length + 3
+	const pl = store_len % 256
+	const ph = Math.floor(store_len / 256)
+
+	return Buffer.concat([
+		Buffer.from([0x1b, 0x61, 0x01]), // Centrar impresión
+		Buffer.from([0x1d, 0x28, 0x6b, 0x04, 0x00, 0x30, 0x41, 0x32, 0x00]), // Model 2 (ISO 18004)
+		Buffer.from([0x1d, 0x28, 0x6b, 0x03, 0x00, 0x30, 0x43, 0x05]), // Tamaño de módulo (aprox 4-5cm en 80mm)
+		Buffer.from([0x1d, 0x28, 0x6b, 0x03, 0x00, 0x30, 0x45, 0x32]), // Nivel de Error Q (Obligatorio)
+		Buffer.from([0x1d, 0x28, 0x6b, pl, ph, 0x30, 0x50, 0x30]), // Preparar almacenamiento
+		utf8Data, // Datos en UTF-8
+		Buffer.from([0x1d, 0x28, 0x6b, 0x03, 0x00, 0x30, 0x51, 0x30]), // Imprimir QR
+		Buffer.from([0x1b, 0x61, 0x00]) // Regresar alineación izquierda
+	])
+}
+
 export function registerPrinterHandlers(): void {
 	const PRINTER_NAME = "TicketeraPOS"
 	ipcMain.handle(IPC_CHANNELS.PRINT_RECEIPT, async (_event, data: Receipt) => {
 		try {
 			const lines = formatReceipt(data)
+			const initPrinter = Buffer.from([0x1b, 0x40, 0x1b, 0x74, 0x01])
 			// Unimos las líneas y añadimos el comando de corte ESC/POS (GS V 66 0)
-			const textBuffer = Buffer.from(lines.join("\n"), "utf-8")
+			// const textBuffer = Buffer.from(lines.join("\n"), "utf8")
+			const textBuffer = iconv.encode(lines.join("\n"), "iso88591")
 			const footerBuffer = Buffer.from("\n\n\n\x1dV\x42\x00")
-			const finalBuffer = Buffer.concat([textBuffer, Buffer.from("\n"), footerBuffer])
+			const qrString = getQRString(data)
+			const qrBuffer = getQRCommands(qrString)
+			const finalBuffer = Buffer.concat([
+				initPrinter,
+				textBuffer,
+				Buffer.from("\n"),
+				qrBuffer,
+				footerBuffer
+			])
 			// Enviamos el texto directamente a la cola de impresión que ya probaste
 			const child = exec(`lp -d ${PRINTER_NAME} -o raw`)
 			child.stdin?.write(finalBuffer)

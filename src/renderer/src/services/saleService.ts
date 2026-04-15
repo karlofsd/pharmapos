@@ -10,12 +10,16 @@ import {
 	Timestamp,
 	DocumentSnapshot,
 	DocumentData,
-	DocumentReference
+	DocumentReference,
+	where,
+	limit
 } from "firebase/firestore"
 import { db } from "@renderer/services/firebase"
 import { CartItem, VoucherType, CartPaymentMethod } from "@renderer/store/cartStore"
 import { Sale } from "@renderer/types"
 import { ReceiptService } from "./receiptService"
+import { Receipt } from "shared/types/receipt.type"
+import { ReceiptSunatService } from "./sunatService"
 
 const COLLECTION = "sales"
 
@@ -170,46 +174,6 @@ export const SaleService = {
 			return saleRef.id
 		})
 
-		// runTransaction(db!, async (transaction) => {
-		// 	for (const item of data.items) {
-		// 		const lotRef = doc(db!, "lots", item.lotId)
-		// 		const lotSnap = await transaction.get(lotRef)
-
-		// 		if (!lotSnap.exists()) throw new Error(`Lote ${item.lotId} no encontrado`)
-
-		// 		const currentStock = lotSnap.data().stock as number
-		// 		if (currentStock < item.quantity) {
-		// 			throw new Error(`Stock insuficiente para ${item.productName}`)
-		// 		}
-
-		// 		console.log(
-		// 			`Descontando ${item.quantity} unidades del lote ${item.lotId} (Stock actual: ${currentStock})`
-		// 		)
-
-		// 		const newStock = currentStock - item.quantity
-		// 		transaction.update(lotRef, { stock: newStock })
-		// 		const movementRef = doc(collection(db!, "movements"))
-		// 		transaction.set(movementRef, {
-		// 			type: "sale",
-		// 			productId: item.productId,
-		// 			lotId: item.lotId,
-		// 			quantity: -item.quantity,
-		// 			previousQuantity: currentStock,
-		// 			newQuantity: newStock,
-		// 			saleId: saleId,
-		// 			referenceId: null,
-		// 			originalPrice: item.unitPrice,
-		// 			modifiedPrice: item.alterPrice,
-		// 			userId: data.cashierId,
-		// 			reason: "Venta",
-		// 			createdAt: serverTimestamp()
-		// 		})
-		// 		console.log(
-		// 			`Movimiento registrado para lote ${item.lotId}: -${item.quantity} unidades`
-		// 		)
-		// 	}
-		// })
-
 		return saleId
 	},
 
@@ -252,15 +216,30 @@ export const SaleService = {
 			if (!saleSnap.exists()) throw new Error("Venta no encontrada")
 
 			const sale = { id: saleSnap.id, ...saleSnap.data() } as Sale
-
+			const tillRef = doc(db!, "tills", sale.tillId)
+			const tillSnap = await transaction.get(tillRef)
 			if (sale.status === "cancelled") throw new Error("La venta ya fue anulada")
 
 			const reversedMovements: string[] = []
 
+			const itemsRef: Record<
+				string,
+				{
+					lotRef: DocumentReference<DocumentData, DocumentData>
+					lotSnap: DocumentSnapshot<DocumentData, DocumentData>
+				}
+			> = {}
+
+			for (const i of sale.items) {
+				const lotRef = doc(db!, "lots", i.lotId)
+				const lotSnap = await transaction.get(lotRef)
+				itemsRef[i.lotId] = { lotRef, lotSnap }
+			}
+
 			// Revertir stock por cada item
 			for (const item of sale.items) {
-				const lotRef = doc(db!, "lots", item.lotId)
-				const lotSnap = await transaction.get(lotRef)
+				const lotSnap = itemsRef[item.lotId].lotSnap
+				const lotRef = itemsRef[item.lotId].lotRef
 
 				if (!lotSnap.exists()) continue
 
@@ -302,8 +281,6 @@ export const SaleService = {
 			})
 
 			// Revertir totales en caja
-			const tillRef = doc(db!, "tills", sale.tillId)
-			const tillSnap = await transaction.get(tillRef)
 
 			if (tillSnap.exists()) {
 				const till = tillSnap.data()
@@ -318,36 +295,30 @@ export const SaleService = {
 				transaction.update(tillRef, updates)
 			}
 		})
+
+		const receiptRef = query(
+			collection(db!, "receipts"),
+			where("saleId", "==", saleId),
+			limit(1)
+		)
+		const receiptSnap = await getDocs(receiptRef)
+
+		if (!receiptSnap.empty) {
+			const receipt = receiptSnap.docs[0].data() as Receipt
+			await ReceiptSunatService.cancel(
+				receiptSnap.docs[0].id,
+				receipt.voucherType,
+				receipt.serialCode
+			)
+		}
 	},
 
 	async initPrinterDrawer(
-		saleId: string,
-		data: CreateSaleDTO,
+		data: Receipt,
 		canOpenDrawer: boolean,
 		canEmitReceipt: boolean
 	): Promise<void> {
-		if (canEmitReceipt)
-			await ReceiptService.print({
-				saleId,
-				cashierName: data.cashierName,
-				clientName: data.clientId,
-				clientDocument: "73302199",
-				date: new Date(Date.now()).toISOString(),
-				items: data.items.map(
-					({ productName, quantity, subtotal, finalPrice, alterPrice }) => ({
-						productName,
-						quantity,
-						subtotal,
-						finalPrice,
-						alterPrice
-					})
-				),
-				voucherType: data.voucherType,
-				cashReceived: data.receivedAmount,
-				paymentMethod: data.paymentMethod,
-				totalPrice: data.totalPrice,
-				change: data.change
-			})
+		if (canEmitReceipt) await ReceiptService.print(data)
 
 		if (canOpenDrawer) await ReceiptService.openDrawer()
 	}

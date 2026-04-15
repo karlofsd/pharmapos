@@ -2,6 +2,7 @@ import { useEffect } from "react"
 import { collection, query, onSnapshot, enableNetwork, disableNetwork } from "firebase/firestore"
 import { db } from "@renderer/services/firebase"
 import { useSyncStore } from "@renderer/store/syncStore"
+import { ReceiptSunatService } from "@renderer/services/sunatService"
 
 const MONITORED_COLLECTIONS = ["sales", "cashMovements", "tillBalance", "credits", "orders"]
 
@@ -15,6 +16,7 @@ export function useOfflineSync(): void {
 				setOnline(true)
 				setSyncing()
 				await enableNetwork(db!)
+				await ReceiptSunatService.retryPending()
 				setSynced()
 			} catch {
 				setError()
