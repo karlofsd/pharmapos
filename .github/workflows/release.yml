@@ -27,7 +27,7 @@ jobs:
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   VITE_DECOLECTA_API_KEY: ${{ secrets.VITE_DECOLECTA_API_KEY }}
-              run: yarn build:win
+              run: yarn build:win --publish always
 
     build-mac:
         runs-on: macos-latest
@@ -50,7 +50,7 @@ jobs:
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   VITE_DECOLECTA_API_KEY: ${{ secrets.VITE_DECOLECTA_API_KEY }}
-              run: yarn build:mac
+              run: yarn build:mac --publish always
 
     build-linux:
         runs-on: ubuntu-latest
@@ -78,4 +78,4 @@ jobs:
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   VITE_DECOLECTA_API_KEY: ${{ secrets.VITE_DECOLECTA_API_KEY }}
-              run: yarn build:linux
+              run: yarn build:linux --publish always
