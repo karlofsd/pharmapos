@@ -27,7 +27,7 @@ export function ReportTable<T extends object>({
 	emptyMessage = "No hay datos"
 }: ReportTableProps<T>): React.ReactElement {
 	return (
-		<div className="overflow-auto rounded-lg border border-slate-200">
+		<div className="flex-1 overflow-auto rounded-lg border border-slate-200">
 			<Table>
 				<TableHeader>
 					<TableRow className="bg-slate-50">
@@ -61,11 +61,7 @@ export function ReportTable<T extends object>({
 									>
 										{col.render
 											? col.render(row)
-											: String(
-													(row as Record<string, unknown>)[
-														String(col.key)
-													] ?? "-"
-												)}
+											: String((row as Record<string, unknown>)[String(col.key)] ?? "-")}
 									</TableCell>
 								))}
 							</TableRow>

@@ -387,7 +387,7 @@ export default function ReportsPage(): React.ReactElement {
 	}
 
 	return (
-		<div className="flex flex-col h-full p-6 gap-4">
+		<div className="flex h-full flex-col p-6 gap-4">
 			<div>
 				<h1 className="text-xl font-bold text-slate-800">Reportes</h1>
 				<p className="text-sm text-slate-500">Consulta y exporta información del sistema</p>

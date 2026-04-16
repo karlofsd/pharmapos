@@ -350,4 +350,4 @@ GitHub Actions compila automáticamente para Windows, macOS y Linux y publica lo
 
 ## Licencia
 
-MIT © 2024 ArkaN
+MIT © 2026 ArkaN

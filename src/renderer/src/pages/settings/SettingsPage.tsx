@@ -10,7 +10,7 @@ import { BusinessTab } from "./tabs/BusinessTab"
 
 export default function SettingsPage(): React.ReactElement {
 	return (
-		<div className="flex flex-col h-full p-6 gap-4">
+		<div className="flex flex-col p-6 gap-4">
 			<div>
 				<h1 className="text-xl font-bold text-slate-800">Configuración</h1>
 				<p className="text-sm text-slate-500">
@@ -58,5 +58,6 @@ export default function SettingsPage(): React.ReactElement {
 				</div>
 			</Tabs>
 		</div>
+
 	)
 }

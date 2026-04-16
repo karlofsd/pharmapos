@@ -1,6 +1,6 @@
-appId: com.tuempresa.pharmapos
+appId: com.soberk.pharmapos
 productName: Farmacia POS
-copyright: Copyright © 2024 ArkaN
+copyright: Copyright © 2026 ArkaN
 
 directories:
     buildResources: build

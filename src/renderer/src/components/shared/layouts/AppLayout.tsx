@@ -33,9 +33,9 @@ export default function AppLayout(): React.ReactElement {
 
 	return (
 		<div className="flex flex-col h-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
-			<div className="flex flex-1 overflow-hidden">
+			<div className="flex flex-1 h-full overflow-hidden">
 				<Sidebar collapsed={sidebarCollapsed} onToggle={handleToggle} />
-				<main className="flex-1 overflow-auto bg-slate-50 dark:bg-slate-950">
+				<main className="flex-1 overflow-auto h-full bg-slate-50 dark:bg-slate-950">
 					<Outlet />
 				</main>
 			</div>

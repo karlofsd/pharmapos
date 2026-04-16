@@ -84,6 +84,7 @@ export const ProductService = {
 			(product) =>
 				product.brand.toLowerCase().includes(normalizedQuery) ||
 				product.manufacturer.toLowerCase().includes(normalizedQuery) ||
+				product.barcode.toLowerCase().includes(normalizedQuery) ||
 				product.dci.some((dci) => dci.name.toLowerCase().includes(normalizedQuery))
 		)
 	}

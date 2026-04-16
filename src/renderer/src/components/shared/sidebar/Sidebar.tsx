@@ -30,7 +30,7 @@ const Sidebar = ({ collapsed, onToggle }: SidebarProps): React.ReactElement => {
 	return (
 		<aside
 			className={cn(
-				"flex flex-col h-screen transition-all duration-300 shrink-0",
+				"flex flex-col transition-all duration-300 shrink-0",
 				"bg-slate-900 dark:bg-slate-950 text-white",
 				collapsed ? "w-16" : "w-56"
 			)}
@@ -69,7 +69,7 @@ const Sidebar = ({ collapsed, onToggle }: SidebarProps): React.ReactElement => {
 											"flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors w-full",
 											"text-slate-300 hover:bg-slate-700 dark:hover:bg-slate-800 hover:text-white",
 											isActive &&
-												"bg-slate-700 dark:bg-slate-800 text-white font-medium",
+											"bg-slate-700 dark:bg-slate-800 text-white font-medium",
 											collapsed && "justify-center px-0"
 										)
 									}
