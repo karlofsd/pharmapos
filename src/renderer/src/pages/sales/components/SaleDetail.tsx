@@ -8,7 +8,7 @@ interface SaleDetailProps {
 	sale: Sale
 	onCancel: () => void
 	onClose: () => void
-	isAdmin: boolean
+	hasPermission: boolean
 }
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
@@ -43,10 +43,10 @@ export function SaleDetail({
 	sale,
 	onCancel,
 	onClose,
-	isAdmin
+	hasPermission
 }: SaleDetailProps): React.ReactElement {
 	const statusConfig = STATUS_CONFIG[sale.status] ?? STATUS_CONFIG.completed
-	const canCancel = isAdmin && sale.status !== "cancelled"
+	const canCancel = hasPermission && sale.status !== "cancelled"
 
 	return (
 		<div className="flex flex-col h-full">

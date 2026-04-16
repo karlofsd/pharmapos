@@ -45,7 +45,7 @@ export default function ProductsPage(): React.ReactElement {
 	const [createdProductId, setCreatedProductId] = useState<string | null>(null)
 	const { createLot } = useLots()
 
-	const isAdmin = user?.role === "admin"
+	const hasPermission = (user?.level ?? 0) >= 2
 
 	function handleSelectProduct(product: Product): void {
 		selectProduct(product)
@@ -97,7 +97,7 @@ export default function ProductsPage(): React.ReactElement {
 							{filtered.length} productos encontrados
 						</p>
 					</div>
-					{isAdmin && (
+					{hasPermission && (
 						<Button onClick={handleNewProduct}>
 							<Plus size={16} />
 							Nuevo producto
@@ -183,9 +183,9 @@ export default function ProductsPage(): React.ReactElement {
 					) : selected ? (
 						<ProductDetail
 							product={selected}
-							onEdit={isAdmin ? handleEdit : undefined}
+							onEdit={hasPermission ? handleEdit : undefined}
 							onDeactivate={
-								isAdmin ? () => deactivateProduct(selected.id) : undefined
+								hasPermission ? () => deactivateProduct(selected.id) : undefined
 							}
 							onClose={handleCloseDetail}
 						/>

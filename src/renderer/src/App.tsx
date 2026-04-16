@@ -40,7 +40,15 @@ function AppContent(): React.ReactElement {
 							</ProtectedRoute>
 						}
 					>
-						<Route element={<RoleRoute allowedRoles={["admin", "cashier"]} />}>
+						<Route
+							element={
+								<RoleRoute
+									allowedRoles={["admin", "cashier"]}
+									allowedMinLevel={1}
+								/>
+							}
+						>
+							<Route path="dashboard" element={<DashboardPage />} />
 							<Route path="pos" element={<POSPage />} />
 							<Route path="inventory" element={<InventoryPage />} />
 							<Route path="sales" element={<SalesPage />} />
@@ -50,11 +58,12 @@ function AppContent(): React.ReactElement {
 								<Route path="opening" element={<TillsPage />} />
 							</Route>
 						</Route>
-						<Route element={<RoleRoute allowedRoles={["cashier"]} />}>
+						<Route
+							element={<RoleRoute allowedRoles={["cashier"]} allowedMinLevel={1} />}
+						>
 							<Route path="cashier" element={<DashboardPage />} />
 						</Route>
-						<Route element={<RoleRoute allowedRoles={["admin"]} />}>
-							<Route path="dashboard" element={<DashboardPage />} />
+						<Route element={<RoleRoute allowedRoles={["admin"]} allowedMinLevel={2} />}>
 							<Route path="admin" element={<Outlet />}>
 								<Route path="reports" element={<ReportsPage />} />
 								<Route path="products" element={<ProductsPage />} />

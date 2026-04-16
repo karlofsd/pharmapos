@@ -46,21 +46,21 @@ Sistema de punto de venta de escritorio para farmacias en Perú, construido con 
 
 ## Stack tecnológico
 
-| Capa | Tecnología |
-|------|------------|
-| Desktop | Electron 39 |
-| UI | React 19 + TypeScript 5.9 |
-| Estilos | Tailwind CSS 3 + shadcn/ui |
-| Estado global | Zustand 5 |
+| Capa          | Tecnología                               |
+| ------------- | ---------------------------------------- |
+| Desktop       | Electron 39                              |
+| UI            | React 19 + TypeScript 5.9                |
+| Estilos       | Tailwind CSS 3 + shadcn/ui               |
+| Estado global | Zustand 5                                |
 | Base de datos | Firebase Firestore (offline persistence) |
-| Autenticación | Firebase Auth |
-| Formularios | React Hook Form + Zod |
-| Hardware | @node-escpos (ESC/POS) |
-| Comprobantes | apisunat.pe |
-| Exportación | xlsx |
-| i18n | i18next |
-| Build | Vite + electron-vite |
-| CI/CD | GitHub Actions |
+| Autenticación | Firebase Auth                            |
+| Formularios   | React Hook Form + Zod                    |
+| Hardware      | @node-escpos (ESC/POS)                   |
+| Comprobantes  | apisunat.pe                              |
+| Exportación   | xlsx                                     |
+| i18n          | i18next                                  |
+| Build         | Vite + electron-vite                     |
+| CI/CD         | GitHub Actions                           |
 
 ---
 
@@ -125,15 +125,15 @@ Ve a **Firebase Console → Authentication → Users** y crea un usuario con ema
 
 ```json
 {
-  "name": "Admin",
-  "lastname": "Farmacia",
-  "role": "admin",
-  "level": 3,
-  "isActive": true,
-  "document": { "dni": "00000000" },
-  "phoneNumber": { "code": "+51", "number": "999999999" },
-  "email": "admin@farmacia.com",
-  "createdAt": "<timestamp>"
+	"name": "Admin",
+	"lastname": "Farmacia",
+	"role": "admin",
+	"level": 3,
+	"isActive": true,
+	"document": { "dni": "00000000" },
+	"phoneNumber": { "code": "+51", "number": "999999999" },
+	"email": "admin@farmacia.com",
+	"createdAt": "<timestamp>"
 }
 ```
 
@@ -142,28 +142,30 @@ Ve a **Firebase Console → Authentication → Users** y crea un usuario con ema
 Para emitir comprobantes electrónicos crea los documentos en Firestore:
 
 **`settings/businessConfig`**
+
 ```json
 {
-  "ruc": "20000000001",
-  "socialReason": "MI FARMACIA S.A.C.",
-  "name": "Farmacia Central",
-  "address": "Av. Principal 123",
-  "department": "Lima",
-  "province": "Lima",
-  "district": "Miraflores",
-  "phoneNumber": "01-000-0000"
+	"ruc": "20000000001",
+	"socialReason": "MI FARMACIA S.A.C.",
+	"name": "Farmacia Central",
+	"address": "Av. Principal 123",
+	"department": "Lima",
+	"province": "Lima",
+	"district": "Miraflores",
+	"phoneNumber": "01-000-0000"
 }
 ```
 
 **`settings/receiptConfig`**
+
 ```json
 {
-  "apisunatToken": "tu-token-apisunat",
-  "apisunatUrl": "https://api.apisunat.com/v1",
-  "boletaSerie": "B001",
-  "facturaSerie": "F001",
-  "igv": "18",
-  "igvCode": "10"
+	"apisunatToken": "tu-token-apisunat",
+	"apisunatUrl": "https://api.apisunat.com/v1",
+	"boletaSerie": "B001",
+	"facturaSerie": "F001",
+	"igv": "18",
+	"igvCode": "10"
 }
 ```
 
@@ -172,42 +174,55 @@ Para emitir comprobantes electrónicos crea los documentos en Firestore:
 ## Módulos
 
 ### POS — Punto de venta
+
 Pantalla principal de cobro con búsqueda de productos por nombre o código de barras, carrito de compras, selección de método de pago (efectivo, tarjeta, crédito, saldo a favor, mixto) y emisión de comprobante. Requiere caja abierta para operar.
 
 ### Inventario
+
 Vista de lotes con stock actual, precios, fechas de vencimiento y estados (Ok, Stock bajo, Agotado, Por vencer, Vencido). Permite agregar lotes, ajustar stock manualmente y editar precios de venta.
 
 ### Productos
+
 Catálogo maestro de productos con soporte para DCI (principios activos), múltiples códigos de barras, categorías dinámicas y laboratorios. Al crear un producto ofrece agregar un lote directamente.
 
 ### Ventas
+
 Historial completo de ventas con filtros por fecha, cajero y estado. Permite anular ventas con reversión automática de stock.
 
 ### Movimientos
+
 Registro de todos los movimientos de inventario (entradas, ventas, ajustes, devoluciones, reversiones) con filtros y exportación a Excel.
 
 ### Caja
+
 Gestión de turnos de caja con apertura, retiros e ingresos manuales, cierre con corte de diferencia y exportación de reporte.
 
 ### Créditos
+
 Gestión de deudas y saldos a favor de clientes. Permite registrar abonos en efectivo o aplicando saldo a favor.
 
 ### Clientes
+
 Directorio de clientes con consulta automática a RENIEC por DNI. Muestra historial de compras y estado crediticio.
 
 ### Proveedores
+
 Directorio de proveedores con consulta automática a SUNAT por RUC.
 
 ### Pedidos
+
 Gestión de órdenes de compra a proveedores. Al recibir un pedido crea automáticamente los lotes y movimientos de entrada en el inventario.
 
 ### Documentos
+
 Listado de boletas y facturas electrónicas con actualización de estado SUNAT y previsualización del PDF.
 
 ### Reportes
+
 9 reportes exportables a Excel: ventas por período, por método de pago, por cajero, kárdex, inventario actual, productos por vencer, stock bajo mínimo, rentabilidad y créditos pendientes.
 
 ### Configuración
+
 - **Tema**: claro/oscuro y color primario
 - **Idioma**: español/inglés
 - **Accesibilidad**: tamaño de texto normal/grande
@@ -221,11 +236,13 @@ Listado de boletas y facturas electrónicas con actualización de estado SUNAT y
 ## Hardware compatible
 
 ### Ticketera térmica
+
 Cualquier impresora térmica USB compatible con protocolo **ESC/POS** y papel de **80mm**.
 
 Para activarla ve a **Configuración → Hardware → Emitir ticket de venta**.
 
 ### Caja registradora
+
 Cualquier cajón porta billetes con conexión RJ11 a la ticketera o con puerto serial independiente.
 
 Para activarla ve a **Configuración → Hardware → Abrir caja registradora**.
@@ -327,24 +344,24 @@ GitHub Actions compila automáticamente para Windows, macOS y Linux y publica lo
 
 ## Roles y permisos
 
-| Módulo | Admin | Supervisor | Cajero |
-|--------|-------|-----------|--------|
-| POS — Ventas | ✓ | ✓ | ✓ |
-| POS — Modificar precio | ✓ | ✓ | ✗ |
-| POS — Anular venta | ✓ | ✓ | ✗ |
-| Inventario — Ver | ✓ | ✓ | Solo lectura |
-| Inventario — Agregar lote | ✓ | ✓ | ✗ |
-| Productos — Crear/Editar | ✓ | ✗ | ✗ |
-| Ventas — Ver historial | ✓ | ✓ | Solo lectura |
-| Caja — Abrir/Cerrar | ✓ | ✓ | ✓ |
-| Caja — Retiros e ingresos | ✓ | ✓ | ✗ |
-| Créditos | ✓ | ✓ | ✗ |
-| Clientes | ✓ | ✓ | ✗ |
-| Proveedores | ✓ | ✗ | ✗ |
-| Pedidos | ✓ | ✓ | ✗ |
-| Reportes | ✓ | ✓ | ✗ |
-| Documentos SUNAT | ✓ | ✗ | ✗ |
-| Configuración | ✓ | ✗ | ✗ |
+| Módulo                    | Admin | Supervisor | Cajero       |
+| ------------------------- | ----- | ---------- | ------------ |
+| POS — Ventas              | ✓     | ✓          | ✓            |
+| POS — Modificar precio    | ✓     | ✓          | ✗            |
+| POS — Anular venta        | ✓     | ✓          | ✗            |
+| Inventario — Ver          | ✓     | ✓          | Solo lectura |
+| Inventario — Agregar lote | ✓     | ✓          | ✗            |
+| Productos — Crear/Editar  | ✓     | ✗          | ✗            |
+| Ventas — Ver historial    | ✓     | ✓          | Solo lectura |
+| Caja — Abrir/Cerrar       | ✓     | ✓          | ✓            |
+| Caja — Retiros e ingresos | ✓     | ✓          | ✗            |
+| Créditos                  | ✓     | ✓          | ✗            |
+| Clientes                  | ✓     | ✓          | ✗            |
+| Proveedores               | ✓     | ✗          | ✗            |
+| Pedidos                   | ✓     | ✓          | ✗            |
+| Reportes                  | ✓     | ✓          | ✗            |
+| Documentos SUNAT          | ✓     | ✗          | ✗            |
+| Configuración             | ✓     | ✗          | ✗            |
 
 ---
 

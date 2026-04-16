@@ -59,14 +59,14 @@ export default function OrdersPage(): React.ReactElement {
 	const [showForm, setShowForm] = useState(false)
 	const [showReceive, setShowReceive] = useState(false)
 
-	const isAdmin = user?.role === "admin"
+	const hasPermission = (user?.level ?? 0) >= 2
 
-	function handleSelectOrder(order: Order): void {
-		selectOrder(order)
-		setShowForm(false)
-		setShowReceive(false)
-		setSidebarCollapsed(true)
-	}
+		function handleSelectOrder(order: Order): void {
+			selectOrder(order)
+			setShowForm(false)
+			setShowReceive(false)
+			setSidebarCollapsed(true)
+		}
 
 	function handleClose(): void {
 		selectOrder(null)
@@ -106,7 +106,7 @@ export default function OrdersPage(): React.ReactElement {
 							<Download size={16} />
 							Exportar
 						</Button>
-						{isAdmin && (
+						{hasPermission && (
 							<Button
 								onClick={() => {
 									setShowForm(true)
@@ -197,8 +197,8 @@ export default function OrdersPage(): React.ReactElement {
 												<TableCell className="text-sm text-slate-600">
 													{order.expectedAt
 														? order.expectedAt
-																.toDate()
-																.toLocaleDateString("es-PE")
+															.toDate()
+															.toLocaleDateString("es-PE")
 														: "-"}
 												</TableCell>
 												<TableCell className="text-right font-bold text-slate-800">
@@ -230,7 +230,7 @@ export default function OrdersPage(): React.ReactElement {
 					) : selected ? (
 						<OrderDetail
 							order={selected}
-							isAdmin={isAdmin}
+							hasPermission={hasPermission}
 							onReceive={() => setShowReceive(true)}
 							onCancel={() => cancelOrder(selected.id)}
 							onClose={handleClose}

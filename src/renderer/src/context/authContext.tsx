@@ -1,7 +1,10 @@
 /* eslint-disable react-refresh/only-export-components */
 import { auth, db } from "@renderer/services/firebase"
 import { User } from "@renderer/types"
-import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth"
+import {
+	onAuthStateChanged,
+	signInWithEmailAndPassword
+} from "firebase/auth"
 import { doc, getDoc } from "firebase/firestore"
 import React, { createContext, useEffect, useState } from "react"
 import { ReactNode } from "react"
@@ -41,8 +44,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }): React.React
 		return () => unsubscribe()
 	}, [])
 
-	const login = async (email: string, password: string): Promise<void> => {
-		await signInWithEmailAndPassword(auth!, email, password)
+
+
+	const login = async (username: string, password: string): Promise<void> => {
+		await signInWithEmailAndPassword(auth!, `${username}@pharmapos.com`, password)
 		// setState((prev) => ({ ...prev, isLoading: true }))
 	}
 

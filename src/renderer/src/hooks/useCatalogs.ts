@@ -7,6 +7,7 @@ interface UseCatalogsReturn {
 	isLoading: boolean
 	addLab: (lab: string) => Promise<void>
 	addCategory: (category: string) => Promise<void>
+	addUnit: (unit: string) => Promise<void>
 }
 
 export function useCatalogs(): UseCatalogsReturn {
@@ -35,5 +36,13 @@ export function useCatalogs(): UseCatalogsReturn {
 		}))
 	}
 
-	return { catalogs, isLoading, addLab, addCategory }
+	async function addUnit(unit: string): Promise<void> {
+		await SettingsService.addUnit(unit)
+		setCatalogs((prev) => ({
+			...prev,
+			units: Array.from(new Set([...prev.units, unit])).sort()
+		}))
+	}
+
+	return { catalogs, isLoading, addLab, addCategory, addUnit }
 }

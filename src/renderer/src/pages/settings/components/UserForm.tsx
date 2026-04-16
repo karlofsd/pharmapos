@@ -19,6 +19,7 @@ import { useState } from "react"
 const createSchema = z.object({
 	name: z.string().min(1, "Requerido"),
 	lastname: z.string().min(1, "Requerido"),
+	username: z.string().min(5, "Requerido"),
 	email: z.email("Email inválido"),
 	password: z.string().min(6, "Mínimo 6 caracteres"),
 	role: z.enum(["admin", "cashier", "supervisor"]),
@@ -27,7 +28,7 @@ const createSchema = z.object({
 	phoneNumber: z.string().min(6)
 })
 
-const updateSchema = createSchema.omit({ email: true, password: true })
+const updateSchema = createSchema.omit({ username: true, email: true, password: true })
 
 type CreateFormData = z.infer<typeof createSchema>
 type UpdateFormData = z.infer<typeof updateSchema>
@@ -64,18 +65,18 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps): React.Rea
 		resolver: zodResolver(isEditing ? updateSchema : createSchema),
 		defaultValues: user
 			? {
-					name: user.name,
-					lastname: user.lastname,
-					role: user.role,
-					level: user.level,
-					phoneCode: user.phoneNumber.code,
-					phoneNumber: user.phoneNumber.number
-				}
+				name: user.name,
+				lastname: user.lastname,
+				role: user.role,
+				level: user.level,
+				phoneCode: user.phoneNumber.code,
+				phoneNumber: user.phoneNumber.number
+			}
 			: {
-					role: "cashier",
-					level: 1,
-					phoneCode: "+51"
-				}
+				role: "cashier",
+				level: 1,
+				phoneCode: "+51"
+			}
 	})
 
 	async function handleFormSubmit(data: CreateFormData | UpdateFormData): Promise<void> {
@@ -89,10 +90,11 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps): React.Rea
 					level: data.level as PermissionLevel,
 					phoneNumber: { code: data.phoneCode, number: data.phoneNumber }
 				} as UpdateUserDTO)
-			} else if ("email" in data) {
+			} else if ("username" in data) {
 				await onSubmit({
 					name: data.name,
 					lastname: data.lastname,
+					username: data.username,
 					email: data.email,
 					password: data.password,
 					role: data.role as Role,
@@ -123,8 +125,15 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps): React.Rea
 				</div>
 			</div>
 
-			{!isEditing && "email" in errors && (
+			{!isEditing && (
 				<>
+					<div className="flex flex-col gap-1">
+						<Label>Usuario</Label>
+						<Input {...register("username")} placeholder="juan007" />
+						{"username" in errors && errors.username && (
+							<p className="text-xs text-red-500">{errors.username.message}</p>
+						)}
+					</div>
 					<div className="flex flex-col gap-1">
 						<Label>Correo electrónico</Label>
 						<Input
@@ -132,14 +141,14 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps): React.Rea
 							type="email"
 							placeholder="juan@farmacia.com"
 						/>
-						{errors.email && (
+						{"email" in errors && errors.email && (
 							<p className="text-xs text-red-500">{errors.email.message}</p>
 						)}
 					</div>
 					<div className="flex flex-col gap-1">
 						<Label>Contraseña</Label>
 						<Input {...register("password")} type="password" placeholder="••••••••" />
-						{errors.password && (
+						{"password" in errors && errors.password && (
 							<p className="text-xs text-red-500">{errors.password.message}</p>
 						)}
 					</div>

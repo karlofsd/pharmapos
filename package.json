@@ -22,7 +22,8 @@
 		"release": "yarn build && electron-builder --win --mac --linux --publish always",
 		"seed:dci": "tsx scripts/seedDCI.ts",
 		"seed:catalogs": "tsx scripts/seedCatalogs.ts",
-		"seed:products": "tsx scripts/seedProducts.ts"
+		"seed:products": "tsx scripts/seedProducts.ts",
+		"seed:stocks": "tsx scripts/updateStock.ts"
 	},
 	"dependencies": {
 		"@electron-toolkit/preload": "^3.0.2",

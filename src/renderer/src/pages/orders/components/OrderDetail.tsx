@@ -9,7 +9,7 @@ interface OrderDetailProps {
 	onReceive: () => void
 	onCancel: () => void
 	onClose: () => void
-	isAdmin: boolean
+	hasPermission: boolean
 }
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
@@ -29,11 +29,11 @@ export function OrderDetail({
 	onReceive,
 	onCancel,
 	onClose,
-	isAdmin
+	hasPermission
 }: OrderDetailProps): React.ReactElement {
 	const statusConfig = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.pending
-	const canReceive = isAdmin && !["received", "cancelled"].includes(order.status)
-	const canCancel = isAdmin && !["received", "cancelled"].includes(order.status)
+	const canReceive = hasPermission && !["received", "cancelled"].includes(order.status)
+	const canCancel = hasPermission && !["received", "cancelled"].includes(order.status)
 
 	return (
 		<div className="flex flex-col h-full">

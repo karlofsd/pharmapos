@@ -21,6 +21,7 @@ import { CreateProductDTO, UpdateProductDTO } from "@renderer/services/productSe
 import { useState, useEffect } from "react"
 import { useCatalogs } from "@renderer/hooks/useCatalogs"
 import { LabSelector } from "@renderer/components/ui/LabSelector"
+import { PRESENTATION_LABELS } from "@renderer/core/constants"
 
 const productSchema = z.object({
 	brand: z.string().min(1, "Requerido"),
@@ -44,18 +45,6 @@ const productSchema = z.object({
 })
 
 type ProductFormData = z.infer<typeof productSchema>
-
-const PRESENTATION_LABELS: Record<string, string> = {
-	tablet: "Tableta",
-	capsule: "Cápsula",
-	syrup: "Jarabe",
-	injection: "Inyectable",
-	ointment: "Ungüento",
-	cream: "Crema",
-	gel: "Gel",
-	powder: "Polvo",
-	other: "Otro"
-}
 
 interface ProductFormProps {
 	product?: Product
@@ -85,20 +74,20 @@ export default function ProductForm({
 		resolver: zodResolver(productSchema),
 		defaultValues: product
 			? {
-					brand: product.brand,
-					manufacturer: product.manufacturer,
-					barcode: product.barcode,
-					altcode: product.altcode.join(", "),
-					presentation: product.presentation,
-					minStock: product.minStock,
-					requiredPrescription: product.requiredPrescription,
-					dataSource: product.dataSource
-				}
+				brand: product.brand,
+				manufacturer: product.manufacturer,
+				barcode: product.barcode,
+				altcode: product.altcode.join(", "),
+				presentation: product.presentation,
+				minStock: product.minStock,
+				requiredPrescription: product.requiredPrescription,
+				dataSource: product.dataSource
+			}
 			: {
-					dataSource: "manual",
-					requiredPrescription: false,
-					minStock: 0
-				}
+				dataSource: "manual",
+				requiredPrescription: false,
+				minStock: 0
+			}
 	})
 
 	// Sincronizar categorías desde DCI seleccionados

@@ -24,6 +24,7 @@ export interface BaseUser {
 }
 
 export interface User extends BaseUser {
+	username: string
 	role: Role
 	level: PermissionLevel
 }

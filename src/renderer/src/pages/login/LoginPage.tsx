@@ -18,7 +18,7 @@ import { useState } from "react"
 import { useAuth } from "@renderer/hooks/useAuth"
 
 const loginSchema = z.object({
-	email: z.email({ message: "Invalid email address" }),
+	username: z.string().min(5, "Requerido"),
 	password: z
 		.string()
 		.min(6, { message: "Password must be between 6 and 100 characters" })
@@ -42,10 +42,10 @@ const LoginPage = (): React.ReactElement => {
 	const [isLoading, setIsLoading] = useState(false)
 	const [authError, setAuthError] = useState<string | null>(null)
 
-	const handleLogin = async ({ email, password }: LoginFormData): Promise<void> => {
+	const handleLogin = async ({ username, password }: LoginFormData): Promise<void> => {
 		setIsLoading(true)
 		try {
-			await login(email, password)
+			await login(username, password)
 			setTimeout(() => {
 				setIsLoading(false)
 				if (state?.from) {
@@ -73,17 +73,16 @@ const LoginPage = (): React.ReactElement => {
 				<CardContent>
 					<form onSubmit={handleSubmit(handleLogin)}>
 						<div className="mb-4">
-							<Label htmlFor="email">Email</Label>
+							<Label htmlFor="username">Usuario</Label>
 							<Input
-								{...register("email", {
+								{...register("username", {
 									onChange: () => authError && setAuthError(null)
 								})}
-								type="email"
-								id="email"
+								id="username"
 								disabled={isLoading}
 							/>
-							{errors.email && (
-								<p className="text-sm text-red-500">{errors.email.message}</p>
+							{errors.username && (
+								<p className="text-sm text-red-500">{errors.username.message}</p>
 							)}
 						</div>
 						<div className="mb-6">

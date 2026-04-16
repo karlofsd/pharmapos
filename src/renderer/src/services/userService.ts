@@ -16,6 +16,7 @@ const COLLECTION = "users"
 export interface CreateUserDTO {
 	name: string
 	lastname: string
+	username: string
 	email: string
 	password: string
 	role: Role
@@ -43,12 +44,13 @@ export const UserService = {
 	async create(data: CreateUserDTO): Promise<User> {
 		const { user: firebaseUser } = await createUserWithEmailAndPassword(
 			auth!,
-			data.email,
+			`${data.username}@pharmapos.com`,
 			data.password
 		)
 		const payload = {
 			name: data.name,
 			lastname: data.lastname,
+			username: data.username,
 			email: data.email,
 			role: data.role,
 			level: data.level,

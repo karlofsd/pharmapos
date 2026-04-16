@@ -1,6 +1,7 @@
 import { Product } from "@renderer/types"
 import { Badge } from "@renderer/components/ui/badge"
 import { cn } from "@renderer/lib/utils"
+import { PRESENTATION_LABELS } from "@renderer/core/constants"
 
 interface ProductCardProps {
 	product: Product
@@ -39,7 +40,7 @@ export default function ProductCard({
 						</Badge>
 					)}
 					<Badge variant="outline" className="text-xs">
-						{product.presentation}
+						{PRESENTATION_LABELS[product.presentation]}
 					</Badge>
 				</div>
 			</div>

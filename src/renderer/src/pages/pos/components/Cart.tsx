@@ -13,7 +13,7 @@ export function Cart(): React.ReactElement {
 	const { user } = useAuth()
 	const { items, subtotal, removeItem, updateQuantity, updatePrice, clear } = useCartStore()
 
-	const isAdmin = user?.role === "admin"
+	const hasPermission = (user?.level ?? 0) >= 2
 	const [editPriceLotId, setEditPriceLotId] = useState<string | null>(null)
 	const [newPrice, setNewPrice] = useState("")
 	const [priceReason, setPriceReason] = useState("")
@@ -66,7 +66,7 @@ export function Cart(): React.ReactElement {
 						<CartItem
 							key={item.lotId}
 							item={item}
-							isAdmin={isAdmin}
+							hasPermission={hasPermission}
 							onIncrement={() => updateQuantity(item.lotId, item.quantity + 1)}
 							onDecrement={() => updateQuantity(item.lotId, item.quantity - 1)}
 							onRemove={() => removeItem(item.lotId)}

@@ -61,7 +61,11 @@ export function ReportTable<T extends object>({
 									>
 										{col.render
 											? col.render(row)
-											: String((row as Record<string, unknown>)[String(col.key)] ?? "-")}
+											: String(
+													(row as Record<string, unknown>)[
+														String(col.key)
+													] ?? "-"
+												)}
 									</TableCell>
 								))}
 							</TableRow>

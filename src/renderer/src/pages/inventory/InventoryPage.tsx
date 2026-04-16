@@ -55,7 +55,7 @@ export default function InventoryPage(): React.ReactElement {
 	const [selectedLot, setSelectedLot] = useState<LotWithProduct | null>(null)
 	const [editPrice, setEditPrice] = useState("")
 
-	const isAdmin = user?.role === "admin"
+	const hasPermission = (user?.level ?? 0) >= 2
 
 	function openAdjust(lot: LotWithProduct): void {
 		setSelectedLot(lot)
@@ -104,7 +104,7 @@ export default function InventoryPage(): React.ReactElement {
 						{filtered.length === 1 ? "lote encontrado" : "lotes encontrados"}
 					</p>
 				</div>
-				{isAdmin && (
+				{hasPermission && (
 					<Button onClick={() => setDialog("newLot")}>
 						<Plus size={16} />
 						Nuevo lote
@@ -168,14 +168,14 @@ export default function InventoryPage(): React.ReactElement {
 								<TableHead className="text-right">P. Venta</TableHead>
 								<TableHead>Vencimiento</TableHead>
 								<TableHead>Estado</TableHead>
-								{isAdmin && <TableHead className="text-right">Acciones</TableHead>}
+								{hasPermission && <TableHead className="text-right">Acciones</TableHead>}
 							</TableRow>
 						</TableHeader>
 						<TableBody>
 							{filtered.length === 0 ? (
 								<TableRow>
 									<TableCell
-										colSpan={isAdmin ? 8 : 7}
+										colSpan={hasPermission ? 8 : 7}
 										className="text-center text-slate-400 py-12"
 									>
 										No se encontraron lotes
@@ -203,13 +203,12 @@ export default function InventoryPage(): React.ReactElement {
 											<TableCell className="text-right">
 												<span
 													className={`text-sm font-medium
-													${
-														lot.stock === 0
+													${lot.stock === 0
 															? "text-red-500"
 															: lot.stock <= lot.product.minStock
 																? "text-yellow-600"
 																: "text-slate-800"
-													}`}
+														}`}
 												>
 													{lot.stock}
 												</span>
@@ -235,7 +234,7 @@ export default function InventoryPage(): React.ReactElement {
 													{statusConfig.label}
 												</Badge>
 											</TableCell>
-											{isAdmin && (
+											{hasPermission && (
 												<TableCell>
 													<div className="flex items-center justify-end gap-1">
 														<Button

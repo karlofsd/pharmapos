@@ -11,6 +11,7 @@ import {
 import { NavLink } from "react-router-dom"
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
 import { useEffect } from "react"
+import { Logo } from "../logo"
 
 type SidebarProps = {
 	collapsed: boolean
@@ -25,7 +26,9 @@ const Sidebar = ({ collapsed, onToggle }: SidebarProps): React.ReactElement => {
 	}, [user])
 
 	const visibleItems = navItems.filter((item) =>
-		user?.role ? item.allowedRoles.includes(user?.role) : false
+		user?.role
+			? item.allowedRoles.includes(user.role) || item.allowedMinLevel <= user.level
+			: false
 	)
 	return (
 		<aside
@@ -42,7 +45,7 @@ const Sidebar = ({ collapsed, onToggle }: SidebarProps): React.ReactElement => {
 					collapsed && "justify-center px-0"
 				)}
 			>
-				<span className="text-2xl">💊</span>
+				<Logo variant="secondary" />
 				{!collapsed && (
 					<span className="font-bold text-sm tracking-wide flex-1">Farmacia POS</span>
 				)}

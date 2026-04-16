@@ -15,38 +15,113 @@ import {
 	ChartAreaIcon,
 	FileText
 } from "lucide-react"
-import { Role } from "@renderer/types"
+import { PermissionLevel, Role } from "@renderer/types"
 
 export interface NavItem {
 	label: string
 	path: string
 	icon: LucideIcon
 	allowedRoles: Role[]
+	allowedMinLevel: PermissionLevel
 }
 
 export const navItems: NavItem[] = [
-	{ label: "Dashboard", path: "/", icon: ChartAreaIcon, allowedRoles: ["admin", "cashier"] },
-	{ label: "POS", path: "/pos", icon: ShoppingCart, allowedRoles: ["admin", "cashier"] },
-	{ label: "Inventario", path: "/inventory", icon: Package, allowedRoles: ["admin", "cashier"] },
+	{
+		label: "Dashboard",
+		path: "/dashboard",
+		icon: ChartAreaIcon,
+		allowedRoles: ["admin", "cashier"],
+		allowedMinLevel: 1
+	},
+	{
+		label: "POS",
+		path: "/pos",
+		icon: ShoppingCart,
+		allowedRoles: ["admin", "cashier"],
+		allowedMinLevel: 1
+	},
+	{
+		label: "Inventario",
+		path: "/inventory",
+		icon: Package,
+		allowedRoles: ["admin", "cashier"],
+		allowedMinLevel: 1
+	},
 	{
 		label: "Movimientos",
 		path: "/movements",
 		icon: ArrowLeftRight,
-		allowedRoles: ["admin", "cashier"]
+		allowedRoles: ["admin", "cashier"],
+		allowedMinLevel: 1
 	},
-	{ label: "Ventas", path: "/sales", icon: Receipt, allowedRoles: ["admin", "cashier"] },
-	{ label: "Pedidos", path: "/admin/orders", icon: ClipboardList, allowedRoles: ["admin"] },
-	{ label: "Productos", path: "/admin/products", icon: Pill, allowedRoles: ["admin"] },
-	{ label: "Créditos", path: "/credits", icon: CreditCard, allowedRoles: ["admin", "cashier"] },
-	{ label: "Clientes", path: "/admin/clients", icon: Users, allowedRoles: ["admin"] },
-	{ label: "Proveedores", path: "/admin/suppliers", icon: Truck, allowedRoles: ["admin"] },
+	{
+		label: "Ventas",
+		path: "/sales",
+		icon: Receipt,
+		allowedRoles: ["admin", "cashier"],
+		allowedMinLevel: 1
+	},
+	{
+		label: "Pedidos",
+		path: "/admin/orders",
+		icon: ClipboardList,
+		allowedRoles: ["admin"],
+		allowedMinLevel: 2
+	},
+	{
+		label: "Productos",
+		path: "/admin/products",
+		icon: Pill,
+		allowedRoles: ["admin"],
+		allowedMinLevel: 2
+	},
+	{
+		label: "Créditos",
+		path: "/credits",
+		icon: CreditCard,
+		allowedRoles: ["admin", "cashier"],
+		allowedMinLevel: 1
+	},
+	{
+		label: "Clientes",
+		path: "/admin/clients",
+		icon: Users,
+		allowedRoles: ["admin"],
+		allowedMinLevel: 2
+	},
+	{
+		label: "Proveedores",
+		path: "/admin/suppliers",
+		icon: Truck,
+		allowedRoles: ["admin"],
+		allowedMinLevel: 2
+	},
 	{
 		label: "Reportes",
 		path: "/admin/reports",
 		icon: BarChart2,
-		allowedRoles: ["admin"]
+		allowedRoles: ["admin"],
+		allowedMinLevel: 2
 	},
-	{ label: "Documentos", path: "/admin/documents", icon: FileText, allowedRoles: ["admin"] },
-	{ label: "Caja", path: "/till", icon: Landmark, allowedRoles: ["admin", "cashier"] },
-	{ label: "Configuración", path: "/admin/settings", icon: Settings, allowedRoles: ["admin"] }
+	{
+		label: "Documentos",
+		path: "/admin/documents",
+		icon: FileText,
+		allowedRoles: ["admin"],
+		allowedMinLevel: 2
+	},
+	{
+		label: "Caja",
+		path: "/till",
+		icon: Landmark,
+		allowedRoles: ["admin", "cashier"],
+		allowedMinLevel: 1
+	},
+	{
+		label: "Configuración",
+		path: "/admin/settings",
+		icon: Settings,
+		allowedRoles: ["admin"],
+		allowedMinLevel: 2
+	}
 ]

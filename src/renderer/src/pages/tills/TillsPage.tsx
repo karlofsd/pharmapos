@@ -35,7 +35,7 @@ export default function TillsPage(): React.ReactElement {
 	} = useTill()
 
 	const [dialog, setDialog] = useState<DialogType>("none")
-	const isAdmin = user?.role === "admin"
+	const hasPermission = (user?.level ?? 0) >= 1
 
 	async function handleMovement(
 		type: CashMovementType,
@@ -67,7 +67,7 @@ export default function TillsPage(): React.ReactElement {
 						<h1 className="text-xl font-bold text-slate-800">Caja</h1>
 						<p className="text-sm text-slate-500">{tills.length} registros</p>
 					</div>
-					{activeTill && isAdmin && (
+					{activeTill && hasPermission && (
 						<div className="flex gap-2">
 							<Button
 								variant="outline"
@@ -181,8 +181,8 @@ export default function TillsPage(): React.ReactElement {
 													<TableCell className="text-sm text-slate-600">
 														{till.closedAt
 															? till.closedAt
-																	.toDate()
-																	.toLocaleDateString("es-PE")
+																.toDate()
+																.toLocaleDateString("es-PE")
 															: "-"}
 													</TableCell>
 													<TableCell className="text-right text-sm font-medium text-slate-800">
@@ -204,13 +204,12 @@ export default function TillsPage(): React.ReactElement {
 														{till.difference !== null ? (
 															<span
 																className={`text-sm font-bold
-																${
-																	till.difference === 0
+																${till.difference === 0
 																		? "text-green-600"
 																		: till.difference > 0
 																			? "text-blue-600"
 																			: "text-red-600"
-																}`}
+																	}`}
 															>
 																{till.difference > 0 ? "+" : ""}
 																S/. {till.difference.toFixed(2)}

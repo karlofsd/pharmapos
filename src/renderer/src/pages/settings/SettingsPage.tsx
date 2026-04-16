@@ -58,6 +58,5 @@ export default function SettingsPage(): React.ReactElement {
 				</div>
 			</Tabs>
 		</div>
-
 	)
 }

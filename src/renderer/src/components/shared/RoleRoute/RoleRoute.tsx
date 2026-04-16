@@ -1,31 +1,30 @@
 import { useAuth } from "@renderer/hooks/useAuth"
-import { Role } from "@renderer/types"
-import { LoaderCircle } from "lucide-react"
+import { PermissionLevel, Role } from "@renderer/types"
 import { Navigate, Outlet } from "react-router-dom"
+import { Logo } from "../logo"
 
 type RoleRouteProps = {
 	allowedRoles: Role[]
+	allowedMinLevel: PermissionLevel
 }
 
-const RoleRoute = ({ allowedRoles }: RoleRouteProps): React.ReactElement => {
+const RoleRoute = ({ allowedRoles, allowedMinLevel }: RoleRouteProps): React.ReactElement => {
 	const { user, isLoading } = useAuth()
 
 	if (isLoading)
 		return (
 			<div className="flex h-screen items-center justify-center bg-slate-50">
-				<div className="flex flex-col items-center gap-4">
-					<span className="text-4xl">💊</span>
-					<div className="flex flex-col items-center gap-2">
-						<div className="w-6 h-6 border-2 border-slate-300 border-t-slate-800 rounded-full animate-spin" />
-						<LoaderCircle />
-					</div>
+				<div className="flex justify-center  items-center gap-4 relative">
+					<Logo size={56} />
+					<div className="w-24 h-24 border-4 border-green-300 border-t-slate-800 rounded-full animate-spin absolute" />
 				</div>
 			</div>
 		)
 
 	if (!user) return <Navigate to="/login" replace />
 
-	if (!allowedRoles.includes(user.role)) return <Navigate to="/unauthorized" replace />
+	if (allowedMinLevel > user.level && !allowedRoles.includes(user.role))
+		return <Navigate to="/unauthorized" replace />
 
 	return <Outlet />
 }

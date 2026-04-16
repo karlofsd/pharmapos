@@ -5,7 +5,7 @@ import { CartItem as CartItemType } from "@renderer/store/cartStore"
 
 interface CartItemProps {
 	item: CartItemType
-	isAdmin: boolean
+	hasPermission: boolean
 	onIncrement: () => void
 	onDecrement: () => void
 	onRemove: () => void
@@ -14,7 +14,7 @@ interface CartItemProps {
 
 export function CartItem({
 	item,
-	isAdmin,
+	hasPermission,
 	onIncrement,
 	onDecrement,
 	onRemove,
@@ -51,7 +51,7 @@ export function CartItem({
 					</div>
 				</div>
 				<div className="flex items-center gap-1 shrink-0">
-					{isAdmin && (
+					{hasPermission && (
 						<Button
 							size="icon"
 							variant="ghost"

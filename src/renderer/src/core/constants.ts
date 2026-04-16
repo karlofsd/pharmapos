@@ -1,3 +1,15 @@
+export const PRESENTATION_LABELS: Record<string, string> = {
+	tablet: "Tableta",
+	capsule: "Cápsula",
+	syrup: "Jarabe",
+	injection: "Inyectable",
+	ointment: "Ungüento",
+	cream: "Crema",
+	gel: "Gel",
+	powder: "Polvo",
+	other: "Otro"
+}
+
 export const DCI_CATEGORIES = [
 	"analgesico",
 	"antiacido",

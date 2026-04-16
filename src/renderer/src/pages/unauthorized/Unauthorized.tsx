@@ -16,7 +16,7 @@ const Unauthorized = (): React.ReactElement => {
 						No tienes permisos para acceder a esta página.
 					</p>
 				</div>
-				<Button variant="outline" onClick={() => navigate(-1)}>
+				<Button variant="outline" onClick={() => navigate("/")}>
 					Volver atrás
 				</Button>
 			</div>

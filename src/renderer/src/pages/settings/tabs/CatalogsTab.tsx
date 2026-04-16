@@ -4,7 +4,6 @@ import { Button } from "@renderer/components/ui/button"
 import { Input } from "@renderer/components/ui/input"
 import { Separator } from "@renderer/components/ui/separator"
 import { useCatalogs } from "@renderer/hooks/useCatalogs"
-import { SettingsService } from "@renderer/services/settingsService"
 
 interface CatalogSectionProps {
 	title: string
@@ -118,27 +117,15 @@ function CatalogSection({
 }
 
 export function CatalogsTab(): React.ReactElement {
-	const { catalogs, addLab } = useCatalogs()
-	const [categories, setCategories] = useState(catalogs.categories)
-	const [units, setUnits] = useState(catalogs.units)
-
-	async function handleAddCategory(category: string): Promise<void> {
-		await SettingsService.addCategory(category)
-		setCategories((prev) => [...prev, category])
-	}
-
-	async function handleAddUnit(unit: string): Promise<void> {
-		await SettingsService.addUnit(unit)
-		setUnits((prev) => [...prev, unit])
-	}
+	const { catalogs, addLab, addCategory, addUnit } = useCatalogs()
 
 	return (
 		<div className="flex flex-col gap-6 max-w-2xl">
 			<CatalogSection title="Laboratorios" items={catalogs.labs} onAdd={addLab} />
 			<Separator />
-			<CatalogSection title="Categorías" items={categories} onAdd={handleAddCategory} />
+			<CatalogSection title="Categorías" items={catalogs.categories} onAdd={addCategory} />
 			<Separator />
-			<CatalogSection title="Unidades" items={units} onAdd={handleAddUnit} />
+			<CatalogSection title="Unidades" items={catalogs.units} onAdd={addUnit} />
 		</div>
 	)
 }

@@ -52,7 +52,7 @@ export default function SalesPage(): React.ReactElement {
 	const [statusFilter, setStatusFilter] = useState("all")
 	const [search, setSearch] = useState("")
 
-	const isAdmin = user?.role === "admin"
+	const hasPermission = (user?.level ?? 0) >= 2
 
 	const filtered = sales.filter((s) => {
 		if (!search.trim()) return true
@@ -255,7 +255,7 @@ export default function SalesPage(): React.ReactElement {
 				<div className="w-96 shrink-0 border-l border-slate-200 bg-white overflow-y-auto">
 					<SaleDetail
 						sale={selected}
-						isAdmin={isAdmin}
+						hasPermission={hasPermission}
 						onCancel={() => setShowCancellation(true)}
 						onClose={handleCloseSale}
 					/>

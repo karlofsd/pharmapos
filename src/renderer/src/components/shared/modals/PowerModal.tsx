@@ -18,7 +18,7 @@ export function PowerModal({ open, onClose }: PowerModalProps): React.ReactEleme
 	const [isLoading, setIsLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 
-	const isAdmin = user?.role === "admin"
+	const hasPermission = (user?.level ?? 0) >= 3
 	const tillWarning = isTillOpen ? "Debes cerrar la caja antes de realizar esta acción" : null
 
 	async function handleLogout(): Promise<void> {
@@ -96,7 +96,7 @@ export function PowerModal({ open, onClose }: PowerModalProps): React.ReactEleme
 					</button>
 
 					{/* Cerrar aplicación — solo admin */}
-					{isAdmin && (
+					{hasPermission && (
 						<button
 							onClick={handleCloseApp}
 							disabled={isTillOpen || isLoading}
