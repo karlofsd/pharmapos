@@ -13,14 +13,14 @@ export default function SettingsPage(): React.ReactElement {
 	return (
 		<div className="flex flex-col p-6 gap-4">
 			<div>
-				<h1 className="text-xl font-bold text-slate-800">Configuración</h1>
-				<p className="text-sm text-slate-500">
+				<h1 className="text-xl font-bold text-foreground">Configuración</h1>
+				<p className="text-sm text-muted-foreground">
 					Personaliza el sistema según tus necesidades
 				</p>
 			</div>
 
 			<Tabs defaultValue="theme" className="flex-1 flex flex-col">
-				<TabsList className="flex flex-wrap h-auto gap-1 justify-start bg-slate-100 p-1">
+				<TabsList className="flex flex-wrap h-auto gap-1 justify-start bg-card p-1 border border-border rounded-xl">
 					<TabsTrigger value="theme">Tema</TabsTrigger>
 					<TabsTrigger value="language">Idioma</TabsTrigger>
 					<TabsTrigger value="accessibility">Accesibilidad</TabsTrigger>

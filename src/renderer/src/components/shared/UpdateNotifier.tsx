@@ -15,19 +15,19 @@ export function UpdateNotifier(): React.ReactElement | null {
 	return (
 		<div className="fixed bottom-4 right-4 z-50 max-w-sm">
 			{status.type === "available" && (
-				<div className="bg-white border border-blue-200 rounded-xl shadow-lg p-4 flex flex-col gap-3">
+				<div className="bg-card border border-border rounded-xl shadow-lg p-4 flex flex-col gap-3">
 					<div className="flex items-start justify-between">
 						<div>
-							<p className="text-sm font-semibold text-slate-800">
+							<p className="text-sm font-semibold text-foreground">
 								Nueva versión disponible
 							</p>
-							<p className="text-xs text-slate-500 mt-0.5">
+							<p className="text-xs text-muted-foreground mt-0.5">
 								Versión {status.version} está lista para descargar
 							</p>
 						</div>
 						<button
 							onClick={() => setDismissed(true)}
-							className="text-slate-400 hover:text-slate-600"
+							className="text-muted-foreground hover:text-foreground"
 						>
 							<X size={14} />
 						</button>
@@ -40,25 +40,25 @@ export function UpdateNotifier(): React.ReactElement | null {
 			)}
 
 			{status.type === "downloading" && (
-				<div className="bg-white border border-blue-200 rounded-xl shadow-lg p-4 flex flex-col gap-3">
-					<p className="text-sm font-semibold text-slate-800">
+				<div className="bg-card border border-border rounded-xl shadow-lg p-4 flex flex-col gap-3">
+					<p className="text-sm font-semibold text-foreground">
 						Descargando actualización...
 					</p>
-					<div className="w-full bg-slate-100 rounded-full h-2">
+					<div className="w-full bg-muted rounded-full h-2">
 						<div
 							className="bg-blue-600 h-2 rounded-full transition-all duration-300"
 							style={{ width: `${status.percent}%` }}
 						/>
 					</div>
-					<p className="text-xs text-slate-500 text-right">{status.percent}%</p>
+					<p className="text-xs text-muted-foreground text-right">{status.percent}%</p>
 				</div>
 			)}
 
 			{status.type === "downloaded" && (
-				<div className="bg-white border border-green-200 rounded-xl shadow-lg p-4 flex flex-col gap-3">
+				<div className="bg-card border border-border rounded-xl shadow-lg p-4 flex flex-col gap-3">
 					<div>
-						<p className="text-sm font-semibold text-slate-800">Actualización lista</p>
-						<p className="text-xs text-slate-500 mt-0.5">
+						<p className="text-sm font-semibold text-foreground">Actualización lista</p>
+						<p className="text-xs text-muted-foreground mt-0.5">
 							Versión {status.version} descargada. Reinicia para instalar.
 						</p>
 					</div>
@@ -75,14 +75,14 @@ export function UpdateNotifier(): React.ReactElement | null {
 			)}
 
 			{status.type === "error" && (
-				<div className="bg-white border border-red-200 rounded-xl shadow-lg p-4 flex items-start justify-between gap-3">
+				<div className="bg-card border border-red-200 rounded-xl shadow-lg p-4 flex items-start justify-between gap-3">
 					<div>
-						<p className="text-sm font-semibold text-slate-800">Error al actualizar</p>
+						<p className="text-sm font-semibold text-foreground">Error al actualizar</p>
 						<p className="text-xs text-red-500 mt-0.5">{status.message}</p>
 					</div>
 					<button
 						onClick={() => setDismissed(true)}
-						className="text-slate-400 hover:text-slate-600 shrink-0"
+						className="text-muted-foreground hover:text-foreground shrink-0"
 					>
 						<X size={14} />
 					</button>

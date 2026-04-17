@@ -10,7 +10,6 @@ import { SupplierDetail } from "./components/SupplierDetail"
 import { SupplierForm } from "./components/SupplierForm"
 import { CreateSupplierDTO, UpdateSupplierDTO } from "@renderer/services/supplierService"
 import { useLocation } from "react-router-dom"
-import { set } from "zod"
 
 export default function SuppliersPage(): React.ReactElement {
 	const {
@@ -31,6 +30,7 @@ export default function SuppliersPage(): React.ReactElement {
 	const { state } = useLocation()
 
 	useEffect(() => {
+		// eslint-disable-next-line react-hooks/set-state-in-effect
 		if (state?.showForm) setShowForm(state.showForm)
 	}, [state])
 

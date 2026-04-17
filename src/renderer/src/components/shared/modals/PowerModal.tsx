@@ -71,15 +71,15 @@ export function PowerModal({ open, onClose }: PowerModalProps): React.ReactEleme
 				<div className="flex flex-col gap-3">
 					{/* Advertencia de caja */}
 					{tillWarning && (
-						<div className="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2">
-							<p className="text-xs text-yellow-700 font-medium">⚠ {tillWarning}</p>
+						<div className="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 dark:bg-yellow-900/40 dark:border-yellow-700">
+							<p className="text-xs text-yellow-700 font-medium dark:text-yellow-200">⚠ {tillWarning}</p>
 						</div>
 					)}
 
 					{/* Error de permisos */}
 					{error && (
-						<div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-							<p className="text-xs text-red-600">{error}</p>
+						<div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 dark:bg-red-900/40 dark:border-red-700">
+							<p className="text-xs text-red-600 dark:text-red-200">{error}</p>
 						</div>
 					)}
 
@@ -87,14 +87,14 @@ export function PowerModal({ open, onClose }: PowerModalProps): React.ReactEleme
 					<button
 						onClick={handleLogout}
 						disabled={isTillOpen || isLoading}
-						className="flex items-center gap-3 px-4 py-3 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-left"
+						className="flex items-center gap-3 px-4 py-3 rounded-lg border border-border bg-card hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-left"
 					>
-						<div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-							<LogOut size={14} className="text-slate-600" />
+						<div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+							<LogOut size={14} className="text-foreground" />
 						</div>
 						<div>
-							<p className="text-sm font-medium text-slate-800">Cerrar sesión</p>
-							<p className="text-xs text-slate-400">Vuelve a la pantalla de login</p>
+							<p className="text-sm font-medium text-foreground">Cerrar sesión</p>
+							<p className="text-xs text-muted-foreground">Vuelve a la pantalla de login</p>
 						</div>
 					</button>
 
@@ -103,16 +103,14 @@ export function PowerModal({ open, onClose }: PowerModalProps): React.ReactEleme
 						<button
 							onClick={handleCloseApp}
 							disabled={isTillOpen || isLoading}
-							className="flex items-center gap-3 px-4 py-3 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-left"
+							className="flex items-center gap-3 px-4 py-3 rounded-lg border border-border bg-card hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-left"
 						>
-							<div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-								<X size={14} className="text-slate-600" />
+							<div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+								<X size={14} className="text-foreground" />
 							</div>
 							<div>
-								<p className="text-sm font-medium text-slate-800">
-									Cerrar aplicación
-								</p>
-								<p className="text-xs text-slate-400">Cierra Farmacia POS</p>
+								<p className="text-sm font-medium text-foreground">Cerrar aplicación</p>
+								<p className="text-xs text-muted-foreground">Cierra Farmacia POS</p>
 							</div>
 						</button>
 					)}
@@ -123,14 +121,14 @@ export function PowerModal({ open, onClose }: PowerModalProps): React.ReactEleme
 					<button
 						onClick={handleShutdown}
 						disabled={isTillOpen || isLoading}
-						className="flex items-center gap-3 px-4 py-3 rounded-lg border border-red-200 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-left"
+						className="flex items-center gap-3 px-4 py-3 rounded-lg border border-red-200 bg-card hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-left"
 					>
-						<div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center shrink-0">
-							<Power size={14} className="text-red-600" />
+						<div className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center shrink-0">
+							<Power size={14} className="text-red-600 dark:text-red-200" />
 						</div>
 						<div>
-							<p className="text-sm font-medium text-red-700">Apagar equipo</p>
-							<p className="text-xs text-red-400">
+							<p className="text-sm font-medium text-red-700 dark:text-red-200">Apagar equipo</p>
+							<p className="text-xs text-red-400 dark:text-red-300">
 								Apaga el computador completamente
 							</p>
 						</div>
