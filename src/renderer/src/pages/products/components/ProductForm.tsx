@@ -24,7 +24,7 @@ import { LabSelector } from "@renderer/components/ui/LabSelector"
 import { PRESENTATION_LABELS } from "@renderer/core/constants"
 
 const productSchema = z.object({
-	brand: z.string().min(1, "Requerido"),
+	brand: z.string().min(1, "Requerido").toUpperCase(),
 	manufacturer: z.string().min(1, "Requerido"),
 	barcode: z.string().min(1, "Requerido"),
 	altcode: z.string(),
@@ -74,20 +74,20 @@ export default function ProductForm({
 		resolver: zodResolver(productSchema),
 		defaultValues: product
 			? {
-				brand: product.brand,
-				manufacturer: product.manufacturer,
-				barcode: product.barcode,
-				altcode: product.altcode.join(", "),
-				presentation: product.presentation,
-				minStock: product.minStock,
-				requiredPrescription: product.requiredPrescription,
-				dataSource: product.dataSource
-			}
+					brand: product.brand,
+					manufacturer: product.manufacturer,
+					barcode: product.barcode,
+					altcode: product.altcode.join(", "),
+					presentation: product.presentation,
+					minStock: product.minStock,
+					requiredPrescription: product.requiredPrescription,
+					dataSource: product.dataSource
+				}
 			: {
-				dataSource: "manual",
-				requiredPrescription: false,
-				minStock: 0
-			}
+					dataSource: "manual",
+					requiredPrescription: false,
+					minStock: 0
+				}
 	})
 
 	// Sincronizar categorías desde DCI seleccionados

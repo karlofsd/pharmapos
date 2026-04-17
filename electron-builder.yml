@@ -42,18 +42,17 @@ nsis:
     oneClick: false
     allowToChangeInstallationDirectory: true
 
-mac:
-    icon: resources/icon.icns
-    entitlementsInherit: build/entitlements.mac.plist
-    notarize: false
-    target:
-        - target: dmg
-          arch:
-              - x64
-              - arm64
+# mac:
+#     icon: resources/icon.icns
+#     entitlementsInherit: build/entitlements.mac.plist
+#     notarize: false
+#     target:
+#         - target: dmg
+#           arch:
+#               - x64
 
-dmg:
-    artifactName: ${name}-${version}.${ext}
+# dmg:
+#     artifactName: ${name}-${version}.${ext}
 
 linux:
     icon: resources/icon.png

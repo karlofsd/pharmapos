@@ -168,7 +168,9 @@ export default function InventoryPage(): React.ReactElement {
 								<TableHead className="text-right">P. Venta</TableHead>
 								<TableHead>Vencimiento</TableHead>
 								<TableHead>Estado</TableHead>
-								{hasPermission && <TableHead className="text-right">Acciones</TableHead>}
+								{hasPermission && (
+									<TableHead className="text-right">Acciones</TableHead>
+								)}
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -203,12 +205,13 @@ export default function InventoryPage(): React.ReactElement {
 											<TableCell className="text-right">
 												<span
 													className={`text-sm font-medium
-													${lot.stock === 0
+													${
+														lot.stock === 0
 															? "text-red-500"
 															: lot.stock <= lot.product.minStock
 																? "text-yellow-600"
 																: "text-slate-800"
-														}`}
+													}`}
 												>
 													{lot.stock}
 												</span>

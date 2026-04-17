@@ -2,6 +2,7 @@ import { Minus, Plus, Trash2, Pencil } from "lucide-react"
 import { Button } from "@renderer/components/ui/button"
 import { Badge } from "@renderer/components/ui/badge"
 import { CartItem as CartItemType } from "@renderer/store/cartStore"
+import { Input } from "@renderer/components/ui/input"
 
 interface CartItemProps {
 	item: CartItemType
@@ -10,6 +11,7 @@ interface CartItemProps {
 	onDecrement: () => void
 	onRemove: () => void
 	onEditPrice: () => void
+	onChangeQuantity: (qty: number) => void
 }
 
 export function CartItem({
@@ -18,7 +20,8 @@ export function CartItem({
 	onIncrement,
 	onDecrement,
 	onRemove,
-	onEditPrice
+	onEditPrice,
+	onChangeQuantity
 }: CartItemProps): React.ReactElement {
 	return (
 		<div className="flex flex-col gap-1 py-3 border-b border-slate-100 last:border-0">
@@ -50,7 +53,7 @@ export function CartItem({
 						)}
 					</div>
 				</div>
-				<div className="flex items-center gap-1 shrink-0">
+				<div className="flex items-center gap-3 shrink-0">
 					{hasPermission && (
 						<Button
 							size="icon"
@@ -73,15 +76,32 @@ export function CartItem({
 			</div>
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-1">
-					<Button size="icon" variant="outline" className="h-6 w-6" onClick={onDecrement}>
-						<Minus size={11} />
+					<Button
+						size="icon"
+						variant="outline"
+						className="h-10 w-10 bg-red-500 text-white"
+						onClick={onDecrement}
+					>
+						<Minus size={16} />
 					</Button>
-					<span className="text-sm font-medium w-8 text-center">{item.quantity}</span>
-					<Button size="icon" variant="outline" className="h-6 w-6" onClick={onIncrement}>
-						<Plus size={11} />
+					<div className="flex flex-0 w-[40px]">
+						<Input
+							value={item.quantity}
+							onChange={(e) => onChangeQuantity(Number(e.target.value ?? 0))}
+							className="text-center px-0"
+						/>
+					</div>
+					{/* <span className="text-sm font-medium w-8 text-center">{item.quantity}</span> */}
+					<Button
+						size="icon"
+						variant="outline"
+						className="h-10 w-10 bg-primary text-white"
+						onClick={onIncrement}
+					>
+						<Plus size={16} />
 					</Button>
 				</div>
-				<span className="text-sm font-bold text-slate-800">
+				<span className="text-md font-bold text-slate-800">
 					S/. {item.subtotal.toFixed(2)}
 				</span>
 			</div>

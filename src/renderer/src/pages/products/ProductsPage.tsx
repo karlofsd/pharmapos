@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Plus, Search, ArrowUpDown } from "lucide-react"
 import { Button } from "@renderer/components/ui/button"
 import { Input } from "@renderer/components/ui/input"
@@ -20,6 +20,7 @@ import { useUIStore } from "@renderer/store/uiStore"
 import { useLots } from "@renderer/hooks/useLots"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@renderer/components/ui/dialog"
 import { LotForm } from "../inventory/components/LotForm"
+import { useLocation } from "react-router-dom"
 
 export default function ProductsPage(): React.ReactElement {
 	const { user } = useAuth()
@@ -44,8 +45,13 @@ export default function ProductsPage(): React.ReactElement {
 	const [showLotForm, setShowLotForm] = useState(false)
 	const [createdProductId, setCreatedProductId] = useState<string | null>(null)
 	const { createLot } = useLots()
+	const { state } = useLocation()
 
 	const hasPermission = (user?.level ?? 0) >= 2
+
+	useEffect(() => {
+		if (state?.showForm) setShowForm(state.showForm)
+	}, [state])
 
 	function handleSelectProduct(product: Product): void {
 		selectProduct(product)

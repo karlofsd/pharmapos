@@ -61,12 +61,12 @@ export default function OrdersPage(): React.ReactElement {
 
 	const hasPermission = (user?.level ?? 0) >= 2
 
-		function handleSelectOrder(order: Order): void {
-			selectOrder(order)
-			setShowForm(false)
-			setShowReceive(false)
-			setSidebarCollapsed(true)
-		}
+	function handleSelectOrder(order: Order): void {
+		selectOrder(order)
+		setShowForm(false)
+		setShowReceive(false)
+		setSidebarCollapsed(true)
+	}
 
 	function handleClose(): void {
 		selectOrder(null)
@@ -197,8 +197,8 @@ export default function OrdersPage(): React.ReactElement {
 												<TableCell className="text-sm text-slate-600">
 													{order.expectedAt
 														? order.expectedAt
-															.toDate()
-															.toLocaleDateString("es-PE")
+																.toDate()
+																.toLocaleDateString("es-PE")
 														: "-"}
 												</TableCell>
 												<TableCell className="text-right font-bold text-slate-800">

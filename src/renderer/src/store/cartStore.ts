@@ -21,12 +21,14 @@ export interface CartItem {
 
 export type VoucherType = "boleta" | "factura"
 export type CartPaymentMethod = "cash" | "card" | "credit" | "wallet" | "mixed"
-
+export type CartClient = Pick<Client, "id" | "name" | "lastname" | "address"> & {
+	document: Record<"dni" | "ruc", string>
+}
 interface CartState {
 	items: CartItem[]
 	voucherType: VoucherType
 	paymentMethod: CartPaymentMethod
-	client: Client | null
+	client: CartClient | null
 	cashReceived: number
 	cardAmount: number
 	walletAmount: number
@@ -43,7 +45,7 @@ interface CartState {
 	updatePrice: (lotId: string, price: number, userId: string, reason: string) => void
 	setVoucherType: (type: VoucherType) => void
 	setPaymentMethod: (method: CartPaymentMethod) => void
-	setClient: (client: Client) => void
+	setClient: (client: CartClient) => void
 	clearClient: () => void
 	setCashReceived: (amount: number) => void
 	setCardAmount: (amount: number) => void

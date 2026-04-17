@@ -20,16 +20,16 @@ import { Timestamp } from "firebase/firestore"
 import { useAuth } from "@renderer/hooks/useAuth"
 
 const clientSchema = z.object({
-	name: z.string().min(1, "Requerido"),
-	lastname: z.string().min(1, "Requerido"),
+	name: z.string().toUpperCase().min(1, "Requerido"),
+	lastname: z.string().toUpperCase().min(1, "Requerido"),
 	documentType: z.enum(["dni", "ruc", "passport", "ce"]),
-	documentNumber: z.string().min(1, "Requerido"),
+	documentNumber: z.string().toUpperCase().min(1, "Requerido"),
 	phoneCode: z.string().min(1, "Requerido"),
 	phoneNumber: z.string().min(6, "Requerido"),
 	email: z.email("Email inválido").optional().or(z.literal("")),
 	genre: z.enum(["male", "female", "other"]),
 	birthday: z.string().min(1, "Requerido"),
-	address: z.string().min(1, "Requerido")
+	address: z.string().toUpperCase().min(1, "Requerido")
 })
 
 type ClientFormData = z.infer<typeof clientSchema>

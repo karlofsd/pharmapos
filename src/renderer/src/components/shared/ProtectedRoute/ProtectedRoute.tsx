@@ -24,11 +24,9 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps): React.ReactElement =
 
 	if (!user) return <Navigate to="/login" state={{ from: pathname }} replace />
 
-	/*if (pathname === "/" && user.role === "admin") {
+	if (pathname === "/") {
 		return <Navigate to="/dashboard" replace />
-	} else if (pathname === "/" && user.role === "cashier") {
-		return <Navigate to="/cashier" replace />
-	}*/
+	}
 
 	return <>{children || <Outlet />}</>
 }

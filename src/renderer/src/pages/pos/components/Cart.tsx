@@ -67,6 +67,7 @@ export function Cart(): React.ReactElement {
 							key={item.lotId}
 							item={item}
 							hasPermission={hasPermission}
+							onChangeQuantity={(qty) => updateQuantity(item.lotId, qty)}
 							onIncrement={() => updateQuantity(item.lotId, item.quantity + 1)}
 							onDecrement={() => updateQuantity(item.lotId, item.quantity - 1)}
 							onRemove={() => removeItem(item.lotId)}

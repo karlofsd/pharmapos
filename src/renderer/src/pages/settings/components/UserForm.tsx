@@ -65,18 +65,18 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps): React.Rea
 		resolver: zodResolver(isEditing ? updateSchema : createSchema),
 		defaultValues: user
 			? {
-				name: user.name,
-				lastname: user.lastname,
-				role: user.role,
-				level: user.level,
-				phoneCode: user.phoneNumber.code,
-				phoneNumber: user.phoneNumber.number
-			}
+					name: user.name,
+					lastname: user.lastname,
+					role: user.role,
+					level: user.level,
+					phoneCode: user.phoneNumber.code,
+					phoneNumber: user.phoneNumber.number
+				}
 			: {
-				role: "cashier",
-				level: 1,
-				phoneCode: "+51"
-			}
+					role: "cashier",
+					level: 1,
+					phoneCode: "+51"
+				}
 	})
 
 	async function handleFormSubmit(data: CreateFormData | UpdateFormData): Promise<void> {

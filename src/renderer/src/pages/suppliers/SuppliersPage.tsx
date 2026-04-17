@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Plus, Search } from "lucide-react"
 import { Button } from "@renderer/components/ui/button"
 import { Input } from "@renderer/components/ui/input"
@@ -9,6 +9,8 @@ import { SupplierCard } from "./components/SupplierCard"
 import { SupplierDetail } from "./components/SupplierDetail"
 import { SupplierForm } from "./components/SupplierForm"
 import { CreateSupplierDTO, UpdateSupplierDTO } from "@renderer/services/supplierService"
+import { useLocation } from "react-router-dom"
+import { set } from "zod"
 
 export default function SuppliersPage(): React.ReactElement {
 	const {
@@ -26,6 +28,11 @@ export default function SuppliersPage(): React.ReactElement {
 
 	const { setSidebarCollapsed } = useUIStore()
 	const [showForm, setShowForm] = useState(false)
+	const { state } = useLocation()
+
+	useEffect(() => {
+		if (state?.showForm) setShowForm(state.showForm)
+	}, [state])
 
 	function handleSelectSupplier(supplier: Supplier): void {
 		selectSupplier(supplier)

@@ -8,7 +8,7 @@ import { CashRegisterGate } from "./components/TillGate"
 import { ProductSearch } from "./components/ProductSearch"
 import { Cart } from "./components/Cart"
 import { PaymentPanel } from "./components/PaymentPanel"
-import { Product, Lot, UserUtils } from "@renderer/types"
+import { Product, Lot, UserUtils, Client } from "@renderer/types"
 import { useSettingsStore } from "@renderer/store/settingsStore"
 import { ReceiptSunatService } from "@renderer/services/sunatService"
 
@@ -85,7 +85,7 @@ export default function POSPage(): React.ReactElement {
 						cashierName: data.cashierName,
 						cashReceived,
 						voucherType,
-						clientName: client ? UserUtils.getFullname(client) : null,
+						clientName: client ? UserUtils.getFullname(client as Client) : null,
 						clientDocumentType: !client
 							? null
 							: voucherType == "factura"
@@ -97,7 +97,7 @@ export default function POSPage(): React.ReactElement {
 							? null
 							: voucherType == "factura"
 								? client.document.ruc
-								: (client.document?.ce ?? client.document?.dni),
+								: client.document?.dni,
 						clientAddress: client?.address ?? null,
 						saleId,
 						paymentMethod,

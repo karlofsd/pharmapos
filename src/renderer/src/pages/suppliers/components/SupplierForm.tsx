@@ -22,11 +22,11 @@ const schema = z.object({
 	lastname: z.string().toUpperCase().optional(),
 	businessName: z.string().toUpperCase().optional(),
 	documentType: z.enum(["dni", "ruc", "passport", "ce"]),
-	documentNumber: z.string(),
+	documentNumber: z.string().toUpperCase(),
 	phoneCode: z.string().min(1, "Requerido"),
 	phoneNumber: z.string().min(6, "Requerido"),
 	email: z.email("Email inválido").optional().or(z.literal("")),
-	address: z.string().optional().or(z.literal("")),
+	address: z.string().toUpperCase().optional().or(z.literal("")),
 	paymentCondition: z.enum(["cash", "credit"]),
 	creditDays: z.number().min(0),
 	creditLimit: z.number().min(0)

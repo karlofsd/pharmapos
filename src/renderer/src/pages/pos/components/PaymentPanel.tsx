@@ -1,4 +1,4 @@
-import { User, FileText, CreditCard, X, Search } from "lucide-react"
+import { User, FileText, CreditCard, X, Search, Loader2, IdCard } from "lucide-react"
 import { Button } from "@renderer/components/ui/button"
 import { Input } from "@renderer/components/ui/input"
 import { Label } from "@renderer/components/ui/label"
@@ -11,11 +11,11 @@ import {
 	SelectValue
 } from "@renderer/components/ui/select"
 import { Separator } from "@renderer/components/ui/separator"
-import { useCartStore, VoucherType, CartPaymentMethod } from "@renderer/store/cartStore"
+import { useCartStore, VoucherType, CartPaymentMethod, CartClient } from "@renderer/store/cartStore"
 import { cn } from "@renderer/lib/utils"
 import { useClients } from "@renderer/hooks/useClients"
-import { useState } from "react"
-import { UserUtils } from "@renderer/types"
+import { useRef, useState } from "react"
+import { Client, UserUtils } from "@renderer/types"
 
 interface PaymentPanelProps {
 	onConfirm: () => Promise<void>
@@ -38,13 +38,17 @@ export function PaymentPanel({ onConfirm, isProcessing }: PaymentPanelProps): Re
 		setCashReceived,
 		setCardAmount,
 		setWalletAmount,
-		clearClient
+		clearClient,
+		setClient
 	} = useCartStore()
 
 	const { clients } = useClients()
-	const { setClient } = useCartStore()
 	const [clientSearch, setClientSearch] = useState("")
 	const [showClientSearch, setShowClientSearch] = useState(false)
+
+	const [isQuerying, setIsQuerying] = useState(false)
+	const [queryError, setQueryError] = useState<string | null>(null)
+	const ref = useRef<HTMLInputElement>(null)
 
 	const filteredClients = clientSearch.trim()
 		? clients.filter(
@@ -67,6 +71,64 @@ export function PaymentPanel({ onConfirm, isProcessing }: PaymentPanelProps): Re
 		}
 		return true
 	})()
+
+	async function handleQueryDocument(): Promise<void> {
+		const docType = voucherType == "factura" ? "ruc" : "dni"
+		const docNumber = ref.current?.value
+		if (!docNumber || docNumber.length < 8) return
+
+		setIsQuerying(true)
+		setQueryError(null)
+
+		try {
+			if (docType !== "dni" && docType !== "ruc") return
+
+			const result = await window.electron.ipcRenderer.invoke(
+				"document:query",
+				docType,
+				docNumber,
+				import.meta.env.VITE_DECOLECTA_API_KEY
+			)
+
+			if (!result.success) {
+				setQueryError(result.error)
+				return
+			}
+
+			const data = result.data
+
+			const _client: CartClient = {
+				id: "local",
+				name: "",
+				lastname: "",
+				address: "",
+				document: { dni: "", ruc: "" }
+			}
+
+			if (docType === "dni") {
+				_client.name = data.first_name ?? ""
+				_client.lastname =
+					`${data.first_last_name ?? ""} ${data.second_last_name ?? ""}`.trim()
+				_client.document.dni = docNumber
+			} else if (docType === "ruc") {
+				if (data.estado === "INACTIVO") {
+					setQueryError("RUC inactivo en SUNAT")
+					return
+				}
+				_client.name = data.razon_social ?? ""
+				_client.lastname = ""
+				_client.address = [data.direccion, data.distrito, data.provincia, data.departamento]
+					.filter(Boolean)
+					.join(", ")
+				_client.document.ruc = docNumber
+			}
+			setClient(_client)
+		} catch {
+			setQueryError("Error al consultar el documento")
+		} finally {
+			setIsQuerying(false)
+		}
+	}
 
 	return (
 		<div className="flex flex-col h-full">
@@ -110,7 +172,10 @@ export function PaymentPanel({ onConfirm, isProcessing }: PaymentPanelProps): Re
 				{client?.id ? (
 					<div className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2">
 						<p className="text-sm font-medium text-slate-800">
-							{UserUtils.getFullname(client)}
+							{UserUtils.getFullname({
+								name: client.name,
+								lastname: client.lastname
+							} as Client)}
 						</p>
 						<button
 							onClick={() => {
@@ -123,60 +188,87 @@ export function PaymentPanel({ onConfirm, isProcessing }: PaymentPanelProps): Re
 						</button>
 					</div>
 				) : (
-					<div className="relative">
+					<div className="flex flex-col gap-2">
 						<div className="relative">
-							<Search
-								size={14}
-								className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-							/>
-							<input
-								placeholder="Buscar cliente..."
-								value={clientSearch}
-								onChange={(e) => {
-									setClientSearch(e.target.value)
-									setShowClientSearch(true)
-								}}
-								onFocus={() => setShowClientSearch(true)}
-								className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-300"
-							/>
-						</div>
-						{showClientSearch && (
-							<div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg overflow-hidden">
-								<div className="max-h-40 overflow-y-auto">
-									{filteredClients.length === 0 ? (
-										<p className="text-xs text-slate-400 text-center py-3">
-											No se encontraron clientes
-										</p>
-									) : (
-										filteredClients.map((client) => (
-											<button
-												key={client.id}
-												type="button"
-												onMouseDown={(e) => e.preventDefault()}
-												onClick={() => {
-													setClient(client)
-													setClientSearch("")
-													setShowClientSearch(false)
-												}}
-												className="w-full text-left px-3 py-2 text-sm hover:bg-slate-50 transition-colors"
-											>
-												<p className="font-medium text-slate-800">
-													{UserUtils.getFullname(client)}
-												</p>
-												<p className="text-xs text-slate-400">
-													{Object.entries(client.document)
-														.map(
-															([type, num]) =>
-																`${type.toUpperCase()}: ${num}`
-														)
-														.join(", ")}
-												</p>
-											</button>
-										))
-									)}
-								</div>
+							<div className="relative">
+								<Search
+									size={14}
+									className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+								/>
+								<input
+									placeholder="Buscar cliente..."
+									value={clientSearch}
+									onChange={(e) => {
+										setClientSearch(e.target.value)
+										setShowClientSearch(true)
+									}}
+									onFocus={() => setShowClientSearch(true)}
+									onBlur={() => setShowClientSearch(false)}
+									className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-300"
+								/>
 							</div>
-						)}
+							{showClientSearch && (
+								<div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg overflow-hidden">
+									<div className="max-h-40 overflow-y-auto">
+										{filteredClients.length === 0 ? (
+											<p className="text-xs text-slate-400 text-center py-3">
+												No se encontraron clientes
+											</p>
+										) : (
+											filteredClients.map((client) => (
+												<button
+													key={client.id}
+													type="button"
+													onMouseDown={(e) => e.preventDefault()}
+													onClick={() => {
+														setClient(client)
+														setClientSearch("")
+														setShowClientSearch(false)
+													}}
+													className="w-full text-left px-3 py-2 text-sm hover:bg-slate-50 transition-colors"
+												>
+													<p className="font-medium text-slate-800">
+														{UserUtils.getFullname(client)}
+													</p>
+													<p className="text-xs text-slate-400">
+														{Object.entries(client.document)
+															.map(
+																([type, num]) =>
+																	`${type.toUpperCase()}: ${num}`
+															)
+															.join(", ")}
+													</p>
+												</button>
+											))
+										)}
+									</div>
+								</div>
+							)}
+						</div>
+						<div className="flex flex-col gap-1 flex-1">
+							<div className="flex gap-2 items-center text-xs font-semibold text-slate-400 uppercase tracking-wide">
+								<IdCard size={12} /> Número
+							</div>
+							<div className="flex gap-2">
+								<Input placeholder="00000000" ref={ref} />
+								<Button
+									type="button"
+									variant="outline"
+									size="icon"
+									onClick={handleQueryDocument}
+									disabled={isQuerying}
+									title="Consultar documento"
+								>
+									{isQuerying ? (
+										<Loader2 size={14} className="animate-spin" />
+									) : (
+										<Search size={14} />
+									)}
+								</Button>
+							</div>
+
+							{queryError && <p className="text-xs text-red-500">{queryError}</p>}
+						</div>
 					</div>
 				)}
 			</div>

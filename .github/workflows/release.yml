@@ -29,34 +29,34 @@ jobs:
                   VITE_DECOLECTA_API_KEY: ${{ secrets.VITE_DECOLECTA_API_KEY }}
               run: yarn build:win --publish always
 
-    build-mac:
-        runs-on: macos-latest
-        permissions:
-            contents: write
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+    # build-mac:
+    #     runs-on: macos-latest
+    #     permissions:
+    #         contents: write
+    #     steps:
+    #         - name: Checkout
+    #           uses: actions/checkout@v4
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
-                  cache: "yarn"
+    #         - name: Setup Node.js
+    #           uses: actions/setup-node@v4
+    #           with:
+    #               node-version: 22
+    #               cache: "yarn"
 
-            - name: Install dependencies
-              run: yarn install --frozen-lockfile
+    #         - name: Install dependencies
+    #           run: yarn install --frozen-lockfile
 
-            - name: Build macOS x64
-              env:
-                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  VITE_DECOLECTA_API_KEY: ${{ secrets.VITE_DECOLECTA_API_KEY }}
-              run: yarn build:mac -- --x64 --publish always
+    #         - name: Build macOS x64
+    #           env:
+    #               GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #               VITE_DECOLECTA_API_KEY: ${{ secrets.VITE_DECOLECTA_API_KEY }}
+    #           run: yarn build:mac --x64 --publish always
 
-            - name: Build macOS arm64
-              env:
-                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  VITE_DECOLECTA_API_KEY: ${{ secrets.VITE_DECOLECTA_API_KEY }}
-              run: yarn build:mac -- --arm64 --publish always
+    #         - name: Build macOS arm64
+    #           env:
+    #               GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #               VITE_DECOLECTA_API_KEY: ${{ secrets.VITE_DECOLECTA_API_KEY }}
+    #           run: yarn build:mac --arm64 --publish always
 
     build-linux:
         runs-on: ubuntu-latest

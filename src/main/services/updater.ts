@@ -12,8 +12,10 @@ export type UpdateStatus =
 
 export function registerUpdaterHandlers(mainWindow: BrowserWindow): void {
 	// Configuración
+	autoUpdater.logger = console as any
 	autoUpdater.autoDownload = false
 	autoUpdater.autoInstallOnAppQuit = true
+	autoUpdater.allowPrerelease = false
 
 	// Enviar estado al renderer
 	function sendStatus(status: UpdateStatus): void {
@@ -50,8 +52,10 @@ export function registerUpdaterHandlers(mainWindow: BrowserWindow): void {
 	ipcMain.handle(IPC_CHANNELS.UPDATE_CHECK, async () => {
 		try {
 			await autoUpdater.checkForUpdates()
+			return { success: true }
 		} catch (error) {
 			sendStatus({ type: "error", message: String(error) })
+			return { success: false, error: String(error) }
 		}
 	})
 
@@ -67,8 +71,10 @@ export function registerUpdaterHandlers(mainWindow: BrowserWindow): void {
 		autoUpdater.quitAndInstall(false, true)
 	})
 
-	// Verificar actualizaciones al iniciar (después de 3 segundos)
+	// Verificar actualizaciones al iniciar (después de 3 segundos) como respaldo.
 	setTimeout(() => {
-		autoUpdater.checkForUpdates().catch(console.error)
+		autoUpdater.checkForUpdates().catch((error) => {
+			console.error("Error al verificar actualizaciones al iniciar:", error)
+		})
 	}, 3000)
 }

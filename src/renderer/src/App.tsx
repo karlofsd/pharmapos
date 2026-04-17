@@ -58,11 +58,6 @@ function AppContent(): React.ReactElement {
 								<Route path="opening" element={<TillsPage />} />
 							</Route>
 						</Route>
-						<Route
-							element={<RoleRoute allowedRoles={["cashier"]} allowedMinLevel={1} />}
-						>
-							<Route path="cashier" element={<DashboardPage />} />
-						</Route>
 						<Route element={<RoleRoute allowedRoles={["admin"]} allowedMinLevel={2} />}>
 							<Route path="admin" element={<Outlet />}>
 								<Route path="reports" element={<ReportsPage />} />

@@ -1,8 +1,7 @@
 import { ipcMain } from "electron"
 import { IPC_CHANNELS } from "../../../shared/ipcChannels"
 import { Receipt } from "../../../shared/types/receipt.type"
-import { exec } from "child_process"
-import { Buffer } from "node:buffer"
+import { spawn } from "child_process"
 import iconv from "iconv-lite"
 
 const TICKETERA_WIDTH = 48
@@ -42,14 +41,14 @@ function formatReceipt(data: Receipt): string[] {
 	lines.push(divider("="))
 	lines.push(
 		center(
-			data.voucherType === "factura" ? "FACTURA ELECTRÓNICA" : "BOLETA DE VENTA ELECTRÓNICA"
+			data.voucherType === "factura" ? "FACTURA ELECTRONICA" : "BOLETA DE VENTA ELECTRONICA"
 		)
 	)
-	lines.push(center(`N°: ${data.saleId.slice(-8).toUpperCase()}`))
+	lines.push(center(`N°: ${data.serialCode}`))
 	lines.push(divider("="))
 
 	// 2. DATOS DEL CLIENTE Y VENTA
-	lines.push(`FECHA EMISIÓN : ${dateStr} ${timeStr}`)
+	lines.push(`FECHA EMISION : ${dateStr} ${timeStr}`)
 	lines.push(`CAJERO        : ${data.cashierName.toUpperCase()}`)
 
 	if (data.clientName) {
@@ -128,7 +127,7 @@ function formatReceipt(data: Receipt): string[] {
 
 	// 8. SECCIÓN FISAL OBLIGATORIA (Post-totales)
 	lines.push(divider("-"))
-	lines.push(`Hash: ${data.hash}`)
+	lines.push(`${data.hash}`)
 	lines.push("")
 
 	// Representación del QR en texto (Requerido si no hay imagen)
@@ -151,14 +150,27 @@ function formatReceipt(data: Receipt): string[] {
 	return lines
 }
 
+function formatSunatDate(dateString: string): string {
+	const date = new Date(dateString)
+	if (Number.isNaN(date.getTime())) {
+		return dateString
+	}
+	return date.toISOString().slice(0, 10)
+}
+
 function getQRString(data: Receipt): string {
-	const [serie, numero] = data.serialCode.split("-")
+	const [serie = "", numero = ""] = data.serialCode.split("-")
 	const rucEmisor = data.ownerRUC
-	const tipoComp = data.voucherType == "factura" ? "1" : "3" // 01 Factura, 03 Boleta
-	const igv = data.totalIGV // Ejemplo
-	const total = data.totalPrice // Ejemplo
-	const fecha = data.date
-	const tipoDocCli = data.voucherType ? "6" : data.clientDocumentType == "CE" ? "4" : "1" // DNI
+	const tipoComp = data.voucherType === "factura" ? "1" : "3" // 01 Factura, 03 Boleta
+	const igv = data.totalIGV
+	const total = data.totalPrice
+	const fecha = formatSunatDate(data.date)
+	let tipoDocCli = "1"
+	if (data.clientDocumentType === "RUC") {
+		tipoDocCli = "6"
+	} else if (data.clientDocumentType === "CE") {
+		tipoDocCli = "4"
+	}
 	const numDocCli = data.clientDocument ?? "00000000"
 	const hash = data.hash
 	return `${rucEmisor}|${tipoComp}|${serie}|${numero}|${igv}|${total}|${fecha}|${tipoDocCli}|${numDocCli}|${hash}`
@@ -184,13 +196,35 @@ export function getQRCommands(data: string): Buffer {
 
 export function registerPrinterHandlers(): void {
 	const PRINTER_NAME = "TicketeraPOS"
+
+	async function sendToPrinter(buffer: Buffer): Promise<void> {
+		return new Promise((resolve, reject) => {
+			const child = spawn("lp", ["-d", PRINTER_NAME, "-o", "raw"], {
+				stdio: ["pipe", "ignore", "pipe"]
+			})
+
+			child.on("error", (error) => reject(error))
+			child.stderr.on("data", (chunk) => {
+				console.error("lp stderr:", chunk.toString())
+			})
+			child.on("close", (code) => {
+				if (code === 0) {
+					resolve()
+				} else {
+					reject(new Error(`lp exited with code ${code}`))
+				}
+			})
+
+			child.stdin.write(buffer)
+			child.stdin.end()
+		})
+	}
+
 	ipcMain.handle(IPC_CHANNELS.PRINT_RECEIPT, async (_event, data: Receipt) => {
 		try {
 			const lines = formatReceipt(data)
 			const initPrinter = Buffer.from([0x1b, 0x40, 0x1b, 0x74, 0x01])
-			// Unimos las líneas y añadimos el comando de corte ESC/POS (GS V 66 0)
-			// const textBuffer = Buffer.from(lines.join("\n"), "utf8")
-			const textBuffer = iconv.encode(lines.join("\n"), "iso88591")
+			const textBuffer = iconv.encode(lines.join("\n"), "cp850")
 			const footerBuffer = Buffer.from("\n\n\n\x1dV\x42\x00")
 			const qrString = getQRString(data)
 			const qrBuffer = getQRCommands(qrString)
@@ -201,11 +235,8 @@ export function registerPrinterHandlers(): void {
 				qrBuffer,
 				footerBuffer
 			])
-			// Enviamos el texto directamente a la cola de impresión que ya probaste
-			const child = exec(`lp -d ${PRINTER_NAME} -o raw`)
-			child.stdin?.write(finalBuffer)
-			child.stdin?.end()
 
+			await sendToPrinter(finalBuffer)
 			return { success: true }
 		} catch (error) {
 			console.error("Error de impresión:", error)
@@ -215,12 +246,8 @@ export function registerPrinterHandlers(): void {
 
 	ipcMain.handle(IPC_CHANNELS.OPEN_DRAWER, async () => {
 		try {
-			const openDrawer = "\x1bp\x00\x19\xfa"
-
-			const child = exec(`lp -d ${PRINTER_NAME} -o raw`)
-			child.stdin?.write(openDrawer)
-			child.stdin?.end()
-
+			const openDrawer = Buffer.from([0x1b, 0x70, 0x00, 0x19, 0xfa])
+			await sendToPrinter(openDrawer)
 			return { success: true }
 		} catch (error) {
 			console.error("Error al abrir cajón:", error)

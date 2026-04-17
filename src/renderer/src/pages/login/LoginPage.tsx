@@ -16,6 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { useAuth } from "@renderer/hooks/useAuth"
+import { Logo } from "@renderer/components/shared/logo"
 
 const loginSchema = z.object({
 	username: z.string().min(5, "Requerido"),
@@ -51,7 +52,7 @@ const LoginPage = (): React.ReactElement => {
 				if (state?.from) {
 					navigate(state.from, { replace: true })
 				} else {
-					navigate("/", { replace: true })
+					navigate("/dashboard", { replace: true })
 				}
 			}, 5000)
 		} catch (error) {
@@ -65,8 +66,8 @@ const LoginPage = (): React.ReactElement => {
 	return (
 		<div className="flex h-screen items-center justify-center bg-slate-50">
 			<Card className="w-full max-w-sm shadow-lg">
-				<CardHeader className="text-center">
-					<div className="text-4xl mb-2">💊</div>
+				<CardHeader className="flex flex-col items-center text-center">
+					<Logo />
 					<CardTitle className="text-2xl">Farmacia POS</CardTitle>
 					<CardDescription>Ingresa tus credenciales para continuar</CardDescription>
 				</CardHeader>
@@ -86,7 +87,7 @@ const LoginPage = (): React.ReactElement => {
 							)}
 						</div>
 						<div className="mb-6">
-							<Label htmlFor="password">Password</Label>
+							<Label htmlFor="password">Contraseña</Label>
 							<Input
 								{...register("password", {
 									onChange: () => authError && setAuthError(null)
@@ -102,7 +103,7 @@ const LoginPage = (): React.ReactElement => {
 						</div>
 						{authError && <p className="mb-4 text-sm text-red-500">{authError}</p>}
 						<Button type="submit" disabled={isLoading} className="w-full">
-							{isLoading ? "Logging in..." : "Login"}
+							{isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
 						</Button>
 					</form>
 				</CardContent>

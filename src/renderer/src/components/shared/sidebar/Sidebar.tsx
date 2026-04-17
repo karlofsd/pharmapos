@@ -72,7 +72,7 @@ const Sidebar = ({ collapsed, onToggle }: SidebarProps): React.ReactElement => {
 											"flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors w-full",
 											"text-slate-300 hover:bg-slate-700 dark:hover:bg-slate-800 hover:text-white",
 											isActive &&
-											"bg-slate-700 dark:bg-slate-800 text-white font-medium",
+												"bg-slate-700 dark:bg-slate-800 text-white font-medium",
 											collapsed && "justify-center px-0"
 										)
 									}

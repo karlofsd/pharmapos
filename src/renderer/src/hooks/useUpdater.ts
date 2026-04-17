@@ -27,6 +27,11 @@ export function useUpdater(): UseUpdaterReturn {
 				setStatus(newStatus)
 			}
 		)
+
+		void window.electron.ipcRenderer.invoke(IPC_CHANNELS.UPDATE_CHECK).catch((error) => {
+			console.error("Error iniciando la comprobación de actualizaciones:", error)
+		})
+
 		return () => unsubscribe?.()
 	}, [])
 

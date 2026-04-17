@@ -17,6 +17,9 @@ import {
 } from "@renderer/components/ui/select"
 import { useProducts } from "@renderer/hooks/useProducts"
 import { useSuppliers } from "@renderer/hooks/useSuppliers"
+import { PRESENTATION_LABELS } from "@renderer/core/constants"
+import { Plus } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
 const lotSchema = z.object({
 	productId: z.string().min(1, "Selecciona un producto"),
@@ -66,6 +69,8 @@ export function LotForm({
 		}
 	})
 
+	const navigate = useNavigate()
+
 	useEffect(() => {
 		if (productId) {
 			setValue("productId", productId)
@@ -102,55 +107,67 @@ export function LotForm({
 	return (
 		<form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-4">
 			{/* Producto */}
-			<div className="flex flex-col gap-1">
-				<Label>Producto</Label>
-				<Select
-					value={watch("productId")}
-					onValueChange={(val) => {
-						setValue("productId", val)
-						const product = products.find((p) => p.id === val) ?? null
-						setSelectedProduct(product)
-						if (product) setValue("manufacturer", product.manufacturer)
-					}}
-					disabled={!!productId}
-				>
-					<SelectTrigger>
-						<SelectValue placeholder="Selecciona un producto..." />
-					</SelectTrigger>
-					<SelectContent>
-						{products.map((p) => (
-							<SelectItem key={p.id} value={p.id}>
-								{p.brand} — {p.presentation} - {p.manufacturer}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-				{errors.productId && (
-					<p className="text-xs text-red-500">{errors.productId.message}</p>
-				)}
+			<div className="flex gap-2 items-end">
+				<div className="flex flex-col flex-1 gap-1">
+					<Label>Producto</Label>
+					<Select
+						value={watch("productId")}
+						onValueChange={(val) => {
+							setValue("productId", val)
+							const product = products.find((p) => p.id === val) ?? null
+							setSelectedProduct(product)
+							if (product) setValue("manufacturer", product.manufacturer)
+						}}
+						disabled={!!productId}
+					>
+						<SelectTrigger>
+							<SelectValue placeholder="Selecciona un producto..." />
+						</SelectTrigger>
+						<SelectContent>
+							{products.map((p) => (
+								<SelectItem key={p.id} value={p.id}>
+									{p.brand} — {PRESENTATION_LABELS[p.presentation]} -{" "}
+									{p.manufacturer}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+					{errors.productId && (
+						<p className="text-xs text-red-500">{errors.productId.message}</p>
+					)}
+				</div>
+				<Button onClick={() => navigate("/admin/products", { state: { showForm: true } })}>
+					<Plus />
+				</Button>
 			</div>
-
-			<div className="flex flex-col gap-1">
-				<Label>Proveedor (opcional)</Label>
-				<Select
-					value={watch("supplierId")}
-					onValueChange={(val) => setValue("supplierId", val)}
-				>
-					<SelectTrigger>
-						<SelectValue placeholder="Sin proveedor" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="none">Sin proveedor</SelectItem>
-						{suppliers.map((s) => (
-							<SelectItem key={s.id} value={s.id}>
-								{s.businessName != "" ? s.businessName : UserUtils.getFullname(s)}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-				{errors.supplierId && (
-					<p className="text-xs text-red-500">{errors.supplierId.message}</p>
-				)}
+			<div className="flex gap-2 items-end">
+				<div className="flex flex-1 flex-col gap-1">
+					<Label>Proveedor</Label>
+					<Select
+						value={watch("supplierId")}
+						onValueChange={(val) => setValue("supplierId", val)}
+					>
+						<SelectTrigger>
+							<SelectValue placeholder="Sin proveedor" />
+						</SelectTrigger>
+						<SelectContent>
+							{/* <SelectItem value="none">Sin proveedor</SelectItem> */}
+							{suppliers.map((s) => (
+								<SelectItem key={s.id} value={s.id}>
+									{s.businessName != ""
+										? s.businessName
+										: UserUtils.getFullname(s)}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+					{errors.supplierId && (
+						<p className="text-xs text-red-500">{errors.supplierId.message}</p>
+					)}
+				</div>
+				<Button onClick={() => navigate("/admin/suppliers", { state: { showForm: true } })}>
+					<Plus />
+				</Button>
 			</div>
 
 			{/* Número de lote */}
@@ -161,28 +178,29 @@ export function LotForm({
 					<p className="text-xs text-red-500">{errors.numberLot.message}</p>
 				)}
 			</div>
+			<div className="grid grid-cols-2 gap-3">
+				{/* Fecha de vencimiento */}
+				<div className="flex flex-col gap-1">
+					<Label>Fecha de vencimiento</Label>
+					<Input {...register("expirationDate")} type="date" />
+					{errors.expirationDate && (
+						<p className="text-xs text-red-500">{errors.expirationDate.message}</p>
+					)}
+				</div>
 
-			{/* Fecha de vencimiento */}
-			<div className="flex flex-col gap-1">
-				<Label>Fecha de vencimiento</Label>
-				<Input {...register("expirationDate")} type="date" />
-				{errors.expirationDate && (
-					<p className="text-xs text-red-500">{errors.expirationDate.message}</p>
-				)}
-			</div>
-
-			{/* Stock inicial */}
-			<div className="flex flex-col gap-1">
-				<Label>Stock inicial</Label>
-				<Input
-					{...register("initialStock", { valueAsNumber: true })}
-					type="number"
-					min={1}
-					placeholder="Ej: 100"
-				/>
-				{errors.initialStock && (
-					<p className="text-xs text-red-500">{errors.initialStock.message}</p>
-				)}
+				{/* Stock inicial */}
+				<div className="flex flex-col gap-1">
+					<Label>Stock inicial</Label>
+					<Input
+						{...register("initialStock", { valueAsNumber: true })}
+						type="number"
+						min={1}
+						placeholder="Ej: 100"
+					/>
+					{errors.initialStock && (
+						<p className="text-xs text-red-500">{errors.initialStock.message}</p>
+					)}
+				</div>
 			</div>
 
 			{/* Precios */}

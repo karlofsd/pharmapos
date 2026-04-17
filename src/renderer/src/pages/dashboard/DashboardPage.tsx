@@ -27,7 +27,7 @@ const DashboardPage = (): React.ReactElement => {
 		)
 	}
 
-	if (user!.role == "admin") return <AdminDashboard data={data} reload={reload} />
+	if (user!.role != "cashier") return <AdminDashboard data={data} reload={reload} />
 	return <CashierDashboard data={data} user={user!} />
 }
 
