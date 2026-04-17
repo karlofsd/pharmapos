@@ -9,6 +9,7 @@ import { Separator } from "@renderer/components/ui/separator"
 import { FirebaseConfig, useFirebaseStore } from "@renderer/store/firebaseStore"
 import { initializeFirebase } from "@renderer/services/firebase"
 import { Eye, EyeOff, Flame } from "lucide-react"
+import { notify } from "@renderer/lib/notify"
 
 const schema = z.object({
 	apiKey: z.string().min(1, "Requerido"),
@@ -43,9 +44,10 @@ export function SetupPage(): React.ReactElement {
 			// Guardar en el store persistido
 			setConfig(data as FirebaseConfig)
 
-			// Recargar la app para que tome el nuevo estado
-			window.location.reload()
-		} catch {
+			notify.success("Credenciales guardadas. Recargando aplicación...")
+			setTimeout(() => window.location.reload(), 300)
+		} catch (error) {
+			notify.error(error, "Credenciales inválidas. Verifica los datos de Firebase.")
 			setError("Credenciales inválidas. Verifica los datos de Firebase.")
 		} finally {
 			setIsSubmitting(false)

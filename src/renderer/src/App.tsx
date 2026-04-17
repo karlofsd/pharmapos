@@ -23,6 +23,7 @@ import { SetupPage } from "./pages/setup/SetupPage"
 import { useFirebaseStore } from "./store/firebaseStore"
 import { AuthProvider } from "./context/authContext"
 import { useOfflineSync } from "./hooks/useOfflineSync"
+import { Toaster } from "sonner"
 import DocumentsPage from "./pages/documents/DocumentsPage"
 
 function AppContent(): React.ReactElement {
@@ -83,12 +84,12 @@ function App(): React.ReactElement {
 	const { isConfigured } = useFirebaseStore()
 	console.log("Firebase is configured: ", isConfigured)
 	// Si no hay credenciales configuradas, mostrar pantalla de setup
-	if (!isConfigured) {
-		console.log("Redirigiendo a configuracion")
-		return <SetupPage />
-	}
-
-	return <AppContent />
+	return (
+		<>
+			{!isConfigured ? <SetupPage /> : <AppContent />}
+			<Toaster richColors position="bottom-right" />
+		</>
+	)
 }
 
 export default App

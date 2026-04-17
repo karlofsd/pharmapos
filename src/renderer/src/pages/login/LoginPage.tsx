@@ -16,6 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { useAuth } from "@renderer/hooks/useAuth"
+import { notify } from "@renderer/lib/notify"
 import { Logo } from "@renderer/components/shared/logo"
 
 const loginSchema = z.object({
@@ -47,6 +48,7 @@ const LoginPage = (): React.ReactElement => {
 		setIsLoading(true)
 		try {
 			await login(username, password)
+			notify.success("Inicio de sesión correcto")
 			setTimeout(() => {
 				setIsLoading(false)
 				if (state?.from) {
@@ -57,6 +59,7 @@ const LoginPage = (): React.ReactElement => {
 			}, 5000)
 		} catch (error) {
 			console.error("Login error:", error)
+			notify.error(error, "Usuario o contraseña inválidos")
 			setAuthError("Invalid email or password")
 			reset({ password: "" })
 			setIsLoading(false)

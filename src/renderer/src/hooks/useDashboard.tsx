@@ -4,6 +4,7 @@ import { db } from "@renderer/services/firebase"
 import { TillService } from "@renderer/services/tillService"
 import { useAuth } from "@renderer/hooks/useAuth"
 import { TillBalance, Lot, Product } from "@renderer/types"
+import { notify } from "@renderer/lib/notify"
 
 export interface DashboardData {
 	// Ventas del día
@@ -137,6 +138,7 @@ export function useDashboard(): UseDashboardReturn {
 			})
 		} catch (err) {
 			setError("Error al cargar el dashboard")
+			notify.error(err, "Error al cargar el dashboard")
 			console.error(err)
 		} finally {
 			setIsLoading(false)

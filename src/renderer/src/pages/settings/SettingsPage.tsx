@@ -7,6 +7,7 @@ import { UsersTab } from "./tabs/UsersTab"
 import { PermissionsTab } from "./tabs/PermissionsTab"
 import { HardwareTab } from "./tabs/HardwareTab"
 import { BusinessTab } from "./tabs/BusinessTab"
+import { SoftwareTab } from "./tabs/SoftwareTab"
 
 export default function SettingsPage(): React.ReactElement {
 	return (
@@ -27,6 +28,7 @@ export default function SettingsPage(): React.ReactElement {
 					<TabsTrigger value="users">Usuarios</TabsTrigger>
 					<TabsTrigger value="permissions">Permisos</TabsTrigger>
 					<TabsTrigger value="hardware">Hardware</TabsTrigger>
+					<TabsTrigger value="software">Software</TabsTrigger>
 					<TabsTrigger value="business">Negocio</TabsTrigger>
 				</TabsList>
 
@@ -51,6 +53,9 @@ export default function SettingsPage(): React.ReactElement {
 					</TabsContent>
 					<TabsContent value="hardware">
 						<HardwareTab />
+					</TabsContent>
+					<TabsContent value="software">
+						<SoftwareTab />
 					</TabsContent>
 					<TabsContent value="business">
 						<BusinessTab />

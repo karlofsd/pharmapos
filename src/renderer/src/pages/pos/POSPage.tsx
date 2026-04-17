@@ -11,6 +11,7 @@ import { PaymentPanel } from "./components/PaymentPanel"
 import { Product, Lot, UserUtils, Client } from "@renderer/types"
 import { useSettingsStore } from "@renderer/store/settingsStore"
 import { ReceiptSunatService } from "@renderer/services/sunatService"
+import { notify } from "@renderer/lib/notify"
 
 export default function POSPage(): React.ReactElement {
 	const { user } = useAuth()
@@ -82,35 +83,36 @@ export default function POSPage(): React.ReactElement {
 			const saleId = await SaleService.create(data)
 			const { receipt } = sentSunat
 				? await ReceiptSunatService.emit({
-						cashierName: data.cashierName,
-						cashReceived,
-						voucherType,
-						clientName: client ? UserUtils.getFullname(client as Client) : null,
-						clientDocumentType: !client
-							? null
-							: voucherType == "factura"
-								? "RUC"
-								: client.document?.dni
-									? "DNI"
-									: "CE",
-						clientDocument: !client
-							? null
-							: voucherType == "factura"
-								? client.document.ruc
-								: client.document?.dni,
-						clientAddress: client?.address ?? null,
-						saleId,
-						paymentMethod,
-						change: data.change,
-						items: items,
-						totalPrice: data.totalPrice
-					})
+					cashierName: data.cashierName,
+					cashReceived,
+					voucherType,
+					clientName: client ? UserUtils.getFullname(client as Client) : null,
+					clientDocumentType: !client
+						? null
+						: voucherType == "factura"
+							? "RUC"
+							: client.document?.dni
+								? "DNI"
+								: "CE",
+					clientDocument: !client
+						? null
+						: voucherType == "factura"
+							? client.document.ruc
+							: client.document?.dni,
+					clientAddress: client?.address ?? null,
+					saleId,
+					paymentMethod,
+					change: data.change,
+					items: items,
+					totalPrice: data.totalPrice
+				})
 				: {}
 			await SaleService.initPrinterDrawer(receipt, openDrawer, emitReceipt)
-
+			notify.success("Venta procesada correctamente")
 			clear()
 		} catch (error) {
 			console.error("Error al procesar venta:", error)
+			notify.error(error, "Error al procesar la venta")
 		} finally {
 			setIsProcessing(false)
 		}

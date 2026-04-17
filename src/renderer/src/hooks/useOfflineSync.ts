@@ -3,6 +3,7 @@ import { collection, query, onSnapshot, enableNetwork, disableNetwork } from "fi
 import { db } from "@renderer/services/firebase"
 import { useSyncStore } from "@renderer/store/syncStore"
 import { ReceiptSunatService } from "@renderer/services/sunatService"
+import { notify } from "@renderer/lib/notify"
 
 const MONITORED_COLLECTIONS = ["sales", "cashMovements", "tillBalance", "credits", "orders"]
 
@@ -18,8 +19,10 @@ export function useOfflineSync(): void {
 				await enableNetwork(db!)
 				await ReceiptSunatService.retryPending()
 				setSynced()
-			} catch {
+				notify.success("Conexión restaurada. Pendientes sincronizadas.")
+			} catch (error) {
 				setError()
+				notify.error(error, "No se pudieron sincronizar los datos")
 			}
 		}
 
@@ -28,8 +31,10 @@ export function useOfflineSync(): void {
 				setOnline(false)
 				await disableNetwork(db!)
 				setPending(0)
-			} catch {
+				notify.info("Modo offline activado")
+			} catch (error) {
 				setError()
+				notify.error(error, "No se pudo activar el modo offline")
 			}
 		}
 

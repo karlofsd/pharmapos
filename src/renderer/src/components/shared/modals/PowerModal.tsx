@@ -6,6 +6,7 @@ import { useTillStore } from "@renderer/store/tillStore"
 import { useAuth } from "@renderer/hooks/useAuth"
 import { signOut } from "firebase/auth"
 import { getAuthInstance } from "@renderer/services/firebase"
+import { notify } from "@renderer/lib/notify"
 
 interface PowerModalProps {
 	open: boolean
@@ -36,8 +37,9 @@ export function PowerModal({ open, onClose }: PowerModalProps): React.ReactEleme
 		if (isTillOpen) return
 		try {
 			await window.electron.ipcRenderer.invoke("system:close")
-		} catch {
+		} catch (error) {
 			setError("No se pudo cerrar la aplicación")
+			notify.error(error, "No se pudo cerrar la aplicación")
 		}
 	}
 
@@ -49,6 +51,7 @@ export function PowerModal({ open, onClose }: PowerModalProps): React.ReactEleme
 			const result = await window.electron.ipcRenderer.invoke("system:shutdown")
 			if (!result.success) {
 				setError("Sin permisos para apagar el equipo. Apágalo manualmente.")
+				notify.error("Sin permisos para apagar el equipo. Apágalo manualmente.")
 			}
 		} finally {
 			setIsLoading(false)
