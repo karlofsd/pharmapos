@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { Filter, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, Eye, RotateCw } from "lucide-react"
+import { Filter, RefreshCw, Eye, RotateCw } from "lucide-react"
 import { Button } from "@renderer/components/ui/button"
 import { Input } from "@renderer/components/ui/input"
 import { Badge } from "@renderer/components/ui/badge"
@@ -18,12 +18,13 @@ import {
 	TableHeader,
 	TableRow
 } from "@renderer/components/ui/table"
-import { useReceipts, SortField, SortOrder } from "@renderer/hooks/useReceipts"
+import { SortField, useReceipts } from "@renderer/hooks/useReceipts"
 import { useUIStore } from "@renderer/store/uiStore"
 import { Receipt, SunatStatus } from "shared/types/receipt.type"
 import { ReceiptPreview } from "./components/ReceiptPreview"
 import { cn } from "@renderer/lib/utils"
 import { VoucherType } from "@renderer/types"
+import { SortableHead } from "@renderer/components/shared/SortableHead"
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
 	ACEPTADO: { label: "Aceptado", className: "bg-green-100 text-green-700 border-green-200" },
@@ -37,49 +38,6 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
 const VOUCHER_CONFIG: Record<string, { label: string; className: string }> = {
 	boleta: { label: "Boleta", className: "bg-blue-100 text-blue-700 border-blue-200" },
 	factura: { label: "Factura", className: "bg-purple-100 text-purple-700 border-purple-200" }
-}
-
-function SortIcon({
-	field,
-	current,
-	order
-}: {
-	field: SortField
-	current: SortField
-	order: "asc" | "desc"
-}): React.ReactElement {
-	if (field !== current) return <ArrowUpDown size={12} className="text-slate-300" />
-	return order === "asc" ? (
-		<ArrowUp size={12} className="text-slate-600" />
-	) : (
-		<ArrowDown size={12} className="text-slate-600" />
-	)
-}
-
-function SortableHead({
-	field,
-	sortField,
-	order,
-	label,
-	onSort
-}: {
-	field: SortField
-	sortField: SortField
-	order: SortOrder
-	label: string
-	onSort: (field: SortField) => void
-}): React.ReactElement {
-	return (
-		<TableHead
-			className="cursor-pointer select-none hover:text-slate-800 transition-colors"
-			onClick={() => onSort(field)}
-		>
-			<div className="flex items-center gap-1">
-				{label}
-				<SortIcon field={field} current={sortField} order={order} />
-			</div>
-		</TableHead>
-	)
 }
 
 export default function DocumentsPage(): React.ReactElement {
@@ -211,14 +169,14 @@ export default function DocumentsPage(): React.ReactElement {
 							<Table>
 								<TableHeader>
 									<TableRow className="bg-slate-50">
-										<SortableHead
+										<SortableHead<SortField>
 											field="date"
 											label="Nº Serie / Fecha"
 											sortField={sortField}
 											order={sortOrder}
 											onSort={setSort}
 										/>
-										<SortableHead
+										<SortableHead<SortField>
 											field="voucherType"
 											label="Tipo"
 											sortField={sortField}
@@ -226,14 +184,14 @@ export default function DocumentsPage(): React.ReactElement {
 											onSort={setSort}
 										/>
 										<TableHead>Cliente</TableHead>
-										<SortableHead
+										<SortableHead<SortField>
 											field="totalPrice"
 											label="Total"
 											sortField={sortField}
 											order={sortOrder}
 											onSort={setSort}
 										/>
-										<SortableHead
+										<SortableHead<SortField>
 											field="sunatStatus"
 											label="Estado SUNAT"
 											sortField={sortField}

@@ -318,7 +318,7 @@ export const SaleService = {
 		canOpenDrawer: boolean,
 		canEmitReceipt: boolean
 	): Promise<void> {
-		if (data && canEmitReceipt) await ReceiptService.print(data)
+		if (data && canEmitReceipt) ReceiptService.print(data)
 
 		if (canOpenDrawer) await ReceiptService.openDrawer()
 	}

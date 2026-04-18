@@ -19,14 +19,15 @@ import {
 	TableHeader,
 	TableRow
 } from "@renderer/components/ui/table"
-import { useLots, LotWithProduct, getLotStatus } from "@renderer/hooks/useLots"
+import { useLots, LotWithProduct, getLotStatus, SortField } from "@renderer/hooks/useLots"
 import { useAuth } from "@renderer/hooks/useAuth"
 import { LotForm } from "./components/LotForm"
 import { StockAdjustForm } from "./components/StockAdjustForm"
 import { CreateLotDTO } from "@renderer/services/lotService"
+import { PRESENTATION_LABELS } from "@renderer/core/constants"
+import { SortableHead } from "@renderer/components/shared/SortableHead"
 
 type DialogType = "newLot" | "editPrice" | "adjust" | "none"
-
 const STATUS_CONFIG = {
 	ok: { label: "Ok", className: "bg-green-100 text-green-700 border-green-200" },
 	low: { label: "Stock bajo", className: "bg-yellow-100 text-yellow-700 border-yellow-200" },
@@ -43,6 +44,9 @@ export default function InventoryPage(): React.ReactElement {
 		error,
 		searchTerm,
 		statusFilter,
+		sortField: field,
+		sortOrder: order,
+		setSort: handleSort,
 		setSearchTerm,
 		setStatusFilter,
 		createLot,
@@ -161,12 +165,38 @@ export default function InventoryPage(): React.ReactElement {
 					<Table>
 						<TableHeader>
 							<TableRow className="bg-slate-50">
-								<TableHead>Producto</TableHead>
+								<SortableHead<SortField>
+									field="brand"
+									onSort={handleSort}
+									sortField={field}
+									order={order}
+									label="Producto"
+								/>
 								<TableHead>Lote</TableHead>
-								<TableHead className="text-right">Stock</TableHead>
+								<SortableHead<SortField>
+									className="text-right"
+									field="stock"
+									onSort={handleSort}
+									sortField={field}
+									order={order}
+									label="Stock"
+								/>
 								<TableHead className="text-right">P. Compra</TableHead>
-								<TableHead className="text-right">P. Venta</TableHead>
-								<TableHead>Vencimiento</TableHead>
+								<SortableHead<SortField>
+									className="text-right"
+									field="sellPrice"
+									onSort={handleSort}
+									sortField={field}
+									order={order}
+									label="P. Venta"
+								/>
+								<SortableHead<SortField>
+									field="expirationDate"
+									onSort={handleSort}
+									sortField={field}
+									order={order}
+									label="Vencimiento"
+								/>
 								<TableHead>Estado</TableHead>
 								{hasPermission && (
 									<TableHead className="text-right">Acciones</TableHead>
@@ -205,13 +235,12 @@ export default function InventoryPage(): React.ReactElement {
 											<TableCell className="text-right">
 												<span
 													className={`text-sm font-medium
-													${
-														lot.stock === 0
+													${lot.stock === 0
 															? "text-red-500"
 															: lot.stock <= lot.product.minStock
 																? "text-yellow-600"
 																: "text-slate-800"
-													}`}
+														}`}
 												>
 													{lot.stock}
 												</span>
@@ -299,7 +328,7 @@ export default function InventoryPage(): React.ReactElement {
 						<div className="flex flex-col gap-4">
 							<div className="bg-slate-50 rounded-lg p-3">
 								<p className="text-sm font-medium">
-									{selectedLot.product.brand} - {selectedLot.product.presentation}
+									{selectedLot.product.brand} - {PRESENTATION_LABELS[selectedLot.product.presentation]}
 								</p>
 								<p className="text-xs text-slate-500">
 									Lote: {selectedLot.numberLot}

@@ -8,14 +8,11 @@ export interface LotWithProduct extends Lot {
 	product: Product
 }
 
-interface UseLotsReturn {
-	lots: LotWithProduct[]
-	filtered: LotWithProduct[]
-	isLoading: boolean
-	error: string | null
-	searchTerm: string
-	statusFilter: LotStatus | "all"
+export type SortField = "brand" | "stock" | "sellPrice" | "expirationDate"
+
+interface UseLotsReturn extends UseLotsState {
 	load: () => Promise<void>
+	setSort: (field: SortField) => void
 	setSearchTerm: (term: string) => void
 	setStatusFilter: (status: LotStatus | "all") => void
 	createLot: (data: CreateLotDTO) => Promise<void>
@@ -47,6 +44,8 @@ interface UseLotsState {
 	error: string | null
 	searchTerm: string
 	statusFilter: LotStatus | "all"
+	sortField: SortField
+	sortOrder: "asc" | "desc"
 }
 
 export function useLots(): UseLotsReturn {
@@ -57,7 +56,9 @@ export function useLots(): UseLotsReturn {
 		isLoading: true,
 		error: null,
 		searchTerm: "",
-		statusFilter: "all"
+		statusFilter: "all",
+		sortField: "expirationDate",
+		sortOrder: "desc"
 	})
 
 	const applyFilters = useCallback(
@@ -211,9 +212,51 @@ export function useLots(): UseLotsReturn {
 		})
 	}
 
+	function setSort(field: SortField): void {
+		const sortedLots = Array.from(state.filtered).sort((a, b) => {
+			let result = 0
+
+			switch (field) {
+				case "brand":
+					result = a.product.brand.localeCompare(b.product.brand, "es", {
+						usage: "sort",
+						sensitivity: "base"
+					})
+					break
+
+				case "stock":
+					result = a.stock - b.stock
+					break
+
+				case "sellPrice":
+					result = Number(a.sellPrice) - Number(b.sellPrice)
+					break
+
+				case "expirationDate":
+					result =
+						a.expirationDate.toDate().getTime() - b.expirationDate.toDate().getTime()
+					break
+			}
+
+			if (state.sortOrder !== "asc") {
+				result = -result
+			}
+
+			return result
+		})
+
+		setState((prev) => ({
+			...prev,
+			filtered: sortedLots,
+			sortOrder: prev.sortOrder === "asc" ? "desc" : "asc",
+			sortField: field
+		}))
+	}
+
 	return {
 		...state,
 		load,
+		setSort,
 		setSearchTerm,
 		setStatusFilter,
 		createLot,
