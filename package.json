@@ -1,6 +1,6 @@
 {
 	"name": "pharmapos",
-	"version": "1.0.10",
+	"version": "1.1.0",
 	"description": "POV management app",
 	"main": "./out/main/index.js",
 	"author": "Soberk",
