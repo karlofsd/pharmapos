@@ -144,13 +144,13 @@ export function AdminDashboard({ data, reload }: AdminDashboardProps): React.Rea
 
 			<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 				{/* Stock bajo */}
-				{data.lowStockLots.length > 0 && (
-					<div className="flex flex-col gap-3">
-						<p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
-							Stock bajo
-						</p>
-						<div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100">
-							{data.lowStockLots.map(({ lot, product }) => (
+				<div className="flex flex-col gap-3">
+					<p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+						Stock bajo
+					</p>
+					<div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100">
+						{data.lowStockLots.length > 0 ? (
+							data.lowStockLots.map(({ lot, product }) => (
 								<div
 									key={lot.id}
 									className="flex items-center justify-between px-4 py-3"
@@ -165,57 +165,63 @@ export function AdminDashboard({ data, reload }: AdminDashboardProps): React.Rea
 									</div>
 									<Badge
 										variant="outline"
-										className={`shrink-0 ml-2 ${
-											lot.stock === 0
-												? "bg-red-50 text-red-600 border-red-200"
-												: "bg-yellow-50 text-yellow-700 border-yellow-200"
-										}`}
+										className={`shrink-0 ml-2 ${lot.stock === 0
+											? "bg-red-50 text-red-600 border-red-200"
+											: "bg-yellow-50 text-yellow-700 border-yellow-200"}
+										`}
 									>
 										{lot.stock} u.
 									</Badge>
 								</div>
-							))}
-						</div>
+							))
+						) : (
+							<div className="px-4 py-4 text-sm text-slate-500">
+								No hay productos con stock bajo.
+							</div>
+						)}
 					</div>
-				)}
+				</div>
 
-				{/* Por vencer */}
-				{data.expiringLots.length > 0 && (
-					<div className="flex flex-col gap-3">
+				{/* Más vendidos */}
+				<div className="flex flex-col gap-3">
+					<div className="flex items-center justify-between">
 						<p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
-							Por vencer
+							Más vendidos
 						</p>
-						<div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100">
-							{data.expiringLots.map(({ lot, product, daysLeft }) => (
+						<p className="text-xs text-slate-400">
+							Hoy: {data.bestSellingProducts.length}
+						</p>
+					</div>
+					<div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100">
+						{data.bestSellingProducts.length > 0 ? (
+							data.bestSellingProducts.map(({ product, soldUnits }) => (
 								<div
-									key={lot.id}
+									key={product.id}
 									className="flex items-center justify-between px-4 py-3"
 								>
 									<div className="min-w-0">
 										<p className="text-sm font-medium text-slate-800 truncate">
 											{product.brand}
 										</p>
-										<p className="text-xs text-slate-400">
-											{lot.expirationDate
-												.toDate()
-												.toLocaleDateString("es-PE")}
+										<p className="text-xs text-slate-400 truncate">
+											{product.dci[0]?.name ?? "Producto"}
 										</p>
 									</div>
 									<Badge
 										variant="outline"
-										className={`shrink-0 ml-2 ${
-											daysLeft <= 7
-												? "bg-red-50 text-red-600 border-red-200"
-												: "bg-orange-50 text-orange-600 border-orange-200"
-										}`}
+										className="shrink-0 ml-2 bg-slate-50 text-slate-700 border-slate-200"
 									>
-										{daysLeft}d
+										{soldUnits} u.
 									</Badge>
 								</div>
-							))}
-						</div>
+							))
+						) : (
+							<div className="px-4 py-4 text-sm text-slate-500">
+								No hay ventas registradas hoy.
+							</div>
+						)}
 					</div>
-				)}
+				</div>
 			</div>
 		</div>
 	)

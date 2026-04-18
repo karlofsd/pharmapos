@@ -3,8 +3,13 @@ import { collection, query, where, getDocs, Timestamp } from "firebase/firestore
 import { db } from "@renderer/services/firebase"
 import { TillService } from "@renderer/services/tillService"
 import { useAuth } from "@renderer/hooks/useAuth"
-import { TillBalance, Lot, Product } from "@renderer/types"
+import { TillBalance, Lot, Product, Sale } from "@renderer/types"
 import { notify } from "@renderer/lib/notify"
+
+export interface BestSellingProduct {
+	product: Product
+	soldUnits: number
+}
 
 export interface DashboardData {
 	// Ventas del día
@@ -19,6 +24,9 @@ export interface DashboardData {
 	expiringLots: { lot: Lot; product: Product; daysLeft: number }[]
 	pendingCredits: number
 	pendingOrders: number
+
+	// Más vendidos
+	bestSellingProducts: BestSellingProduct[]
 
 	// Caja
 	activeTill: TillBalance | null
@@ -76,12 +84,19 @@ export function useDashboard(): UseDashboardReturn {
 			let todayCredit = 0
 			const todayTransactions = salesSnap.docs.length
 
+			const bestSellerMap = new Map<string, number>()
+
 			salesSnap.docs.forEach((d) => {
-				const sale = d.data()
+				const sale = d.data() as Sale
 				todaySales += sale.totalPrice ?? 0
 				if (sale.paymentMethod === "cash") todayCash += sale.totalPrice ?? 0
 				if (sale.paymentMethod === "card") todayCard += sale.totalPrice ?? 0
 				if (sale.paymentMethod === "credit") todayCredit += sale.totalPrice ?? 0
+
+				sale.items?.forEach((item) => {
+					const current = bestSellerMap.get(item.productId) ?? 0
+					bestSellerMap.set(item.productId, current + (item.quantity ?? 0))
+				})
 			})
 
 			// Procesar alertas de inventario
@@ -124,6 +139,15 @@ export function useDashboard(): UseDashboardReturn {
 			lowStockLots.sort((a, b) => a.lot.stock - b.lot.stock)
 			expiringLots.sort((a, b) => a.daysLeft - b.daysLeft)
 
+			const bestSellingProducts = Array.from(bestSellerMap.entries())
+				.map(([productId, soldUnits]) => ({
+					product: productMap.get(productId),
+					soldUnits
+				}))
+				.filter((item): item is { product: Product; soldUnits: number } => Boolean(item.product))
+				.sort((a, b) => b.soldUnits - a.soldUnits)
+				.slice(0, 5)
+
 			setData({
 				todaySales,
 				todayTransactions,
@@ -132,6 +156,7 @@ export function useDashboard(): UseDashboardReturn {
 				todayCredit,
 				lowStockLots: lowStockLots.slice(0, 10),
 				expiringLots: expiringLots.slice(0, 10),
+				bestSellingProducts,
 				pendingCredits: creditsSnap.docs.length,
 				pendingOrders: ordersSnap.docs.length,
 				activeTill
