@@ -32,16 +32,17 @@ export default function ProductsPage(): React.ReactElement {
 		searchTerm,
 		sortField,
 		sortOrder,
+		isOpenLotForm,
 		setSearchTerm,
 		setSort,
 		selectProduct,
 		createProduct,
 		updateProduct,
-		deactivateProduct
+		deactivateProduct,
+		toggleLotForm
 	} = useProducts()
 	const { setSidebarCollapsed } = useUIStore()
 	const [showForm, setShowForm] = useState(false)
-	const [showAddLotPrompt, setShowAddLotPrompt] = useState(false)
 	const [showLotForm, setShowLotForm] = useState(false)
 	const [createdProductId, setCreatedProductId] = useState<string | null>(null)
 	const { createLot } = useLots()
@@ -50,6 +51,7 @@ export default function ProductsPage(): React.ReactElement {
 	const hasPermission = (user?.level ?? 0) >= 2
 
 	useEffect(() => {
+		// eslint-disable-next-line react-hooks/set-state-in-effect
 		if (state?.showForm) setShowForm(state.showForm)
 	}, [state])
 
@@ -87,7 +89,7 @@ export default function ProductsPage(): React.ReactElement {
 			const created = await createProduct(data as CreateProductDTO)
 			setShowForm(false)
 			setCreatedProductId(created.id)
-			setShowAddLotPrompt(true) // ← pregunta si agrega lote
+			toggleLotForm() // ← pregunta si agrega lote
 		}
 	}
 
@@ -193,6 +195,7 @@ export default function ProductsPage(): React.ReactElement {
 							onDeactivate={
 								hasPermission ? () => deactivateProduct(selected.id) : undefined
 							}
+							onAddLot={toggleLotForm}
 							onClose={handleCloseDetail}
 						/>
 					) : null}
@@ -201,8 +204,8 @@ export default function ProductsPage(): React.ReactElement {
 
 			{/* Dialog — ¿Agregar lote? */}
 			<Dialog
-				open={showAddLotPrompt}
-				onOpenChange={(open) => !open && setShowAddLotPrompt(false)}
+				open={isOpenLotForm}
+				onOpenChange={(open) => !open && toggleLotForm()}
 			>
 				<DialogContent className="max-w-sm">
 					<DialogHeader>
@@ -216,7 +219,7 @@ export default function ProductsPage(): React.ReactElement {
 							<Button
 								className="flex-1"
 								onClick={() => {
-									setShowAddLotPrompt(false)
+									toggleLotForm()
 									setShowLotForm(true)
 								}}
 							>
@@ -225,7 +228,7 @@ export default function ProductsPage(): React.ReactElement {
 							<Button
 								variant="outline"
 								onClick={() => {
-									setShowAddLotPrompt(false)
+									toggleLotForm()
 									setCreatedProductId(null)
 								}}
 							>
@@ -242,14 +245,14 @@ export default function ProductsPage(): React.ReactElement {
 					<DialogHeader>
 						<DialogTitle>Agregar lote</DialogTitle>
 					</DialogHeader>
-					{createdProductId && (
+					{(createdProductId || selected?.id) && (
 						<LotForm
-							productId={createdProductId}
+							productId={createdProductId ?? selected?.id}
 							onSubmit={async (data) => {
 								await createLot(data)
 								setShowLotForm(false)
 								// Preguntar si agrega otro lote
-								setShowAddLotPrompt(true)
+								toggleLotForm()
 							}}
 							onCancel={() => {
 								setShowLotForm(false)

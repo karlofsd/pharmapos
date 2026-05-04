@@ -19,6 +19,8 @@ interface UseProductsState {
 	searchTerm: string
 	sortField: SortField
 	sortOrder: SortOrder
+
+	isOpenLotForm: boolean
 }
 
 type UseProductsReturn = UseProductsState & {
@@ -29,6 +31,7 @@ type UseProductsReturn = UseProductsState & {
 	createProduct: (data: CreateProductDTO) => Promise<Product>
 	updateProduct: (id: string, data: UpdateProductDTO) => Promise<void>
 	deactivateProduct: (id: string) => Promise<void>
+	toggleLotForm: () => void
 }
 
 export function useProducts(): UseProductsReturn {
@@ -40,7 +43,8 @@ export function useProducts(): UseProductsReturn {
 		error: null,
 		searchTerm: "",
 		sortField: "brand",
-		sortOrder: "asc"
+		sortOrder: "asc",
+		isOpenLotForm: false
 	})
 
 	const applyFilters = useCallback(
@@ -157,6 +161,10 @@ export function useProducts(): UseProductsReturn {
 		})
 	}
 
+	function toggleLotForm(): void {
+		setState((prev) => ({ ...prev, isOpenLotForm: !prev.isOpenLotForm }))
+	}
+
 	return {
 		...state,
 		load,
@@ -165,6 +173,7 @@ export function useProducts(): UseProductsReturn {
 		selectProduct,
 		createProduct,
 		updateProduct,
-		deactivateProduct
+		deactivateProduct,
+		toggleLotForm
 	}
 }

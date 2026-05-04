@@ -2,7 +2,7 @@ import { Lot, Product } from "@renderer/types"
 import { Badge } from "@renderer/components/ui/badge"
 import { Button } from "@renderer/components/ui/button"
 import { Separator } from "@renderer/components/ui/separator"
-import { X, Pencil, Trash2 } from "lucide-react"
+import { X, Pencil, Trash2, BoxesIcon } from "lucide-react"
 import { DetailRow } from "@renderer/components/ui/DetailRow"
 import { useEffect, useState } from "react"
 import { LotService } from "@renderer/services/lotService"
@@ -12,13 +12,15 @@ interface ProductDetailProps {
 	onEdit?: () => void
 	onDeactivate?: () => void
 	onClose: () => void
+	onAddLot: () => void
 }
 
 export default function ProductDetail({
 	product,
 	onEdit,
 	onDeactivate,
-	onClose
+	onClose,
+	onAddLot
 }: ProductDetailProps): React.ReactElement {
 	const [lots, setLots] = useState<Lot[]>([])
 	const [lotsLoading, setLotsLoading] = useState(false)
@@ -178,13 +180,12 @@ export default function ProductDetail({
 										</div>
 										<div className="flex flex-col items-end gap-1">
 											<span
-												className={`text-xs font-bold ${
-													isEmpty
-														? "text-red-500"
-														: lot.stock <= product.minStock
-															? "text-yellow-600"
-															: "text-slate-700"
-												}`}
+												className={`text-xs font-bold ${isEmpty
+													? "text-red-500"
+													: lot.stock <= product.minStock
+														? "text-yellow-600"
+														: "text-slate-700"
+													}`}
 											>
 												{lot.stock} u.
 											</span>
@@ -224,6 +225,9 @@ export default function ProductDetail({
 								Editar
 							</Button>
 						)}
+						<Button variant="outline" onClick={onAddLot}>
+							<BoxesIcon size={16} />
+						</Button>
 						{onDeactivate && (
 							<Button variant="destructive" size="icon" onClick={onDeactivate}>
 								<Trash2 size={16} />
