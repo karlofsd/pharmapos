@@ -72,7 +72,9 @@ export function PowerModal({ open, onClose }: PowerModalProps): React.ReactEleme
 					{/* Advertencia de caja */}
 					{tillWarning && (
 						<div className="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 dark:bg-yellow-900/40 dark:border-yellow-700">
-							<p className="text-xs text-yellow-700 font-medium dark:text-yellow-200">⚠ {tillWarning}</p>
+							<p className="text-xs text-yellow-700 font-medium dark:text-yellow-200">
+								⚠ {tillWarning}
+							</p>
 						</div>
 					)}
 
@@ -94,7 +96,9 @@ export function PowerModal({ open, onClose }: PowerModalProps): React.ReactEleme
 						</div>
 						<div>
 							<p className="text-sm font-medium text-foreground">Cerrar sesión</p>
-							<p className="text-xs text-muted-foreground">Vuelve a la pantalla de login</p>
+							<p className="text-xs text-muted-foreground">
+								Vuelve a la pantalla de login
+							</p>
 						</div>
 					</button>
 
@@ -109,7 +113,9 @@ export function PowerModal({ open, onClose }: PowerModalProps): React.ReactEleme
 								<X size={14} className="text-foreground" />
 							</div>
 							<div>
-								<p className="text-sm font-medium text-foreground">Cerrar aplicación</p>
+								<p className="text-sm font-medium text-foreground">
+									Cerrar aplicación
+								</p>
 								<p className="text-xs text-muted-foreground">Cierra Farmacia POS</p>
 							</div>
 						</button>
@@ -127,7 +133,9 @@ export function PowerModal({ open, onClose }: PowerModalProps): React.ReactEleme
 							<Power size={14} className="text-red-600 dark:text-red-200" />
 						</div>
 						<div>
-							<p className="text-sm font-medium text-red-700 dark:text-red-200">Apagar equipo</p>
+							<p className="text-sm font-medium text-red-700 dark:text-red-200">
+								Apagar equipo
+							</p>
 							<p className="text-xs text-red-400 dark:text-red-300">
 								Apaga el computador completamente
 							</p>

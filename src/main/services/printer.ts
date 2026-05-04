@@ -20,7 +20,7 @@ function divider(char = "-"): string {
 	return char.repeat(TICKETERA_WIDTH)
 }
 
-function formatReceipt(data: Receipt): string[] {
+function formatReceipt(data: Receipt, isTicket: boolean): string[] {
 	const lines: string[] = []
 	const date = new Date(data.date)
 	const dateStr = date.toLocaleDateString("es-PE", {
@@ -41,7 +41,11 @@ function formatReceipt(data: Receipt): string[] {
 	lines.push(divider("="))
 	lines.push(
 		center(
-			data.voucherType === "factura" ? "FACTURA ELECTRONICA" : "BOLETA DE VENTA ELECTRONICA"
+			data.voucherType === "factura"
+				? "FACTURA ELECTRONICA"
+				: data.voucherType === "boleta"
+					? "BOLETA DE VENTA ELECTRONICA"
+					: "TICKET DE VENTA"
 		)
 	)
 	lines.push(center(`N°: ${data.serialCode}`))
@@ -69,7 +73,7 @@ function formatReceipt(data: Receipt): string[] {
 	for (const item of data.items) {
 		const qtyPrefix = `${item.quantity}`.padEnd(6)
 		const name = item.productName.toUpperCase()
-		const total = item.subtotal.toFixed(2)
+		const total = isTicket ? item.finalPrice.toFixed(2) : item.subtotal.toFixed(2)
 
 		// Si el nombre es muy largo, lo ponemos en una línea y el precio en otra
 		if (name.length > 30) {
@@ -90,8 +94,10 @@ function formatReceipt(data: Receipt): string[] {
 	const subtotal = data.totalPrice - data.totalIGV
 	const igv = data.totalIGV
 
-	lines.push(columns("   OP. GRAVADA:  S/.", subtotal.toFixed(2)))
-	lines.push(columns("   I.G.V. (18%): S/.", igv.toFixed(2)))
+	if (!isTicket) {
+		lines.push(columns("   OP. GRAVADA:  S/.", subtotal.toFixed(2)))
+		lines.push(columns("   I.G.V. (18%): S/.", igv.toFixed(2)))
+	}
 	lines.push(columns("   TOTAL A PAGAR:S/.", data.totalPrice.toFixed(2)))
 	lines.push(divider("-"))
 
@@ -126,9 +132,11 @@ function formatReceipt(data: Receipt): string[] {
 	lines.push(center(`* ${data.saleId.toUpperCase()} *`))
 
 	// 8. SECCIÓN FISAL OBLIGATORIA (Post-totales)
-	lines.push(divider("-"))
-	lines.push(`${data.hash}`)
-	lines.push("")
+	if (!isTicket) {
+		lines.push(divider("-"))
+		lines.push(`${data.hash}`)
+		lines.push("")
+	}
 
 	// Representación del QR en texto (Requerido si no hay imagen)
 	// lines.push(center("Resumen para QR:"))
@@ -140,7 +148,12 @@ function formatReceipt(data: Receipt): string[] {
 	// 9. PIE DE PÁGINA
 	lines.push(divider("="))
 	lines.push(center("¡GRACIAS POR SU COMPRA!"))
-	lines.push(center("Representación impresa de la " + data.voucherType.toUpperCase()))
+	lines.push(
+		center(
+			"Representación impresa de " +
+				(isTicket ? "TICKET DE VENTA" : data.voucherType.toUpperCase())
+		)
+	)
 	// lines.push(center("Consulte su comprobante en:"))
 	// lines.push(center("://farmacia.com.pe/consultas"))
 	lines.push("")
@@ -221,18 +234,20 @@ export function registerPrinterHandlers(): void {
 	}
 
 	ipcMain.handle(IPC_CHANNELS.PRINT_RECEIPT, async (_event, data: Receipt) => {
+		const isTicket = data.serial.startsWith("T")
+
 		try {
-			const lines = formatReceipt(data)
+			const lines = formatReceipt(data, isTicket)
 			const initPrinter = Buffer.from([0x1b, 0x40, 0x1b, 0x74, 0x01])
 			const textBuffer = iconv.encode(lines.join("\n"), "cp850")
 			const footerBuffer = Buffer.from("\n\n\n\x1dV\x42\x00")
 			const qrString = getQRString(data)
-			const qrBuffer = getQRCommands(qrString)
+			const qrBuffer = isTicket ? [] : [getQRCommands(qrString)]
 			const finalBuffer = Buffer.concat([
 				initPrinter,
 				textBuffer,
 				Buffer.from("\n"),
-				qrBuffer,
+				...qrBuffer,
 				footerBuffer
 			])
 

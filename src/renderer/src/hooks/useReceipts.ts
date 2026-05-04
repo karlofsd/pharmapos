@@ -3,7 +3,11 @@ import { collection, getDocs, query, orderBy } from "firebase/firestore"
 import { getDb } from "@renderer/services/firebase"
 import { Receipt, SunatStatus } from "shared/types/receipt.type"
 import { ReceiptSunatService } from "@renderer/services/sunatService"
-import { ReceiptService } from "@renderer/services/receiptService"
+import {
+	buildReceiptPayload,
+	CreateReceiptDTO,
+	ReceiptService
+} from "@renderer/services/receiptService"
 import { VoucherType } from "@renderer/types"
 
 export type SortField = "date" | "voucherType" | "sunatStatus" | "totalPrice"
@@ -37,6 +41,9 @@ interface UseReceiptsReturn extends UseReceiptsState {
 		sortOrder?: SortOrder,
 		page?: number
 	) => Promise<void>
+	createTicket: (
+		data: CreateReceiptDTO
+	) => Promise<{ receipt: Receipt; success: boolean; error?: string }>
 	updateStatus: (data: Receipt) => void
 	setSort: (field: SortField) => void
 	setPage: (page: number) => void
@@ -146,6 +153,23 @@ export function useReceipts(): UseReceiptsReturn {
 		[]
 	)
 
+	async function createTicket(
+		data: CreateReceiptDTO
+	): Promise<{ receipt: Receipt; success: boolean; error?: string }> {
+		const result = await buildReceiptPayload(data)
+		try {
+			const receipt = await ReceiptService.create(result.payload)
+			return { success: true, receipt }
+		} catch (error) {
+			console.log("Error creando ticket: ", error)
+			return {
+				success: false,
+				receipt: result.payload,
+				error: "Error creando Ticket de venta"
+			}
+		}
+	}
+
 	async function updateStatus(receipt: Receipt): Promise<void> {
 		if (!receipt.id || !receipt.serialCode) return
 		setState((prev) => ({ ...prev, updatingId: receipt.id! }))
@@ -184,6 +208,7 @@ export function useReceipts(): UseReceiptsReturn {
 	return {
 		...state,
 		load,
+		createTicket,
 		updateStatus,
 		setSort,
 		setPage,

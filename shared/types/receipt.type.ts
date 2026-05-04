@@ -32,6 +32,8 @@ export interface Receipt {
 	date: string
 	hour: string
 	serialCode: string
+	serial: string
+	serialNumber: number
 	hash: string
 	qrString: string
 	sunatStatus: SunatStatus

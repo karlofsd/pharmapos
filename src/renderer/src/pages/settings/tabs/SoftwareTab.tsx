@@ -84,7 +84,9 @@ export function SoftwareTab(): React.ReactElement {
 						</div>
 						<div>
 							<p className="text-xs text-muted-foreground">Plataforma</p>
-							<p className="font-medium text-foreground break-words">{platformInfo}</p>
+							<p className="font-medium text-foreground break-words">
+								{platformInfo}
+							</p>
 						</div>
 					</div>
 				</div>
@@ -99,7 +101,10 @@ export function SoftwareTab(): React.ReactElement {
 									<CheckCircle2 size={16} className="text-emerald-600" />
 								)}
 								{status.type === "downloading" && (
-									<RefreshCw size={16} className="animate-spin text-muted-foreground" />
+									<RefreshCw
+										size={16}
+										className="animate-spin text-muted-foreground"
+									/>
 								)}
 								{status.type === "downloaded" && (
 									<CheckCircle2 size={16} className="text-emerald-600" />

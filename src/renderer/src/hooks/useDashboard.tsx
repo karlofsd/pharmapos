@@ -144,7 +144,9 @@ export function useDashboard(): UseDashboardReturn {
 					product: productMap.get(productId),
 					soldUnits
 				}))
-				.filter((item): item is { product: Product; soldUnits: number } => Boolean(item.product))
+				.filter((item): item is { product: Product; soldUnits: number } =>
+					Boolean(item.product)
+				)
 				.sort((a, b) => b.soldUnits - a.soldUnits)
 				.slice(0, 5)
 

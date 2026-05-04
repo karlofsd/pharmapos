@@ -165,9 +165,11 @@ export function AdminDashboard({ data, reload }: AdminDashboardProps): React.Rea
 									</div>
 									<Badge
 										variant="outline"
-										className={`shrink-0 ml-2 ${lot.stock === 0
-											? "bg-red-50 text-red-600 border-red-200"
-											: "bg-yellow-50 text-yellow-700 border-yellow-200"}
+										className={`shrink-0 ml-2 ${
+											lot.stock === 0
+												? "bg-red-50 text-red-600 border-red-200"
+												: "bg-yellow-50 text-yellow-700 border-yellow-200"
+										}
 										`}
 									>
 										{lot.stock} u.

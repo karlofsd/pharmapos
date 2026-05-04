@@ -1,8 +1,16 @@
 import { Receipt } from "shared/types/receipt.type"
-import { collection, doc, getDoc, getDocs, query, where, orderBy, limit } from "firebase/firestore"
+import { collection, getDocs, query, where, orderBy, limit } from "firebase/firestore"
 import { db } from "@renderer/services/firebase"
 import { ApiService } from "./apiService"
-import { ReceiptService } from "./receiptService"
+import {
+	buildReceiptPayload,
+	BusinessConfig,
+	CreateReceiptDTO,
+	getBusinessConfig,
+	getReceiptConfig,
+	ReceiptConfig,
+	ReceiptService
+} from "./receiptService"
 
 type CreateInvoiceDTO = {
 	documento: "factura" | "boleta"
@@ -34,28 +42,6 @@ type CreateInvoiceDTO = {
 	total: string
 }
 
-// ─── Config types ─────────────────────────────────────────────────────────────
-
-interface BusinessConfig {
-	ruc: string
-	socialReason: string
-	name: string
-	address: string
-	department: string
-	province: string
-	district: string
-	phoneNumber: string
-}
-
-interface ReceiptConfig {
-	apisunatToken: string
-	apisunatUrl: string
-	boletaSerie: string
-	facturaSerie: string
-	igv: string
-	igvCode: string
-}
-
 interface ApisunatResponse {
 	success: boolean
 	message: string
@@ -71,65 +57,21 @@ interface ApisunatResponse {
 	}
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-async function getBusinessConfig(): Promise<BusinessConfig> {
-	const snap = await getDoc(doc(db!, "settings", "businessConfig"))
-	if (!snap.exists()) throw new Error("Configuración del negocio no encontrada")
-	return snap.data() as BusinessConfig
-}
-
-async function getReceiptConfig(): Promise<ReceiptConfig> {
-	const snap = await getDoc(doc(db!, "settings", "receiptConfig"))
-	if (!snap.exists()) throw new Error("Configuración de comprobantes no encontrada")
-	return snap.data() as ReceiptConfig
-}
-
-/**
- * Obtiene el siguiente número correlativo para una serie dada.
- * Busca el último comprobante emitido con esa serie y suma 1.
- * Si no existe ninguno, retorna 1.
- */
-async function getNextSerialNumber(serie: string): Promise<number> {
-	const q = query(
-		collection(db!, "receipts"),
-		where("serial", "==", serie),
-		orderBy("serialNumber", "desc"),
-		limit(1)
-	)
-	const snap = await getDocs(q)
-	if (snap.empty) return 1
-	const last = snap.docs[0].data().serialNumber as number
-	return last + 1
-}
-
-function formatDate(dateStr: string): string {
-	// Ensures YYYY-MM-DD format
-	return dateStr.slice(0, 10)
-}
-
-function formatHour(hourStr: string): string {
-	// Ensures HH:MM:SS format
-	return hourStr.slice(0, 8)
-}
-
 // ─── Payload builder ──────────────────────────────────────────────────────────
 
 interface BuildPayloadParams {
 	receipt: Receipt
-	serie: string
-	numero: number
 	business: BusinessConfig
 	config: ReceiptConfig
 }
 
 function buildApisunatPayload(params: BuildPayloadParams): CreateInvoiceDTO {
-	const { receipt, serie, numero, business, config } = params
+	const { receipt, business, config } = params
 
 	return {
 		documento: receipt.voucherType,
-		serie,
-		numero,
+		serie: receipt.serial,
+		numero: receipt.serialNumber,
 		fecha_de_emision: receipt.date,
 		hora_de_emision: receipt.hour,
 		moneda: "PEN",
@@ -174,26 +116,6 @@ function buildApisunatPayload(params: BuildPayloadParams): CreateInvoiceDTO {
 
 // ─── Main service ─────────────────────────────────────────────────────────────
 
-export type CreateReceiptDTO = {
-	cashierName: string
-	cashReceived: number
-	change: number
-	clientName: string | null
-	clientAddress: string | null
-	clientDocumentType: "RUC" | "DNI" | "CE" | null
-	clientDocument: string | null
-	paymentMethod: string
-	saleId: string
-	totalPrice: number
-	voucherType: "factura" | "boleta"
-	items: {
-		productName: string
-		quantity: number
-		unitPrice: number
-		alterPrice: number | null
-		finalPrice: number
-	}[]
-}
 export interface EmitReceiptResult {
 	success: boolean
 	receipt: Receipt
@@ -207,46 +129,16 @@ export const ReceiptSunatService = {
 	 * y lo persiste en la colección `receipts`.
 	 */
 	async emit(params: CreateReceiptDTO): Promise<EmitReceiptResult> {
-		// 1. Cargar configuración en paralelo
-		const [business, config] = await Promise.all([getBusinessConfig(), getReceiptConfig()])
-
-		// 2. Determinar serie según tipo de comprobante
-		const serie = params.voucherType === "boleta" ? config.boletaSerie : config.facturaSerie
-
-		// 3. Obtener correlativo
-		const numero = await getNextSerialNumber(serie)
-
-		const datetime = new Date(Date.now()).toISOString()
-		const parts = datetime.split("T")
-		const receipt = {
-			...params,
-			serialCode: `${serie}-${numero}`,
-			ownerName: business.socialReason,
-			ownerRUC: business.ruc,
-			ownerBussinesName: business.name,
-			ownerPhone: business.phoneNumber,
-			ownerAddress: business.address,
-			items: params.items.map((i) => {
-				const subtotal = (i.alterPrice ?? i.unitPrice) / (Number(config.igv) / 100 + 1)
-				return {
-					...i,
-					subtotal: subtotal,
-					igv: (i.alterPrice ?? i.unitPrice) - subtotal,
-					finalPrice: (i.alterPrice ?? i.unitPrice) * i.quantity
-				}
-			}),
-			date: formatDate(parts[0]),
-			hour: formatHour(parts[1])
-		} as Receipt
-
-		receipt["totalIGV"] = receipt.items.reduce((acc, i) => acc + i.igv, 0)
+		const { payload, business, config } = await buildReceiptPayload(params)
 
 		try {
-			// 4. Construir payload
-			const payload = buildApisunatPayload({
-				receipt,
-				serie,
-				numero,
+			// Persistir en Firestore independientemente del estado SUNAT
+			const receipt = await ReceiptService.create({
+				...payload
+			})
+			// Construir payload
+			const payloadApi = buildApisunatPayload({
+				receipt: payload,
 				business,
 				config
 			})
@@ -254,14 +146,13 @@ export const ReceiptSunatService = {
 			// 5. Enviar a apisunat
 			const response = await ApiService.post(
 				`${config.apisunatUrl}/documents`,
-				payload,
+				payloadApi,
 				config.apisunatToken
 			)
 
 			const data: ApisunatResponse = response
 
-			const doc: Receipt = {
-				...receipt,
+			const doc: Partial<Receipt> = {
 				hash: data.payload?.hash ?? "",
 				qrString: data.payload?.hash ?? "",
 				sunatStatus: data.payload?.estado ?? "ERROR",
@@ -273,28 +164,27 @@ export const ReceiptSunatService = {
 				isSynced: true
 			}
 			// 6. Persistir en Firestore independientemente del estado SUNAT
-			await ReceiptService.create({ ...doc, serial: serie, serialNumber: numero })
+			await ReceiptService.update(doc.id!, doc)
 
 			if (data.payload?.estado === "RECHAZADO") {
 				return {
 					success: false,
-					receipt: doc,
+					receipt: { ...receipt, ...doc },
 					error: data.message
 				}
 			}
 
 			return {
 				success: true,
-				receipt: doc,
+				receipt: { ...receipt, ...doc },
 				pdfUrl: data.payload?.pdf.ticket
 			}
 		} catch (error) {
+			let receipt = payload
 			// Si hay error de red, guardar como pendiente para reintento
 			try {
-				await ReceiptService.create({
-					...receipt,
-					serial: serie,
-					serialNumber: numero,
+				receipt = await ReceiptService.create({
+					...payload,
 					hash: "",
 					sunatStatus: "PENDING",
 					sunatMessage: String(error),
@@ -401,19 +291,13 @@ export const ReceiptSunatService = {
 		const config = await getReceiptConfig()
 
 		for (const docSnap of snap.docs) {
-			const data = docSnap.data() as Receipt & {
-				serial: string
-				serialNumber: number
-				sunatStatus: string
-			}
+			const data = docSnap.data() as Receipt
 
 			try {
 				const { payload, message } = await ApiService.post(
 					`${config.apisunatUrl}/documents`,
 					buildApisunatPayload({
 						receipt: data,
-						serie: data.serial,
-						numero: data.serialNumber,
 						business: await getBusinessConfig(),
 						config
 					}),

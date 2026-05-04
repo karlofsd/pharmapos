@@ -22,6 +22,8 @@ import { Product, Lot, UserUtils, Client } from "@renderer/types"
 import { useSettingsStore } from "@renderer/store/settingsStore"
 import { ReceiptSunatService } from "@renderer/services/sunatService"
 import { notify } from "@renderer/lib/notify"
+import { useReceipts } from "@renderer/hooks/useReceipts"
+import { CreateReceiptDTO } from "@renderer/services/receiptService"
 
 export default function POSPage(): React.ReactElement {
 	const { user } = useAuth()
@@ -39,7 +41,7 @@ export default function POSPage(): React.ReactElement {
 	} = useCartStore()
 	const { addItem } = useCartStore()
 	const { openDrawer, emitReceipt, sentSunat } = useSettingsStore()
-
+	const { createTicket } = useReceipts()
 	const [isProcessing, setIsProcessing] = useState(false)
 	const [receiptDialogOpen, setReceiptDialogOpen] = useState(false)
 	const [completedSale, setCompletedSale] = useState<{ total: number; change: number } | null>(
@@ -105,32 +107,34 @@ export default function POSPage(): React.ReactElement {
 				creditAmount
 			} as CreateSaleDTO
 			const saleId = await SaleService.create(data)
-			const { receipt } = sentSunat
-				? await ReceiptSunatService.emit({
-					cashierName: data.cashierName,
-					cashReceived,
-					voucherType,
-					clientName: client ? UserUtils.getFullname(client as Client) : null,
-					clientDocumentType: !client
-						? null
-						: voucherType == "factura"
-							? "RUC"
-							: client.document?.dni
-								? "DNI"
-								: "CE",
-					clientDocument: !client
-						? null
-						: voucherType == "factura"
-							? client.document.ruc
-							: client.document?.dni,
-					clientAddress: client?.address ?? null,
-					saleId,
-					paymentMethod,
-					change: data.change,
-					items: items,
-					totalPrice: data.totalPrice
-				})
-				: {}
+			const receiptPayload: CreateReceiptDTO = {
+				cashierName: data.cashierName,
+				cashReceived,
+				voucherType,
+				clientName: client ? UserUtils.getFullname(client as Client) : null,
+				clientDocumentType: !client
+					? null
+					: voucherType == "factura"
+						? "RUC"
+						: client.document?.dni
+							? "DNI"
+							: "CE",
+				clientDocument: !client
+					? null
+					: voucherType == "factura"
+						? client.document.ruc
+						: client.document?.dni,
+				clientAddress: client?.address ?? null,
+				saleId,
+				paymentMethod,
+				change: data.change,
+				items: items,
+				totalPrice: data.totalPrice
+			}
+			const { receipt, error } = sentSunat
+				? await ReceiptSunatService.emit(receiptPayload)
+				: await createTicket(receiptPayload)
+			if (error) notify.error(error)
 			await SaleService.initPrinterDrawer(receipt, openDrawer, emitReceipt)
 			setCompletedSale({ total: data.totalPrice, change: data.change })
 			setReceiptDialogOpen(true)
