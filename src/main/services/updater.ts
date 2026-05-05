@@ -12,7 +12,7 @@ export type UpdateStatus =
 
 export function registerUpdaterHandlers(mainWindow: BrowserWindow): void {
 	// Configuración
-	autoUpdater.logger = console as any
+	autoUpdater.logger = console
 	autoUpdater.autoDownload = false
 	autoUpdater.autoInstallOnAppQuit = true
 	autoUpdater.allowPrerelease = false
