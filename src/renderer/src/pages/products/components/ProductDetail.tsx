@@ -6,6 +6,7 @@ import { X, Pencil, Trash2, BoxesIcon } from "lucide-react"
 import { DetailRow } from "@renderer/components/ui/DetailRow"
 import { useEffect, useState } from "react"
 import { LotService } from "@renderer/services/lotService"
+import { PRESENTATION_LABELS } from "@renderer/core/constants"
 
 interface ProductDetailProps {
 	product: Product
@@ -84,7 +85,10 @@ export default function ProductDetail({
 					<p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
 						Presentación
 					</p>
-					<DetailRow label="Presentación" value={product.presentation} />
+					<DetailRow
+						label="Presentación"
+						value={PRESENTATION_LABELS[product.presentation]}
+					/>
 					<DetailRow label="Stock mínimo" value={`${product.minStock} unidades`} />
 					<DetailRow
 						label="Requiere receta"
@@ -180,12 +184,13 @@ export default function ProductDetail({
 										</div>
 										<div className="flex flex-col items-end gap-1">
 											<span
-												className={`text-xs font-bold ${isEmpty
-													? "text-red-500"
-													: lot.stock <= product.minStock
-														? "text-yellow-600"
-														: "text-slate-700"
-													}`}
+												className={`text-xs font-bold ${
+													isEmpty
+														? "text-red-500"
+														: lot.stock <= product.minStock
+															? "text-yellow-600"
+															: "text-slate-700"
+												}`}
 											>
 												{lot.stock} u.
 											</span>

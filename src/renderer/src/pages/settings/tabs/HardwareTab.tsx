@@ -56,7 +56,7 @@ export function HardwareTab(): React.ReactElement {
 		emitReceipt,
 		openDrawer,
 		kioskMode,
-		sentSunat,
+		// sentSunat,
 		toggleEmitReceipt,
 		toggleOpenDrawer,
 		activeKioskMode
@@ -76,12 +76,12 @@ export function HardwareTab(): React.ReactElement {
 						description="Imprime automáticamente el comprobante al confirmar una venta"
 						checked={emitReceipt}
 						onCheckedChange={toggleEmitReceipt}
-						disabled={!sentSunat}
-						alert={
-							!sentSunat
-								? "Active la facturacion en la pestaña de negocio"
-								: undefined
-						}
+						// disabled={!sentSunat}
+						// alert={
+						// 	!sentSunat
+						// 		? "Active la facturacion en la pestaña de negocio"
+						// 		: undefined
+						// }
 					/>
 					<Separator />
 					<SettingRow

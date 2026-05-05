@@ -203,10 +203,7 @@ export default function ProductsPage(): React.ReactElement {
 			)}
 
 			{/* Dialog — ¿Agregar lote? */}
-			<Dialog
-				open={isOpenLotForm}
-				onOpenChange={(open) => !open && toggleLotForm()}
-			>
+			<Dialog open={isOpenLotForm} onOpenChange={(open) => !open && toggleLotForm()}>
 				<DialogContent className="max-w-sm">
 					<DialogHeader>
 						<DialogTitle>Producto creado</DialogTitle>

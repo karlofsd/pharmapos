@@ -77,7 +77,7 @@ export const useSettingsStore = create<SettingsState>()(
 				set((state) => ({
 					...state,
 					sentSunat: !get().sentSunat,
-					emitReceipt: !get().sentSunat && get().emitReceipt
+					emitReceipt: !get().sentSunat || get().emitReceipt
 				}))
 		}),
 		{ name: "pharmapos-settings" }

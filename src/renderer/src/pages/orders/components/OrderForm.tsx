@@ -118,7 +118,7 @@ export function OrderForm({ onSubmit, onCancel }: OrderFormProps): React.ReactEl
 						<SelectContent>
 							{suppliers.map((s) => (
 								<SelectItem key={s.id} value={s.id}>
-									{s.businessName != "-"
+									{s.businessName != ""
 										? s.businessName
 										: UserUtils.getFullname(s)}
 								</SelectItem>
