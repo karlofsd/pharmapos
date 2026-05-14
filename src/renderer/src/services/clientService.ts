@@ -5,13 +5,17 @@ import {
 	doc,
 	getDoc,
 	getDocs,
+	limit,
 	orderBy,
 	query,
+	QueryConstraint,
 	serverTimestamp,
+	startAfter,
 	Timestamp,
 	updateDoc
 } from "firebase/firestore"
 import { db } from "./firebase"
+import { PaginationParams, PaginationResult, getNextCursor, hasMoreItems, trimToPageSize } from "@renderer/lib/pagination"
 
 const COLLECTION = "clients"
 
@@ -27,6 +31,36 @@ export const ClientService = {
 		const snapshot = await getDocs(q)
 		console.log("Clients: ", snapshot.docs)
 		return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Client)
+	},
+
+	async getPage(params: PaginationParams): Promise<PaginationResult<Client>> {
+		const constraints: QueryConstraint[] = [
+			orderBy("name", "asc"),
+			limit(params.pageSize + 1)
+		]
+
+		if (params.cursor) {
+			const decodedCursor = Buffer.from(params.cursor, "base64").toString("utf-8")
+			const docRef = doc(db!, COLLECTION, decodedCursor)
+			const docSnapshot = await getDoc(docRef)
+			if (docSnapshot.exists()) {
+				constraints.push(startAfter(docSnapshot))
+			}
+		}
+
+		const q = query(collection(db!, COLLECTION), ...constraints)
+		const snapshot = await getDocs(q)
+		const docs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Client)
+
+		const hasMore = hasMoreItems(docs.length, params.pageSize)
+		const items = trimToPageSize(docs, params.pageSize)
+		const nextCursor = getNextCursor(items)
+
+		return {
+			items,
+			nextCursor,
+			hasMore
+		}
 	},
 
 	async getById(id: string): Promise<Client | null> {

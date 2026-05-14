@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { Plus, Search, ArrowUpDown } from "lucide-react"
+import { Plus, Search, ArrowUpDown, Loader2 } from "lucide-react"
 import { Button } from "@renderer/components/ui/button"
 import { Input } from "@renderer/components/ui/input"
 import {
@@ -11,6 +11,7 @@ import {
 } from "@renderer/components/ui/select"
 import { useProducts } from "@renderer/hooks/useProducts"
 import { useAuth } from "@renderer/hooks/useAuth"
+import { useInfiniteScroll } from "@renderer/hooks/useInfiniteScroll"
 import { Product } from "@renderer/types"
 import ProductDetail from "./components/ProductDetail"
 import ProductForm from "./components/ProductForm"
@@ -33,6 +34,8 @@ export default function ProductsPage(): React.ReactElement {
 		sortField,
 		sortOrder,
 		isOpenLotForm,
+		hasMore,
+		loadMore,
 		setSearchTerm,
 		setSort,
 		selectProduct,
@@ -47,6 +50,13 @@ export default function ProductsPage(): React.ReactElement {
 	const [createdProductId, setCreatedProductId] = useState<string | null>(null)
 	const { createLot } = useLots()
 	const { state } = useLocation()
+
+	// Infinite scroll detection
+	const scrollRef = useInfiniteScroll(loadMore, {
+		threshold: 0.3,
+		isLoading,
+		hasMore
+	})
 
 	const hasPermission = (user?.level ?? 0) >= 2
 
@@ -102,7 +112,7 @@ export default function ProductsPage(): React.ReactElement {
 					<div>
 						<h1 className="text-xl font-bold text-slate-800">Productos</h1>
 						<p className="text-sm text-slate-500">
-							{filtered.length} productos encontrados
+							{filtered.length} productos encontrados {hasMore && "..."}
 						</p>
 					</div>
 					{hasPermission && (
@@ -153,7 +163,7 @@ export default function ProductsPage(): React.ReactElement {
 				</div>
 
 				{/* Lista */}
-				{isLoading ? (
+				{isLoading && filtered.length === 0 ? (
 					<div className="flex-1 flex items-center justify-center">
 						<p className="text-slate-400">Cargando productos...</p>
 					</div>
@@ -166,7 +176,10 @@ export default function ProductsPage(): React.ReactElement {
 						<p className="text-slate-400">No se encontraron productos</p>
 					</div>
 				) : (
-					<div className="flex-1 overflow-y-auto flex flex-col gap-2">
+					<div
+						ref={scrollRef}
+						className="flex-1 overflow-y-auto flex flex-col gap-2"
+					>
 						{filtered.map((product) => (
 							<ProductCard
 								key={product.id}
@@ -175,6 +188,14 @@ export default function ProductsPage(): React.ReactElement {
 								onClick={() => handleSelectProduct(product)}
 							/>
 						))}
+
+						{/* Loading indicator */}
+						{isLoading && filtered.length > 0 && (
+							<div className="flex items-center justify-center py-4">
+								<Loader2 size={20} className="text-slate-400 animate-spin" />
+								<span className="ml-2 text-sm text-slate-400">Cargando más...</span>
+							</div>
+						)}
 					</div>
 				)}
 			</div>

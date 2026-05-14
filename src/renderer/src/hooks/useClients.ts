@@ -2,6 +2,8 @@ import { ClientService, CreateClientDTO, UpdateClientDTO } from "@renderer/servi
 import { Client } from "@renderer/types"
 import { useCallback, useEffect, useState } from "react"
 import { useAuth } from "./useAuth"
+import { useLazyList } from "./useLazyList"
+import { PaginationParams, PaginationResult } from "@renderer/lib/pagination"
 
 type SortField = "name" | "lastname"
 type SortOrder = "asc" | "desc"
@@ -15,10 +17,12 @@ interface UseClientsState {
 	searchTerm: string
 	sortField: SortField
 	sortOrder: SortOrder
+	hasMore: boolean
 }
 
 interface UseClientsReturn extends UseClientsState {
 	load: () => Promise<void>
+	loadMore: () => Promise<void>
 	setSearchTerm: (term: string) => void
 	setSort: (sortField: SortField, sortOrder: SortOrder) => void
 	selectClient: (client: Client | null) => void
@@ -26,6 +30,35 @@ interface UseClientsReturn extends UseClientsState {
 	updateClient: (id: string, data: UpdateClientDTO) => Promise<void>
 	deactivateClient: (id: string) => Promise<void>
 	getClient: (id: string) => Promise<Client | null>
+}
+
+const applyFilters = (
+	clients: Client[],
+	searchTerm: string,
+	sortField: string,
+	sortOrder: string
+): Client[] => {
+	let result = [...clients]
+
+	if (searchTerm) {
+		const normalizedQuery = searchTerm.trim().toLowerCase()
+		result = clients.filter(
+			(client) =>
+				client.name.toLowerCase().includes(normalizedQuery) ||
+				Object.values(client.document).some((doc) => doc.includes(normalizedQuery))
+		)
+	}
+
+	result.sort((a, b) => {
+		const aValue = a[sortField as SortField]
+		const bValue = b[sortField as SortField]
+
+		if (aValue < bValue) return sortOrder === "asc" ? -1 : 1
+		if (aValue > bValue) return sortOrder === "asc" ? 1 : -1
+		return 0
+	})
+
+	return result
 }
 
 export function useClients(): UseClientsReturn {
@@ -38,60 +71,41 @@ export function useClients(): UseClientsReturn {
 		error: null,
 		searchTerm: "",
 		sortField: "name",
-		sortOrder: "asc"
+		sortOrder: "asc",
+		hasMore: true
 	})
 
-	const applyFilters = useCallback(
-		(
-			clients: Client[],
-			searchTerm: string,
-			sortField: SortField,
-			sortOrder: SortOrder
-		): Client[] => {
-			let result = [...clients]
-
-			if (searchTerm) {
-				const normalizedQuery = searchTerm.trim().toLowerCase()
-				result = clients.filter(
-					(client) =>
-						client.name.toLowerCase().includes(normalizedQuery) ||
-						Object.values(client.document).some((doc) => doc.includes(normalizedQuery))
-				)
-			}
-
-			result.sort((a, b) => {
-				const aValue = a[sortField]
-				const bValue = b[sortField]
-
-				if (aValue < bValue) return sortOrder === "asc" ? -1 : 1
-				if (aValue > bValue) return sortOrder === "asc" ? 1 : -1
-				return 0
-			})
-
-			return result
+	// Lazy loader function
+	const clientLoader = useCallback(
+		(params: PaginationParams): Promise<PaginationResult<Client>> => {
+			return ClientService.getPage(params)
 		},
 		[]
 	)
 
-	const load = useCallback(async () => {
-		try {
-			setState((prev) => ({ ...prev, isLoading: true, error: null }))
-			const clients = await ClientService.getAll()
-			setState((prev) => ({
-				...prev,
-				isLoading: false,
-				clients,
-				filtered: applyFilters(clients, prev.searchTerm, prev.sortField, prev.sortOrder)
-			}))
-		} catch {
-			setState((prev) => ({ ...prev, isLoading: false, error: "Failed to load clients" }))
-		}
-	}, [applyFilters])
+	// Use lazy list for base functionality
+	const lazyList = useLazyList(clientLoader, applyFilters, {
+		pageSize: 50,
+		maxItems: 500,
+		initialSortField: "name",
+		initialSortOrder: "asc"
+	})
 
+	// Merge with custom state
 	useEffect(() => {
-		// eslint-disable-next-line react-hooks/set-state-in-effect
-		load()
-	}, [load])
+		setState((prev) => ({
+			...prev,
+			clients: lazyList.items,
+			filtered: lazyList.filtered,
+			selected: lazyList.selected,
+			isLoading: lazyList.isLoading,
+			error: lazyList.error,
+			searchTerm: lazyList.searchTerm,
+			sortField: lazyList.sortField as SortField,
+			sortOrder: lazyList.sortOrder as SortOrder,
+			hasMore: lazyList.hasMore
+		}))
+	}, [lazyList])
 
 	async function getClient(id: string): Promise<Client | null> {
 		try {
@@ -102,31 +116,10 @@ export function useClients(): UseClientsReturn {
 		}
 	}
 
-	function setSearchTerm(searchTerm: string): void {
-		setState((prev) => ({
-			...prev,
-			searchTerm,
-			filtered: applyFilters(prev.clients, searchTerm, prev.sortField, prev.sortOrder)
-		}))
-	}
-
-	function setSort(sortField: SortField, sortOrder: SortOrder): void {
-		setState((prev) => ({
-			...prev,
-			sortField,
-			sortOrder,
-			filtered: applyFilters(prev.clients, prev.searchTerm, sortField, sortOrder)
-		}))
-	}
-
-	function selectClient(client: Client | null): void {
-		setState((prev) => ({ ...prev, selected: client }))
-	}
-
 	async function createClient(data: CreateClientDTO): Promise<void> {
 		const created = await ClientService.create(data, user!.id)
 		setState((prev) => {
-			const clients = [...prev.clients, created]
+			const clients = [created, ...prev.clients]
 			return {
 				...prev,
 				clients,
@@ -163,10 +156,11 @@ export function useClients(): UseClientsReturn {
 
 	return {
 		...state,
-		load,
-		setSearchTerm,
-		setSort,
-		selectClient,
+		load: lazyList.load,
+		loadMore: lazyList.loadMore,
+		setSearchTerm: lazyList.setSearchTerm,
+		setSort: lazyList.setSort as (sortField: SortField, sortOrder: SortOrder) => void,
+		selectClient: lazyList.selectItem,
 		createClient,
 		updateClient,
 		deactivateClient,

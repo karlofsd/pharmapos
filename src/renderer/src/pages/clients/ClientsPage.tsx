@@ -1,9 +1,10 @@
 import { useState } from "react"
-import { Plus, Search } from "lucide-react"
+import { Plus, Search, Loader2 } from "lucide-react"
 import { Button } from "@renderer/components/ui/button"
 import { Input } from "@renderer/components/ui/input"
 import { useClients } from "@renderer/hooks/useClients"
 import { useUIStore } from "@renderer/store/uiStore"
+import { useInfiniteScroll } from "@renderer/hooks/useInfiniteScroll"
 import { Client } from "@renderer/types"
 import { ClientCard } from "./components/ClientCard"
 import { ClientDetail } from "./components/ClientDetail"
@@ -17,12 +18,21 @@ export default function ClientsPage(): React.ReactElement {
 		isLoading,
 		error,
 		searchTerm,
+		hasMore,
+		loadMore,
 		setSearchTerm,
 		selectClient,
 		createClient,
 		updateClient,
 		deactivateClient
 	} = useClients()
+
+	// Infinite scroll detection
+	const scrollRef = useInfiniteScroll(loadMore, {
+		threshold: 0.3,
+		isLoading,
+		hasMore
+	})
 
 	const { setSidebarCollapsed } = useUIStore()
 	const [showForm, setShowForm] = useState(false)
@@ -63,7 +73,7 @@ export default function ClientsPage(): React.ReactElement {
 						<h1 className="text-xl font-bold text-slate-800">Clientes</h1>
 						<p className="text-sm text-slate-500">
 							{filtered.length} {filtered.length === 1 ? "cliente" : "clientes"}{" "}
-							encontrados
+							encontrados {hasMore && "..."}
 						</p>
 					</div>
 					<Button onClick={handleNewClient}>
@@ -85,7 +95,7 @@ export default function ClientsPage(): React.ReactElement {
 					/>
 				</div>
 
-				{isLoading ? (
+				{isLoading && filtered.length === 0 ? (
 					<div className="flex-1 flex items-center justify-center">
 						<p className="text-slate-400">Cargando clientes...</p>
 					</div>
@@ -98,7 +108,7 @@ export default function ClientsPage(): React.ReactElement {
 						<p className="text-slate-400">No se encontraron clientes</p>
 					</div>
 				) : (
-					<div className="flex-1 overflow-y-auto flex flex-col gap-2">
+					<div ref={scrollRef} className="flex-1 overflow-y-auto flex flex-col gap-2">
 						{filtered.map((client) => (
 							<ClientCard
 								key={client.id}
@@ -107,6 +117,14 @@ export default function ClientsPage(): React.ReactElement {
 								onClick={() => handleSelectClient(client)}
 							/>
 						))}
+
+						{/* Loading indicator */}
+						{isLoading && filtered.length > 0 && (
+							<div className="flex items-center justify-center py-4">
+								<Loader2 size={20} className="text-slate-400 animate-spin" />
+								<span className="ml-2 text-sm text-slate-400">Cargando más...</span>
+							</div>
+						)}
 					</div>
 				)}
 			</div>

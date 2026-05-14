@@ -5,14 +5,24 @@ import {
 	doc,
 	getDoc,
 	getDocs,
+	limit,
 	orderBy,
 	query,
+	QueryConstraint,
 	serverTimestamp,
+	startAfter,
 	Timestamp,
 	updateDoc,
 	where
 } from "firebase/firestore"
 import { db } from "./firebase"
+import {
+	PaginationParams,
+	PaginationResult,
+	getNextCursor,
+	hasMoreItems,
+	trimToPageSize
+} from "@renderer/lib/pagination"
 
 const COLLECTION = "products"
 
@@ -24,6 +34,37 @@ export const ProductService = {
 		const q = query(collection(db!, COLLECTION), orderBy("brand", "asc"))
 		const snapshot = await getDocs(q)
 		return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Product)
+	},
+
+	async getPage(params: PaginationParams): Promise<PaginationResult<Product>> {
+		const constraints: QueryConstraint[] = [
+			orderBy("brand", "asc"),
+			limit(params.pageSize + 1) // Load one extra to detect if there's more
+		]
+
+		if (params.cursor) {
+			// Decode cursor and find the document to start after
+			const decodedCursor = Buffer.from(params.cursor, "base64").toString("utf-8")
+			const docRef = doc(db!, COLLECTION, decodedCursor)
+			const docSnapshot = await getDoc(docRef)
+			if (docSnapshot.exists()) {
+				constraints.push(startAfter(docSnapshot))
+			}
+		}
+
+		const q = query(collection(db!, COLLECTION), ...constraints)
+		const snapshot = await getDocs(q)
+		const docs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Product)
+
+		const hasMore = hasMoreItems(docs.length, params.pageSize)
+		const items = trimToPageSize(docs, params.pageSize)
+		const nextCursor = getNextCursor(items)
+
+		return {
+			items,
+			nextCursor,
+			hasMore
+		}
 	},
 
 	async getById(id: string): Promise<Product | null> {
