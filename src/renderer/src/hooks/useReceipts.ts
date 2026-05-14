@@ -1,14 +1,13 @@
 import { useState, useCallback } from "react"
 import { collection, getDocs, query, orderBy } from "firebase/firestore"
 import { getDb } from "@renderer/services/firebase"
-import { Receipt, SunatStatus } from "shared/types/receipt.type"
+import { Receipt, SunatStatus, VoucherType } from "shared/types/receipt.type"
 import { ReceiptSunatService } from "@renderer/services/sunatService"
 import {
 	buildReceiptPayload,
 	CreateReceiptDTO,
 	ReceiptService
 } from "@renderer/services/receiptService"
-import { VoucherType } from "@renderer/types"
 
 export type SortField = "date" | "voucherType" | "sunatStatus" | "totalPrice"
 export type SortOrder = "asc" | "desc"

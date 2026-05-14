@@ -12,7 +12,7 @@ import {
 	where
 } from "firebase/firestore"
 import { IPC_CHANNELS } from "../../../../shared/ipcChannels"
-import { Receipt } from "shared/types/receipt.type"
+import { Receipt, VoucherType } from "shared/types/receipt.type"
 import { db } from "./firebase"
 
 // ─── Config types ─────────────────────────────────────────────────────────────
@@ -90,7 +90,7 @@ export type CreateReceiptDTO = {
 	paymentMethod: string
 	saleId: string
 	totalPrice: number
-	voucherType: "factura" | "boleta"
+	voucherType: VoucherType
 	items: {
 		productName: string
 		quantity: number

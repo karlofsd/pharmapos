@@ -15,10 +15,10 @@ import {
 	limit
 } from "firebase/firestore"
 import { db } from "@renderer/services/firebase"
-import { CartItem, VoucherType, CartPaymentMethod } from "@renderer/store/cartStore"
+import { CartItem, CartPaymentMethod } from "@renderer/store/cartStore"
 import { Sale } from "@renderer/types"
 import { ReceiptService } from "./receiptService"
-import { Receipt } from "shared/types/receipt.type"
+import { Receipt, VoucherType } from "shared/types/receipt.type"
 import { ReceiptSunatService } from "./sunatService"
 
 const COLLECTION = "sales"
@@ -318,7 +318,11 @@ export const SaleService = {
 		canOpenDrawer: boolean,
 		canEmitReceipt: boolean
 	): Promise<void> {
-		if (canOpenDrawer) await ReceiptService.openDrawer()
-		if (data && canEmitReceipt) await ReceiptService.print(data)
+		const tasks: Promise<unknown>[] = []
+		if (canOpenDrawer) tasks.push(ReceiptService.openDrawer())
+		if (data && canEmitReceipt) tasks.push(ReceiptService.print(data))
+		if (tasks.length > 0) {
+			await Promise.allSettled(tasks)
+		}
 	}
 }

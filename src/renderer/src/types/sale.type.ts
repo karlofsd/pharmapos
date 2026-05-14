@@ -1,9 +1,9 @@
 import { Timestamp } from "firebase/firestore"
 import { SaleItem } from "./saleItem.type"
 import { PaymentMethod } from "./payment.type"
+import { VoucherType } from "shared/types/receipt.type"
 
 export type SaleStatus = "completed" | "cancelled" | "credit"
-export type VoucherType = "boleta" | "factura"
 export interface Cancellation {
 	userId: string
 	reason: string

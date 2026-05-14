@@ -11,11 +11,12 @@ import {
 	SelectValue
 } from "@renderer/components/ui/select"
 import { Separator } from "@renderer/components/ui/separator"
-import { useCartStore, VoucherType, CartPaymentMethod, CartClient } from "@renderer/store/cartStore"
+import { useCartStore, CartPaymentMethod, CartClient } from "@renderer/store/cartStore"
 import { cn } from "@renderer/lib/utils"
 import { useClients } from "@renderer/hooks/useClients"
 import { useRef, useState } from "react"
 import { Client, UserUtils } from "@renderer/types"
+import { VoucherType } from "shared/types/receipt.type"
 
 interface PaymentPanelProps {
 	onConfirm: () => Promise<void>
@@ -52,10 +53,10 @@ export function PaymentPanel({ onConfirm, isProcessing }: PaymentPanelProps): Re
 
 	const filteredClients = clientSearch.trim()
 		? clients.filter(
-				(c) =>
-					UserUtils.getFullname(c).toLowerCase().includes(clientSearch.toLowerCase()) ||
-					Object.values(c.document).some((v) => v.includes(clientSearch))
-			)
+			(c) =>
+				UserUtils.getFullname(c).toLowerCase().includes(clientSearch.toLowerCase()) ||
+				Object.values(c.document).some((v) => v.includes(clientSearch))
+		)
 		: clients.slice(0, 5)
 
 	const isEmpty = items.length === 0

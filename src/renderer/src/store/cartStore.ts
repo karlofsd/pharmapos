@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import { Client, Lot, Product } from "@renderer/types"
+import { VoucherType } from "shared/types/receipt.type"
 
 export interface CartItem {
 	lotId: string
@@ -19,7 +20,6 @@ export interface CartItem {
 	} | null
 }
 
-export type VoucherType = "boleta" | "factura"
 export type CartPaymentMethod = "cash" | "card" | "credit" | "wallet" | "mixed"
 export type CartClient = Pick<Client, "id" | "name" | "lastname" | "address"> & {
 	document: Record<"dni" | "ruc", string>

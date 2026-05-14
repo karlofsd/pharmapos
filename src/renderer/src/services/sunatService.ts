@@ -1,4 +1,4 @@
-import { Receipt } from "shared/types/receipt.type"
+import { Receipt, VoucherType } from "shared/types/receipt.type"
 import { collection, getDocs, query, where, orderBy, limit } from "firebase/firestore"
 import { db } from "@renderer/services/firebase"
 import { ApiService } from "./apiService"
@@ -13,7 +13,7 @@ import {
 } from "./receiptService"
 
 type CreateInvoiceDTO = {
-	documento: "factura" | "boleta"
+	documento: VoucherType
 	serie: string
 	numero: number
 	ruc_emisor: string
@@ -208,7 +208,7 @@ export const ReceiptSunatService = {
 
 	async cancel(
 		receiptId: string,
-		type: "factura" | "boleta",
+		type: VoucherType,
 		serialCode: string
 	): Promise<{ success: boolean; message: string }> {
 		try {
@@ -253,7 +253,7 @@ export const ReceiptSunatService = {
 		}
 	},
 
-	async status(type: "factura" | "boleta", serialCode: string): Promise<ApisunatResponse> {
+	async status(type: VoucherType, serialCode: string): Promise<ApisunatResponse> {
 		try {
 			const config = await getReceiptConfig()
 			const parts = serialCode.split("-")

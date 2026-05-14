@@ -37,9 +37,9 @@ export default function POSPage(): React.ReactElement {
 		cashReceived,
 		cardAmount,
 		walletAmount,
-		clear
+		clear,
+		addItem
 	} = useCartStore()
-	const { addItem } = useCartStore()
 	const { openDrawer, emitReceipt, sentSunat } = useSettingsStore()
 	const { createTicket } = useReceipts()
 	const [isProcessing, setIsProcessing] = useState(false)
@@ -96,7 +96,7 @@ export default function POSPage(): React.ReactElement {
 				tillId: till.id,
 				items,
 				paymentMethod,
-				voucherType,
+				voucherType: sentSunat ? voucherType : "ticket",
 				clientId: client?.id ?? null,
 				totalPrice: total,
 				receivedAmount: cashReceived,
@@ -135,7 +135,9 @@ export default function POSPage(): React.ReactElement {
 				? await ReceiptSunatService.emit(receiptPayload)
 				: await createTicket(receiptPayload)
 			if (error) notify.error(error)
-			await SaleService.initPrinterDrawer(receipt, openDrawer, emitReceipt)
+			SaleService.initPrinterDrawer(receipt, openDrawer, emitReceipt).catch((error) => {
+				console.error("Error inicializando impresora/cajón:", error)
+			})
 			setCompletedSale({ total: data.totalPrice, change: data.change })
 			setReceiptDialogOpen(true)
 			notify.success("Venta procesada correctamente")

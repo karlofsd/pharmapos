@@ -1,5 +1,5 @@
 export type SunatStatus = "ACEPTADO" | "PENDIENTE" | "RECHAZADO" | "ANULADO" | "PENDING" | "ERROR"
-export type VoucherType = "boleta" | "factura"
+export type VoucherType = "boleta" | "factura" | "ticket"
 export type DocumentType = "RUC" | "DNI" | "CE"
 export interface Receipt {
 	id: string

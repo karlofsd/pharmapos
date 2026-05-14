@@ -20,10 +20,9 @@ import {
 } from "@renderer/components/ui/table"
 import { SortField, useReceipts } from "@renderer/hooks/useReceipts"
 import { useUIStore } from "@renderer/store/uiStore"
-import { Receipt, SunatStatus } from "shared/types/receipt.type"
+import { Receipt, SunatStatus, VoucherType } from "shared/types/receipt.type"
 import { ReceiptPreview } from "./components/ReceiptPreview"
 import { cn } from "@renderer/lib/utils"
-import { VoucherType } from "@renderer/types"
 import { SortableHead } from "@renderer/components/shared/SortableHead"
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
