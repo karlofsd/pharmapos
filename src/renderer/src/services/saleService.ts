@@ -18,8 +18,9 @@ import { db } from "@renderer/services/firebase"
 import { CartItem, CartPaymentMethod } from "@renderer/store/cartStore"
 import { Sale } from "@renderer/types"
 import { ReceiptService } from "./receiptService"
-import { Receipt, VoucherType } from "shared/types/receipt.type"
+
 import { ReceiptSunatService } from "./sunatService"
+import { Receipt, VoucherType } from "@shared/types/receipt.type"
 
 const COLLECTION = "sales"
 

@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react"
 import { collection, getDocs, query, orderBy } from "firebase/firestore"
 import { getDb } from "@renderer/services/firebase"
-import { Receipt, SunatStatus, VoucherType } from "shared/types/receipt.type"
+import { Receipt, SunatStatus, VoucherType } from "@shared/types/receipt.type"
 import { ReceiptSunatService } from "@renderer/services/sunatService"
 import {
 	buildReceiptPayload,

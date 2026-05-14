@@ -2,7 +2,7 @@ import { X, ExternalLink, Download } from "lucide-react"
 import { Button } from "@renderer/components/ui/button"
 import { Badge } from "@renderer/components/ui/badge"
 import { Separator } from "@renderer/components/ui/separator"
-import { Receipt } from "shared/types/receipt.type"
+import { Receipt } from "@shared/types/receipt.type"
 
 interface ReceiptPreviewProps {
 	receipt: Receipt

@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import { Client, Lot, Product } from "@renderer/types"
-import { VoucherType } from "shared/types/receipt.type"
+import { VoucherType } from "@shared/types/receipt.type"
 
 export interface CartItem {
 	lotId: string

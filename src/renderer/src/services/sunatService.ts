@@ -1,4 +1,4 @@
-import { Receipt, VoucherType } from "shared/types/receipt.type"
+import { Receipt, VoucherType } from "@shared/types/receipt.type"
 import { collection, getDocs, query, where, orderBy, limit } from "firebase/firestore"
 import { db } from "@renderer/services/firebase"
 import { ApiService } from "./apiService"

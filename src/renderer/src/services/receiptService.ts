@@ -12,7 +12,7 @@ import {
 	where
 } from "firebase/firestore"
 import { IPC_CHANNELS } from "../../../../shared/ipcChannels"
-import { Receipt, VoucherType } from "shared/types/receipt.type"
+import { Receipt, VoucherType } from "@shared/types/receipt.type"
 import { db } from "./firebase"
 
 // ─── Config types ─────────────────────────────────────────────────────────────
